@@ -1,5 +1,13 @@
 import type { HTMLAttributes } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
+import { Button } from '../Button/Button'
+
+const paginationStyles = tv({
+  base: [
+    'inline-flex gap-1 items-center',
+    'text-xs font-mono text-text-muted',
+  ],
+})
 
 export interface PaginationProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   page: number
@@ -7,6 +15,10 @@ export interface PaginationProps extends Omit<HTMLAttributes<HTMLDivElement>, 'o
   onChange?: (page: number) => void
   /** max numeric buttons (excluding prev/next/ellipsis). default 5 */
   siblingCount?: number
+  /** Label for prev button. default "‹ Prev" */
+  prevLabel?: React.ReactNode
+  /** Label for next button. default "Next ›" */
+  nextLabel?: React.ReactNode
 }
 
 function range(a: number, b: number) {
@@ -17,11 +29,9 @@ function range(a: number, b: number) {
 
 function buildItems(page: number, total: number, siblings: number): (number | '…')[] {
   if (total <= siblings + 2) return range(1, total)
-
   const leftSib = Math.max(2, page - Math.floor(siblings / 2))
   const rightSib = Math.min(total - 1, leftSib + siblings - 1)
   const adjustedLeft = Math.max(2, rightSib - siblings + 1)
-
   const items: (number | '…')[] = [1]
   if (adjustedLeft > 2) items.push('…')
   items.push(...range(adjustedLeft, rightSib))
@@ -35,6 +45,8 @@ export function Pagination({
   total,
   onChange,
   siblingCount = 5,
+  prevLabel = '‹ Prev',
+  nextLabel = 'Next ›',
   className,
   ...rest
 }: PaginationProps) {
@@ -43,27 +55,26 @@ export function Pagination({
   const next = () => page < total && onChange?.(page + 1)
 
   return (
-    <div className={cx('pagination', className)} {...rest}>
-      <button type="button" className="btn sm ghost" onClick={prev} disabled={page <= 1}>
-        ‹ Prev
-      </button>
+    <div className={paginationStyles({ class: className })} {...rest}>
+      <Button size="sm" intent="ghost" onClick={prev} disabled={page <= 1}>
+        {prevLabel}
+      </Button>
       {items.map((it, i) =>
         it === '…' ? (
           <span key={`ellipsis-${i}`}>…</span>
-        ) : (
-          <button
-            key={it}
-            type="button"
-            className={cx('btn sm', it === page ? 'on' : 'ghost')}
-            onClick={() => onChange?.(it)}
-          >
+        ) : it === page ? (
+          <Button key={it} size="sm" intent="subtle" onClick={() => onChange?.(it)}>
             {it}
-          </button>
+          </Button>
+        ) : (
+          <Button key={it} size="sm" intent="ghost" onClick={() => onChange?.(it)}>
+            {it}
+          </Button>
         ),
       )}
-      <button type="button" className="btn sm ghost" onClick={next} disabled={page >= total}>
-        Next ›
-      </button>
+      <Button size="sm" intent="ghost" onClick={next} disabled={page >= total}>
+        {nextLabel}
+      </Button>
     </div>
   )
 }

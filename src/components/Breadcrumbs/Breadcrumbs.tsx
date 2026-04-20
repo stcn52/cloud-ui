@@ -1,13 +1,33 @@
 import { Children, Fragment, type HTMLAttributes, type ReactElement, type ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
 
 function ChevronSep() {
   return (
-    <svg className="sep" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg
+      className="text-text-dim"
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
       <polyline points="9 6 15 12 9 18" />
     </svg>
   )
 }
+
+const breadcrumbStyles = tv({
+  base: '',
+  variants: {
+    leaf: {
+      true: 'text-text font-medium',
+      false: '',
+    },
+  },
+  defaultVariants: { leaf: false },
+})
 
 export interface BreadcrumbProps extends HTMLAttributes<HTMLSpanElement> {
   leaf?: boolean
@@ -16,11 +36,15 @@ export interface BreadcrumbProps extends HTMLAttributes<HTMLSpanElement> {
 
 export function Breadcrumb({ leaf, className, children, ...rest }: BreadcrumbProps) {
   return (
-    <span className={cx(leaf && 'leaf', className)} {...rest}>
+    <span className={breadcrumbStyles({ leaf, class: className })} {...rest}>
       {children}
     </span>
   )
 }
+
+const breadcrumbsStyles = tv({
+  base: 'flex items-center gap-2 text-sm text-text-muted',
+})
 
 export interface BreadcrumbsProps extends HTMLAttributes<HTMLDivElement> {
   separator?: ReactNode
@@ -35,7 +59,7 @@ export function Breadcrumbs({
 }: BreadcrumbsProps) {
   const items = Children.toArray(children).filter(Boolean) as ReactElement[]
   return (
-    <div className={cx('crumbs', className)} {...rest}>
+    <div className={breadcrumbsStyles({ class: className })} {...rest}>
       {items.map((el, i) => (
         <Fragment key={i}>
           {i > 0 && separator}
