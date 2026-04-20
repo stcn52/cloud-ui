@@ -1,5 +1,13 @@
 import type { HTMLAttributes, ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
+
+const avatarStackStyles = tv({
+  base: [
+    'inline-flex',
+    '[&>*]:shadow-[0_0_0_2px_var(--color-bg-elev)] [&>*]:-ml-1.5',
+    '[&>*:first-child]:ml-0',
+  ],
+})
 
 export interface AvatarStackProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode
@@ -7,7 +15,7 @@ export interface AvatarStackProps extends HTMLAttributes<HTMLDivElement> {
 
 export function AvatarStack({ className, children, ...rest }: AvatarStackProps) {
   return (
-    <div className={cx('avatar-stack', className)} {...rest}>
+    <div className={avatarStackStyles({ class: className })} {...rest}>
       {children}
     </div>
   )

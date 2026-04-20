@@ -1,5 +1,12 @@
 import type { LabelHTMLAttributes, ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
+
+const radioRowStyles = tv({
+  slots: {
+    base: 'inline-flex gap-2 items-center text-sm cursor-pointer select-none',
+    label: 'leading-[1.2]',
+  },
+})
 
 export interface RadioRowProps extends LabelHTMLAttributes<HTMLLabelElement> {
   label?: ReactNode
@@ -8,10 +15,11 @@ export interface RadioRowProps extends LabelHTMLAttributes<HTMLLabelElement> {
 }
 
 export function RadioRow({ label, labelClassName, className, children, ...rest }: RadioRowProps) {
+  const { base, label: labelCls } = radioRowStyles()
   return (
-    <label className={cx('radio-row', className)} {...rest}>
+    <label className={base({ class: className })} {...rest}>
       {children}
-      {label !== undefined && <span className={cx('lbl', labelClassName)}>{label}</span>}
+      {label !== undefined && <span className={labelCls({ class: labelClassName })}>{label}</span>}
     </label>
   )
 }

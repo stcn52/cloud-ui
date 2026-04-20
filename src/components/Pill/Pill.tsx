@@ -1,8 +1,44 @@
 import type { HTMLAttributes, ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv, type VariantProps } from 'tailwind-variants'
 
-export type PillTone = 'neutral' | 'ok' | 'warn' | 'err' | 'info' | 'solid'
-export type PillSize = 'md' | 'lg'
+export const pillStyles = tv({
+  slots: {
+    base: [
+      'inline-flex items-center gap-[5px]',
+      'px-[7px] rounded-xs border',
+      'text-xs font-medium',
+    ],
+    dotc: 'w-1.5 h-1.5 rounded-full bg-current',
+    removeBtn: [
+      'ml-0.5 w-[14px] h-[14px] rounded-full grid place-items-center',
+      'text-inherit opacity-60 text-[10px]',
+      'hover:opacity-100 hover:bg-[color-mix(in_oklch,currentColor_15%,transparent)]',
+    ],
+  },
+  variants: {
+    tone: {
+      neutral: { base: 'bg-bg-sunk text-text-muted border-line' },
+      ok:      { base: 'text-ok bg-[color-mix(in_oklch,var(--color-ok)_10%,transparent)] border-[color-mix(in_oklch,var(--color-ok)_25%,transparent)]' },
+      warn:    { base: 'text-warn bg-[color-mix(in_oklch,var(--color-warn)_14%,transparent)] border-[color-mix(in_oklch,var(--color-warn)_30%,transparent)]' },
+      err:     { base: 'text-err bg-[color-mix(in_oklch,var(--color-err)_10%,transparent)] border-[color-mix(in_oklch,var(--color-err)_25%,transparent)]' },
+      info:    { base: 'text-accent-ink bg-accent-weak border-[color-mix(in_oklch,var(--color-accent)_30%,transparent)]' },
+      solid:   { base: 'bg-text text-bg border-text' },
+    },
+    size: {
+      md: { base: 'h-5' },
+      lg: { base: 'h-6 text-sm px-[9px]' },
+    },
+    mono: {
+      true:  { base: 'font-mono text-[10.5px]' },
+      false: {},
+    },
+  },
+  defaultVariants: { tone: 'neutral', size: 'md', mono: false },
+})
+
+type PillVariants = VariantProps<typeof pillStyles>
+export type PillTone = NonNullable<PillVariants['tone']>
+export type PillSize = NonNullable<PillVariants['size']>
 
 export interface PillProps extends HTMLAttributes<HTMLSpanElement> {
   tone?: PillTone
@@ -12,15 +48,6 @@ export interface PillProps extends HTMLAttributes<HTMLSpanElement> {
   dotColor?: string
   onRemove?: () => void
   children?: ReactNode
-}
-
-const toneClass: Record<PillTone, string> = {
-  neutral: '',
-  ok: 'ok',
-  warn: 'warn',
-  err: 'err',
-  info: 'info',
-  solid: 'solid',
 }
 
 export function Pill({
@@ -34,17 +61,15 @@ export function Pill({
   children,
   ...rest
 }: PillProps) {
+  const { base, dotc, removeBtn } = pillStyles({ tone, size, mono })
   return (
-    <span
-      className={cx('pill', toneClass[tone], size === 'lg' && 'lg', mono && 'mono', className)}
-      {...rest}
-    >
-      {dot && <span className="dotc" style={dotColor ? { color: dotColor } : undefined} />}
+    <span className={base({ class: className })} {...rest}>
+      {dot && <span className={dotc()} style={dotColor ? { color: dotColor } : undefined} />}
       {children}
       {onRemove && (
         <button
           type="button"
-          className="x"
+          className={removeBtn()}
           aria-label="Remove"
           onClick={(e) => {
             e.stopPropagation()
