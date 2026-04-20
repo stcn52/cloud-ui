@@ -1,5 +1,20 @@
 import type { HTMLAttributes, ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv, type VariantProps } from 'tailwind-variants'
+
+const kpiStyles = tv({
+  slots: {
+    base: [
+      'bg-bg-elev border border-line rounded-md shadow-sm',
+      'px-4 py-3.5',
+    ],
+    label: 'text-xs text-text-muted uppercase tracking-[0.05em] font-medium',
+    value: [
+      'text-[26px] font-semibold tracking-[-0.02em] mt-1.5',
+      '[font-variant-numeric:tabular-nums] font-mono',
+    ],
+    foot: 'flex items-center gap-2 mt-2.5 text-xs text-text-muted',
+  },
+})
 
 export interface KpiProps extends HTMLAttributes<HTMLDivElement> {
   label?: ReactNode
@@ -9,17 +24,30 @@ export interface KpiProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function Kpi({ label, value, foot, className, children, ...rest }: KpiProps) {
+  const { base, label: labelCls, value: valueCls, foot: footCls } = kpiStyles()
   return (
-    <div className={cx('card kpi', className)} {...rest}>
-      {label !== undefined && <div className="kpi-label">{label}</div>}
-      {value !== undefined && <div className="kpi-value">{value}</div>}
-      {foot !== undefined && <div className="kpi-foot">{foot}</div>}
+    <div className={base({ class: className })} {...rest}>
+      {label !== undefined && <div className={labelCls()}>{label}</div>}
+      {value !== undefined && <div className={valueCls()}>{value}</div>}
+      {foot !== undefined && <div className={footCls()}>{foot}</div>}
       {children}
     </div>
   )
 }
 
-export type DeltaDirection = 'up' | 'down'
+export const deltaStyles = tv({
+  base: 'font-mono text-[10.5px] px-1 py-px rounded-[3px]',
+  variants: {
+    direction: {
+      up:   'text-ok bg-[color-mix(in_oklch,var(--color-ok)_12%,transparent)]',
+      down: 'text-err bg-[color-mix(in_oklch,var(--color-err)_12%,transparent)]',
+    },
+  },
+  defaultVariants: { direction: 'up' },
+})
+
+type DeltaVariants = VariantProps<typeof deltaStyles>
+export type DeltaDirection = NonNullable<DeltaVariants['direction']>
 
 export interface DeltaProps extends HTMLAttributes<HTMLSpanElement> {
   direction?: DeltaDirection
@@ -28,7 +56,7 @@ export interface DeltaProps extends HTMLAttributes<HTMLSpanElement> {
 
 export function Delta({ direction = 'up', className, children, ...rest }: DeltaProps) {
   return (
-    <span className={cx('delta', direction, className)} {...rest}>
+    <span className={deltaStyles({ direction, class: className })} {...rest}>
       {children}
     </span>
   )

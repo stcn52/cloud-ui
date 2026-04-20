@@ -1,18 +1,28 @@
 import type { HTMLAttributes } from 'react'
-import { cx } from '../../utils/cx'
+import { tv, type VariantProps } from 'tailwind-variants'
 
-export type ProgressTone = 'accent' | 'warn' | 'err'
+export const progressStyles = tv({
+  slots: {
+    base: 'h-1.5 rounded-[3px] bg-bg-sunk overflow-hidden',
+    bar: 'block h-full rounded-[3px]',
+  },
+  variants: {
+    tone: {
+      accent: { bar: 'bg-accent' },
+      warn:   { bar: 'bg-warn' },
+      err:    { bar: 'bg-err' },
+    },
+  },
+  defaultVariants: { tone: 'accent' },
+})
+
+type ProgressVariants = VariantProps<typeof progressStyles>
+export type ProgressTone = NonNullable<ProgressVariants['tone']>
 
 export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {
   value: number
   max?: number
   tone?: ProgressTone
-}
-
-const toneClass: Record<ProgressTone, string> = {
-  accent: '',
-  warn: 'warn',
-  err: 'err',
 }
 
 export function Progress({
@@ -23,16 +33,17 @@ export function Progress({
   ...rest
 }: ProgressProps) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100))
+  const { base, bar } = progressStyles({ tone })
   return (
     <div
-      className={cx('progress', toneClass[tone], className)}
+      className={base({ class: className })}
       role="progressbar"
       aria-valuemin={0}
       aria-valuemax={max}
       aria-valuenow={value}
       {...rest}
     >
-      <span style={{ width: `${pct}%` }} />
+      <span className={bar()} style={{ width: `${pct}%` }} />
     </div>
   )
 }
