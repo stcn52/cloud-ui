@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>07 · More components — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  .stepper { display: flex; align-items: center; gap: 0; }
+  .stepper .step { display: flex; align-items: center; gap: 8px; padding: 6px 12px; }
+  .stepper .step .n { width: 22px; height: 22px; border-radius: 50%; background: var(--bg-sunk); color: var(--text-dim); font-size: 11px; font-family: var(--font-mono); display: grid; place-items: center; font-weight: 600; }
+  .stepper .step.done .n { background: var(--accent); color: white; }
+  .stepper .step.active .n { background: var(--accent); color: white; box-shadow: 0 0 0 3px var(--accent-weak); }
+  .stepper .step.done .lbl, .stepper .step.active .lbl { color: var(--text); font-weight: 500; }
+  .stepper .step .lbl { font-size: 12px; color: var(--text-dim); }
+  .stepper .bar { flex: 1; height: 1px; background: var(--line); max-width: 60px; }
+  .stepper .bar.done { background: var(--accent); }
+
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .kanban .col { background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 8px; padding: 8px; min-height: 240px; }
+  .kanban .col h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); display: flex; align-items: center; justify-content: space-between; margin: 2px 4px 8px; }
+  .kanban .card { padding: 8px 10px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow-sm); margin-bottom: 6px; font-size: 12px; }
+  .kanban .card .ttl { font-weight: 500; margin-bottom: 6px; }
+  .kanban .card .meta { display: flex; gap: 6px; align-items: center; font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono); }
+
+  .avatar-group { display: inline-flex; }
+  .avatar-group .avatar { border: 2px solid var(--bg); margin-left: -6px; }
+  .avatar-group .avatar:first-child { margin-left: 0; }
+
+  .diff { font-family: var(--font-mono); font-size: 11.5px; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .diff .line { display: grid; grid-template-columns: 36px 20px 1fr; padding: 0 4px; }
+  .diff .line .ln { color: var(--text-dim); text-align: right; padding-right: 6px; }
+  .diff .line.add { background: color-mix(in oklch, var(--ok) 14%, transparent); }
+  .diff .line.add .mk { color: var(--ok); }
+  .diff .line.del { background: color-mix(in oklch, var(--err) 12%, transparent); }
+  .diff .line.del .mk { color: var(--err); }
+
+  .chat-bubble { display: flex; gap: 8px; margin-bottom: 10px; max-width: 480px; }
+  .chat-bubble.me { flex-direction: row-reverse; margin-left: auto; }
+  .chat-bubble .bubble { background: var(--bg-sunk); padding: 8px 12px; border-radius: 10px; font-size: 13px; }
+  .chat-bubble.me .bubble { background: var(--accent); color: white; }
+
+  .timeline-v { position: relative; padding-left: 22px; }
+  .timeline-v::before { content: ""; position: absolute; left: 6px; top: 4px; bottom: 4px; width: 1px; background: var(--line); }
+  .tlv-item { position: relative; padding: 4px 0 14px; font-size: 12.5px; }
+  .tlv-item::before { content: ""; position: absolute; left: -22px; top: 8px; width: 13px; height: 13px; border-radius: 50%; background: var(--bg); border: 2px solid var(--line); }
+  .tlv-item.ok::before { border-color: var(--ok); background: var(--ok); }
+  .tlv-item.err::before { border-color: var(--err); background: var(--err); }
+  .tlv-item.active::before { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
+  .tlv-item .ts { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); }
+
+  .rating { display: inline-flex; gap: 1px; color: var(--text-dim); }
+  .rating .on { color: oklch(0.78 0.15 85); }
+
+  .upload { border: 1.5px dashed var(--line); border-radius: 8px; padding: 24px; text-align: center; background: var(--bg-sunk); }
+  .upload.drag { border-color: var(--accent); background: var(--accent-weak); }
+
+  .code-block { background: oklch(0.14 0.02 240); color: oklch(0.9 0.02 240); padding: 12px 14px; border-radius: 6px; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.6; position: relative; overflow-x: auto; }
+  .code-block .kw { color: oklch(0.76 0.14 300); }
+  .code-block .str { color: oklch(0.8 0.14 140); }
+  .code-block .cm { color: oklch(0.58 0.04 240); font-style: italic; }
+  .code-block .num-tok { color: oklch(0.8 0.14 60); }
+
+  .card-ext { padding: 14px 16px; border-radius: 10px; background: var(--bg-elev); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+      <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
+      <a class="lib-link active" href="07-more.html">07 · More components</a>
+      <a class="lib-link" href="08-compositions.html">08 · Compositions</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">This page</div>
+      <a class="lib-link" href="#stepper">Step indicator</a>
+      <a class="lib-link" href="#upload">File upload</a>
+      <a class="lib-link" href="#diff">Diff viewer</a>
+      <a class="lib-link" href="#code">Code block</a>
+      <a class="lib-link" href="#kanban">Kanban</a>
+      <a class="lib-link" href="#timeline">Timeline</a>
+      <a class="lib-link" href="#avatars">Avatar group</a>
+      <a class="lib-link" href="#rating">Rating / vote</a>
+      <a class="lib-link" href="#chat">Chat bubble</a>
+      <a class="lib-link" href="#stats">Stat / trend card</a>
+      <a class="lib-link" href="#metric-tile">Resource tile</a>
+      <a class="lib-link" href="#alert-box">Alert box</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Part 07 · More components</div>
+      <h1 class="lib-h1">The long tail.</h1>
+      <p class="lib-lede">Step indicators, diffs, chat bubbles, code blocks, kanban cards — the specialty components that show up once a screen but matter when they do.</p>
+    </header>
+
+    <section id="stepper">
+      <h2 class="lib-section-title">Step indicator</h2>
+      <div class="demo">
+        <div class="demo-label">Multi-step wizard</div>
+        <div class="demo-body">
+          <div class="stepper">
+            <div class="step done"><div class="n"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="lbl">Region</span></div>
+            <div class="bar done"></div>
+            <div class="step done"><div class="n"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="lbl">Size</span></div>
+            <div class="bar done"></div>
+            <div class="step active"><div class="n">3</div><span class="lbl">Network</span></div>
+            <div class="bar"></div>
+            <div class="step"><div class="n">4</div><span class="lbl">Review</span></div>
+            <div class="bar"></div>
+            <div class="step"><div class="n">5</div><span class="lbl">Launch</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-label">Vertical (checkout-style)</div>
+        <div class="demo-body">
+          <div class="col" style="gap: 0">
+            <div class="row" style="gap: 10px; padding: 8px 0"><div class="n" style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:white;display:grid;place-items:center;font-size:11px;font-family:var(--font-mono)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="col" style="gap:2px"><b style="font-size:13px">Choose region</b><span style="font-size:11px;color:var(--text-dim)">us-east-1 · Virginia</span></div></div>
+            <div style="margin-left: 10px; width: 1px; height: 16px; background: var(--accent)"></div>
+            <div class="row" style="gap: 10px; padding: 8px 0"><div class="n" style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:white;display:grid;place-items:center;font-size:11px;font-family:var(--font-mono);box-shadow:0 0 0 3px var(--accent-weak)">2</div><div class="col" style="gap:2px"><b style="font-size:13px">Pick size</b><span style="font-size:11px;color:var(--text-dim)">Currently selecting…</span></div></div>
+            <div style="margin-left: 10px; width: 1px; height: 16px; background: var(--line)"></div>
+            <div class="row" style="gap: 10px; padding: 8px 0; opacity: 0.55"><div class="n" style="width:22px;height:22px;border-radius:50%;background:var(--bg-sunk);color:var(--text-dim);display:grid;place-items:center;font-size:11px;font-family:var(--font-mono)">3</div><span style="font-size:13px;color:var(--text-muted)">Configure network</span></div>
+            <div style="margin-left: 10px; width: 1px; height: 16px; background: var(--line)"></div>
+            <div class="row" style="gap: 10px; padding: 8px 0; opacity: 0.55"><div class="n" style="width:22px;height:22px;border-radius:50%;background:var(--bg-sunk);color:var(--text-dim);display:grid;place-items:center;font-size:11px;font-family:var(--font-mono)">4</div><span style="font-size:13px;color:var(--text-muted)">Review & launch</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="upload">
+      <h2 class="lib-section-title">File upload</h2>
+      <div class="demo">
+        <div class="demo-label">Dropzone · three states</div>
+        <div class="demo-body" style="flex-direction: column; align-items: stretch; gap: 12px; max-width: 560px">
+          <div class="upload">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.5" style="margin-bottom: 6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size: 13px">Drop files here, or <a href="#" style="color: var(--accent-ink); text-decoration: underline">browse</a></div>
+            <div class="mono" style="font-size: 10.5px; color: var(--text-dim); margin-top: 4px">.zip, .tar.gz up to 200 MB</div>
+          </div>
+          <div class="upload drag">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin-bottom: 6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size: 13px; color: var(--accent-ink); font-weight: 500">Release to upload</div>
+          </div>
+          <div class="card" style="padding: 10px 12px">
+            <div class="spread" style="margin-bottom: 6px">
+              <div class="row" style="gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-size: 13px">release-v142.tar.gz</span><span class="mono" style="font-size: 10.5px; color: var(--text-dim)">38.4 MB</span></div>
+              <span class="mono" style="font-size: 10.5px; color: var(--text-muted)">62% · 2s left</span>
+            </div>
+            <div class="progress"><span style="width: 62%"></span></div>
+          </div>
+          <div class="card" style="padding: 10px 12px">
+            <div class="spread">
+              <div class="row" style="gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-size: 13px">schema.sql</span><span class="mono" style="font-size: 10.5px; color: var(--text-dim)">1.2 KB</span></div>
+              <div class="row" style="gap: 6px; color: var(--ok); font-size: 11px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Uploaded</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="diff">
+      <h2 class="lib-section-title">Diff viewer</h2>
+      <div class="demo">
+        <div class="demo-label">Config change</div>
+        <div class="demo-body plain" style="padding: 16px">
+          <div class="diff">
+            <div class="line"><span class="ln">12</span><span class="mk"></span><span>  <span style="color:oklch(.62 .14 240)">replicas</span>: 3</span></div>
+            <div class="line del"><span class="ln">13</span><span class="mk">−</span><span>  <span style="color:oklch(.62 .14 240)">memory</span>: 1024</span></div>
+            <div class="line add"><span class="ln">13</span><span class="mk">+</span><span>  <span style="color:oklch(.62 .14 240)">memory</span>: 2048</span></div>
+            <div class="line"><span class="ln">14</span><span class="mk"></span><span>  <span style="color:oklch(.62 .14 240)">region</span>: us-east-1</span></div>
+            <div class="line add"><span class="ln">15</span><span class="mk">+</span><span>  <span style="color:oklch(.62 .14 240)">timeout</span>: 30s</span></div>
+            <div class="line add"><span class="ln">16</span><span class="mk">+</span><span>  <span style="color:oklch(.62 .14 240)">retries</span>: 3</span></div>
+            <div class="line"><span class="ln">17</span><span class="mk"></span><span>  <span style="color:oklch(.62 .14 240)">env</span>:</span></div>
+            <div class="line del"><span class="ln">18</span><span class="mk">−</span><span>    DATABASE_URL: postgres://old-db</span></div>
+            <div class="line add"><span class="ln">18</span><span class="mk">+</span><span>    DATABASE_URL: postgres://new-db</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="code">
+      <h2 class="lib-section-title">Code block</h2>
+      <div class="demo">
+        <div class="demo-label">Copy-able snippet · bash / curl</div>
+        <div class="demo-body" style="flex-direction: column; align-items: stretch; gap: 10px; max-width: 680px">
+          <div style="background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 8px; overflow: hidden">
+            <div class="spread" style="padding: 6px 10px 6px 14px; border-bottom: 1px solid var(--line); background: var(--panel)">
+              <div class="seg" style="background: transparent; padding: 0"><button class="on">bash</button><button>curl</button><button>JavaScript</button></div>
+              <button class="btn xs ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copy</button>
+            </div>
+            <div class="code-block" style="border-radius: 0">
+<span class="cm"># Deploy the current branch to production</span>
+<span class="kw">$</span> nc deploy <span class="str">--env=production</span> \
+    <span class="str">--service=api-gateway</span> \
+    <span class="str">--tag=v142</span>
+
+<span class="cm"># Stream logs once live</span>
+<span class="kw">$</span> nc logs api-gateway <span class="str">--tail=50</span> <span class="str">--follow</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="kanban">
+      <h2 class="lib-section-title">Kanban</h2>
+      <div class="demo">
+        <div class="demo-label">Incident board</div>
+        <div class="demo-body plain" style="padding: 14px">
+          <div class="kanban">
+            <div class="col">
+              <h4>Triage <span style="font-family:var(--font-mono);color:var(--text-muted)">3</span></h4>
+              <div class="card"><div class="ttl">Elevated 5xx in checkout</div><div class="meta"><span class="pill err" style="height:16px">P1</span><span>·</span><span>api</span></div></div>
+              <div class="card"><div class="ttl">DB slow queries weekend</div><div class="meta"><span class="pill warn" style="height:16px">P2</span><span>·</span><span>db</span></div></div>
+              <div class="card"><div class="ttl">Clock drift on node-14</div><div class="meta"><span class="pill info" style="height:16px">P3</span></div></div>
+            </div>
+            <div class="col">
+              <h4>Investigating <span style="font-family:var(--font-mono);color:var(--text-muted)">2</span></h4>
+              <div class="card"><div class="ttl">Memory leak in ingest-worker</div><div class="meta"><span class="pill err" style="height:16px">P1</span><span>·</span><span>maya</span></div></div>
+              <div class="card"><div class="ttl">CDN cache miss rate 34%</div><div class="meta"><span class="pill warn" style="height:16px">P2</span><span>·</span><span>jonas</span></div></div>
+            </div>
+            <div class="col">
+              <h4>Fix in progress <span style="font-family:var(--font-mono);color:var(--text-muted)">1</span></h4>
+              <div class="card"><div class="ttl">Patch rate-limit regression</div><div class="meta"><span class="pill info" style="height:16px">PR</span><span>·</span><span>#482</span></div></div>
+            </div>
+            <div class="col">
+              <h4>Resolved <span style="font-family:var(--font-mono);color:var(--text-muted)">12</span></h4>
+              <div class="card" style="opacity:.6"><div class="ttl">Auth token expiry mismatch</div><div class="meta"><span class="pill ok" style="height:16px">done</span></div></div>
+              <div class="card" style="opacity:.6"><div class="ttl">Missing metrics: billing-sync</div><div class="meta"><span class="pill ok" style="height:16px">done</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="timeline">
+      <h2 class="lib-section-title">Timeline</h2>
+      <div class="demo">
+        <div class="demo-label">Activity log</div>
+        <div class="demo-body" style="max-width: 520px">
+          <div class="timeline-v">
+            <div class="tlv-item active">
+              <div class="ts">14:22 · now</div>
+              <div><b>Maya Chen</b> deployed <span class="mono" style="font-size: 11px; background: var(--bg-sunk); padding: 1px 5px; border-radius: 3px">api-gateway@v142</span> to production</div>
+            </div>
+            <div class="tlv-item ok">
+              <div class="ts">14:18</div>
+              <div>Build <span class="mono">#482</span> passed <span class="mono" style="color: var(--ok)">(+48)</span></div>
+            </div>
+            <div class="tlv-item err">
+              <div class="ts">14:12</div>
+              <div>Build <span class="mono">#481</span> failed — 2 tests red</div>
+            </div>
+            <div class="tlv-item">
+              <div class="ts">13:50</div>
+              <div><b>Jonas</b> opened PR <span style="color: var(--accent-ink)">Add retry policy</span></div>
+            </div>
+            <div class="tlv-item">
+              <div class="ts">yesterday</div>
+              <div><b>Priya</b> rotated API key <span class="mono">nc_live_•••K7qZ</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="avatars">
+      <h2 class="lib-section-title">Avatar group</h2>
+      <div class="demo">
+        <div class="demo-label">Team presence</div>
+        <div class="demo-body" style="gap: 32px">
+          <div class="avatar-group">
+            <div class="avatar" style="background: oklch(0.62 0.14 230); color: white">MC</div>
+            <div class="avatar" style="background: oklch(0.64 0.17 330); color: white">JK</div>
+            <div class="avatar" style="background: oklch(0.7 0.17 65); color: white">PR</div>
+            <div class="avatar" style="background: oklch(0.74 0.18 140); color: white">SN</div>
+            <div class="avatar" style="background: var(--bg-sunk); color: var(--text-muted); font-size: 10px">+4</div>
+          </div>
+          <div class="avatar-group">
+            <div class="avatar sm" style="background: oklch(0.62 0.14 230); color: white">MC</div>
+            <div class="avatar sm" style="background: oklch(0.64 0.17 330); color: white">JK</div>
+            <div class="avatar sm" style="background: oklch(0.7 0.17 65); color: white">PR</div>
+          </div>
+          <div class="row" style="gap: 10px">
+            <div style="position: relative"><div class="avatar" style="background: oklch(0.62 0.14 230); color: white">MC</div><span style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:var(--ok);border:2px solid var(--bg)"></span></div>
+            <div style="position: relative"><div class="avatar" style="background: oklch(0.64 0.17 330); color: white">JK</div><span style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:oklch(0.78 0.13 85);border:2px solid var(--bg)"></span></div>
+            <div style="position: relative"><div class="avatar" style="background: oklch(0.7 0.17 65); color: white">PR</div><span style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:var(--text-dim);border:2px solid var(--bg)"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rating">
+      <h2 class="lib-section-title">Rating & vote</h2>
+      <div class="demo">
+        <div class="demo-label">Regional latency quality</div>
+        <div class="demo-body" style="gap: 28px">
+          <div class="rating" style="font-size: 18px">
+            <span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span><span>★</span>
+          </div>
+          <div class="col" style="gap: 4px">
+            <div class="row"><span class="mono" style="font-size:11px;width:50px;color:var(--text-dim)">5★</span><div class="progress" style="width:140px"><span style="width:72%;background:oklch(0.78 0.15 85)"></span></div><span class="mono" style="font-size:11px">342</span></div>
+            <div class="row"><span class="mono" style="font-size:11px;width:50px;color:var(--text-dim)">4★</span><div class="progress" style="width:140px"><span style="width:54%;background:oklch(0.78 0.15 85)"></span></div><span class="mono" style="font-size:11px">188</span></div>
+            <div class="row"><span class="mono" style="font-size:11px;width:50px;color:var(--text-dim)">3★</span><div class="progress" style="width:140px"><span style="width:22%;background:oklch(0.78 0.15 85)"></span></div><span class="mono" style="font-size:11px">62</span></div>
+            <div class="row"><span class="mono" style="font-size:11px;width:50px;color:var(--text-dim)">2★</span><div class="progress" style="width:140px"><span style="width:8%;background:oklch(0.78 0.15 85)"></span></div><span class="mono" style="font-size:11px">14</span></div>
+            <div class="row"><span class="mono" style="font-size:11px;width:50px;color:var(--text-dim)">1★</span><div class="progress" style="width:140px"><span style="width:4%;background:oklch(0.78 0.15 85)"></span></div><span class="mono" style="font-size:11px">6</span></div>
+          </div>
+          <div class="col" style="gap: 6px; align-items: center">
+            <button class="btn icon sm ghost"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 15 12 9 18 15"/></svg></button>
+            <span class="mono num" style="font-size: 14px; font-weight: 600">128</span>
+            <button class="btn icon sm ghost"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="chat">
+      <h2 class="lib-section-title">Chat bubble</h2>
+      <div class="demo">
+        <div class="demo-label">Incident room</div>
+        <div class="demo-body" style="flex-direction: column; align-items: stretch; max-width: 520px">
+          <div class="chat-bubble">
+            <div class="avatar sm" style="background: oklch(0.64 0.17 330); color: white">JK</div>
+            <div style="flex: 1">
+              <div class="row" style="gap: 6px; margin-bottom: 3px"><b style="font-size:12px">Jonas</b><span class="ts mono" style="font-size:10px;color:var(--text-dim)">14:18</span></div>
+              <div class="bubble">Errors spiking on <span class="mono" style="background:rgba(0,0,0,.05);padding:0 4px;border-radius:3px">api-gateway</span> — up 4×</div>
+            </div>
+          </div>
+          <div class="chat-bubble me">
+            <div class="avatar sm" style="background: oklch(0.62 0.14 230); color: white">MC</div>
+            <div style="flex: 1; text-align: right">
+              <div class="row" style="gap: 6px; margin-bottom: 3px; justify-content: flex-end"><span class="ts mono" style="font-size:10px;color:var(--text-dim)">14:19</span><b style="font-size:12px">me</b></div>
+              <div class="bubble">Looking. Could be the retry storm from the staging push.</div>
+            </div>
+          </div>
+          <div class="chat-bubble">
+            <div class="avatar sm" style="background: oklch(0.7 0.17 65); color: white">PR</div>
+            <div style="flex: 1">
+              <div class="row" style="gap: 6px; margin-bottom: 3px"><b style="font-size:12px">Priya</b><span class="ts mono" style="font-size:10px;color:var(--text-dim)">14:21</span></div>
+              <div class="bubble">Rolled back to v141. Metrics recovering.</div>
+            </div>
+          </div>
+          <div class="row" style="gap: 8px; margin-top: 6px; align-items: center">
+            <div class="avatar sm" style="background: oklch(0.78 0.1 170); color: var(--text)">AM</div>
+            <span style="font-size: 11px; color: var(--text-dim)">Ari is typing<span style="animation: blink 1s infinite">…</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="stats">
+      <h2 class="lib-section-title">Stat / trend card</h2>
+      <div class="demo">
+        <div class="demo-label">Three variants</div>
+        <div class="demo-body plain" style="padding: 16px">
+          <div class="grid-3">
+            <div class="card-ext">
+              <div class="kpi-label">Active users</div>
+              <div class="row" style="align-items: baseline; gap: 8px; margin-top: 4px">
+                <div class="mono num" style="font-size: 28px; font-weight: 500">18,420</div>
+                <span class="delta up">+8.2%</span>
+              </div>
+              <svg viewBox="0 0 100 30" style="width: 100%; height: 30px; margin-top: 8px"><polyline fill="none" stroke="var(--accent)" stroke-width="1.5" points="0,22 10,18 20,20 30,14 40,16 50,10 60,12 70,8 80,6 90,4 100,2"/></svg>
+            </div>
+            <div class="card-ext">
+              <div class="kpi-label">Revenue · MRR</div>
+              <div class="row" style="align-items: baseline; gap: 8px; margin-top: 4px">
+                <div class="mono num" style="font-size: 28px; font-weight: 500">$48.2k</div>
+                <span class="delta down">−2.1%</span>
+              </div>
+              <div class="progress" style="margin-top: 14px"><span style="width: 72%"></span></div>
+              <div class="mono" style="font-size: 10.5px; color: var(--text-dim); margin-top: 4px">72% of $67k target</div>
+            </div>
+            <div class="card-ext" style="background: var(--bg)">
+              <div class="row" style="justify-content: space-between">
+                <div class="kpi-label">Uptime · 30d</div>
+                <div class="ring" style="--p: 99; width: 40px; height: 40px; background: conic-gradient(var(--ok) 99%, var(--bg-sunk) 0)"><span style="font-size: 9px">99.9%</span></div>
+              </div>
+              <div class="mono num" style="font-size: 22px; font-weight: 500; margin-top: 8px">2m 14s</div>
+              <div class="mono" style="font-size: 10.5px; color: var(--text-dim)">total downtime</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="metric-tile">
+      <h2 class="lib-section-title">Resource tile</h2>
+      <div class="demo">
+        <div class="demo-label">Grid view of services</div>
+        <div class="demo-body plain" style="padding: 16px">
+          <div class="grid-3">
+            <div class="card-ext" style="display: grid; gap: 10px">
+              <div class="spread">
+                <div class="row" style="gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg><b style="font-size: 13px">api-gateway</b></div>
+                <span class="pill ok"><span class="dotc"></span>Healthy</span>
+              </div>
+              <div class="grid-3" style="gap: 6px">
+                <div><div class="kpi-label" style="font-size: 10px">Req/m</div><div class="mono num" style="font-size: 14px">8,420</div></div>
+                <div><div class="kpi-label" style="font-size: 10px">p95</div><div class="mono num" style="font-size: 14px">124ms</div></div>
+                <div><div class="kpi-label" style="font-size: 10px">Err</div><div class="mono num" style="font-size: 14px">0.2%</div></div>
+              </div>
+              <svg viewBox="0 0 100 20" style="width: 100%; height: 20px"><polyline fill="none" stroke="var(--accent)" stroke-width="1.2" points="0,14 10,12 20,14 30,8 40,10 50,6 60,8 70,4 80,6 90,3 100,5"/></svg>
+            </div>
+            <div class="card-ext" style="display: grid; gap: 10px">
+              <div class="spread">
+                <div class="row" style="gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg><b style="font-size: 13px">ingest-worker</b></div>
+                <span class="pill warn"><span class="dotc"></span>Degraded</span>
+              </div>
+              <div class="grid-3" style="gap: 6px">
+                <div><div class="kpi-label" style="font-size: 10px">Req/m</div><div class="mono num" style="font-size: 14px">12,800</div></div>
+                <div><div class="kpi-label" style="font-size: 10px">p95</div><div class="mono num" style="font-size: 14px; color: var(--warn)">342ms</div></div>
+                <div><div class="kpi-label" style="font-size: 10px">Err</div><div class="mono num" style="font-size: 14px">2.4%</div></div>
+              </div>
+              <svg viewBox="0 0 100 20" style="width: 100%; height: 20px"><polyline fill="none" stroke="var(--warn)" stroke-width="1.2" points="0,14 10,12 20,14 30,10 40,16 50,8 60,18 70,4 80,14 90,2 100,16"/></svg>
+            </div>
+            <div class="card-ext" style="display: grid; gap: 10px">
+              <div class="spread">
+                <div class="row" style="gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v14c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/></svg><b style="font-size: 13px">postgres-primary</b></div>
+                <span class="pill ok"><span class="dotc"></span>Healthy</span>
+              </div>
+              <div class="grid-3" style="gap: 6px">
+                <div><div class="kpi-label" style="font-size: 10px">Conn</div><div class="mono num" style="font-size: 14px">84/200</div></div>
+                <div><div class="kpi-label" style="font-size: 10px">Cache</div><div class="mono num" style="font-size: 14px">98.2%</div></div>
+                <div><div class="kpi-label" style="font-size: 10px">Disk</div><div class="mono num" style="font-size: 14px">68%</div></div>
+              </div>
+              <div class="progress"><span style="width: 68%"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="alert-box">
+      <h2 class="lib-section-title">Alert box · actionable</h2>
+      <div class="demo">
+        <div class="demo-label">Persistent banner with inline CTA</div>
+        <div class="demo-body" style="flex-direction: column; align-items: stretch; gap: 12px; max-width: 720px">
+          <div class="banner warn">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>
+            <div class="body">
+              <div class="title">Your SSL cert expires in 6 days</div>
+              <div style="font-size: 12px; color: var(--text-muted)"><span class="mono">api.linden.cloud</span> — renew now to avoid downtime.</div>
+            </div>
+            <div class="row" style="margin-left: auto; gap: 6px"><button class="btn sm ghost">Remind me</button><button class="btn sm primary">Auto-renew</button></div>
+          </div>
+
+          <div class="banner err">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <div class="body">
+              <div class="title">Payment method failed</div>
+              <div style="font-size: 12px; color: var(--text-muted)">Card ending <span class="mono">•• 4242</span> declined on Mar 22. Services paused on overdue invoice.</div>
+            </div>
+            <div class="row" style="margin-left: auto; gap: 6px"><button class="btn sm primary">Update card</button></div>
+          </div>
+
+          <div class="banner info">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16" r="0.6" fill="currentColor"/></svg>
+            <div class="body">
+              <div class="title">New region available · <span class="mono">ap-south-2</span></div>
+              <div style="font-size: 12px; color: var(--text-muted)">Hyderabad · reduce latency for SE-Asia traffic by ~80ms.</div>
+            </div>
+            <button class="btn sm ghost" style="margin-left: auto">Learn more ↗</button>
+          </div>
+
+          <div class="banner ok">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9"/></svg>
+            <div class="body">
+              <div class="title">All systems operational</div>
+              <div style="font-size: 12px; color: var(--text-muted)">Last incident: 14 days ago.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+</script>
+</body>
+</html>

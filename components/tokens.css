@@ -1,0 +1,242 @@
+/* NextCli — shared design tokens for console + component library */
+:root {
+  /* Neutrals — cool, subtly blue-tinted */
+  --bg:          oklch(0.995 0.004 240);
+  --bg-elev:     oklch(1 0 0);
+  --bg-sunk:     oklch(0.975 0.006 240);
+  --panel:       oklch(0.985 0.005 240);
+  --line:        oklch(0.92 0.008 240);
+  --line-strong: oklch(0.86 0.01 240);
+  --text:        oklch(0.22 0.02 250);
+  --text-muted:  oklch(0.52 0.015 250);
+  --text-dim:    oklch(0.68 0.012 250);
+
+  --accent:      oklch(0.62 0.14 230);
+  --accent-weak: oklch(0.95 0.04 230);
+  --accent-ink:  oklch(0.36 0.10 230);
+
+  --ok:    oklch(0.66 0.13 155);
+  --warn:  oklch(0.76 0.14 75);
+  --err:   oklch(0.62 0.18 22);
+  --info:  oklch(0.62 0.14 230);
+
+  --font-ui:   "Inter", system-ui, -apple-system, Helvetica, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --fs-xxs: 10.5px;
+  --fs-xs:  11.5px;
+  --fs-sm:  12.5px;
+  --fs-md:  13px;
+  --fs-lg:  15px;
+  --fs-xl:  20px;
+  --fs-2xl: 28px;
+
+  --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px;
+
+  --h-row: 34px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  --shadow-xs: 0 1px 0 rgba(15,23,42,0.03);
+  --shadow-sm: 0 1px 0 rgba(15,23,42,0.02), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md: 0 2px 4px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06);
+  --shadow-lg: 0 4px 8px rgba(15,23,42,0.05), 0 20px 48px rgba(15,23,42,0.10);
+
+  --focus-ring: 0 0 0 3px color-mix(in oklch, var(--accent) 25%, transparent);
+}
+
+[data-theme="dark"] {
+  --bg:          oklch(0.18 0.015 250);
+  --bg-elev:     oklch(0.22 0.018 250);
+  --bg-sunk:     oklch(0.15 0.014 250);
+  --panel:       oklch(0.21 0.017 250);
+  --line:        oklch(0.30 0.02 250);
+  --line-strong: oklch(0.38 0.022 250);
+  --text:        oklch(0.96 0.005 250);
+  --text-muted:  oklch(0.72 0.015 250);
+  --text-dim:    oklch(0.56 0.014 250);
+  --accent-weak: oklch(0.30 0.06 230);
+  --accent-ink:  oklch(0.82 0.10 230);
+  --shadow-sm: 0 1px 0 rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-md: 0 2px 6px rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-ui);
+  font-size: var(--fs-md);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.003em;
+}
+.mono { font-family: var(--font-mono); }
+.num  { font-variant-numeric: tabular-nums; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+
+/* ---------- Library page shell ---------- */
+.lib {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+.lib-nav {
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+  padding: 20px 14px;
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto;
+}
+.lib-brand {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+  padding: 0 6px;
+}
+.lib-mark {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-ink));
+  position: relative;
+}
+.lib-mark::before {
+  content: ""; position: absolute; inset: 5px 3px 3px 5px;
+  border-left: 2px solid white; border-bottom: 2px solid white;
+  border-radius: 0 0 0 3px;
+}
+.lib-brand .name { font-weight: 600; font-size: 13.5px; }
+.lib-brand .tag  { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+
+.lib-section { margin-bottom: 14px; }
+.lib-title {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-dim); font-weight: 500;
+  padding: 6px 8px; margin-top: 4px;
+}
+.lib-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 6px;
+  color: var(--text-muted); font-size: var(--fs-sm);
+}
+.lib-link:hover { background: var(--bg-sunk); color: var(--text); }
+.lib-link.active { background: var(--accent-weak); color: var(--accent-ink); font-weight: 500; }
+.lib-link .n { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+
+.lib-main { padding: 48px 56px 96px; max-width: 1200px; }
+.lib-head { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 32px; }
+.lib-kicker { font-family: var(--font-mono); font-size: 11px; color: var(--accent-ink); letter-spacing: 0.04em; text-transform: uppercase; }
+.lib-h1 { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; margin: 6px 0 8px; line-height: 1.1; }
+.lib-lede { font-size: 15px; color: var(--text-muted); max-width: 640px; line-height: 1.55; }
+
+.lib-section-title {
+  font-size: 20px; font-weight: 600; letter-spacing: -0.015em;
+  margin: 48px 0 4px; padding-top: 12px;
+}
+.lib-section-sub { font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 18px; line-height: 1.55; max-width: 640px; }
+
+/* Example frame: shows rendered component + optional code below */
+.demo {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.demo-label {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  font-weight: 500;
+}
+.demo-label .sub { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); text-transform: none; letter-spacing: 0; }
+.demo-body {
+  padding: 28px;
+  display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--bg);
+  background-blend-mode: normal;
+  min-height: 110px;
+}
+[data-theme="dark"] .demo-body {
+  background:
+    linear-gradient(color-mix(in oklch, var(--line) 55%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, color-mix(in oklch, var(--line) 55%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--bg);
+}
+.demo-body.plain { background: var(--bg); display: block; }
+.demo-body.compact { padding: 18px; }
+.demo-foot {
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-sunk);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.spread { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+/* Guard: never let utility flex classes override native table layout */
+tr.row, tr.col, tr.spread { display: table-row; }
+
+/* prop matrix — label each variant */
+.matrix {
+  display: grid;
+  gap: 10px 18px;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+.matrix .k {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: right;
+  padding-right: 4px;
+}
+.matrix .v { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* Lead paragraph for individual sections */
+.note {
+  padding: 10px 14px;
+  background: var(--accent-weak);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  font-size: var(--fs-sm);
+  color: var(--accent-ink);
+  margin: 12px 0 20px;
+  line-height: 1.55;
+}
+
+/* Page toolbar — theme toggle */
+.lib-tools {
+  position: fixed;
+  top: 16px; right: 24px;
+  display: flex; gap: 6px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 40;
+  box-shadow: var(--shadow-sm);
+}
+.lib-tools button {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.lib-tools button.on { background: var(--accent-weak); color: var(--accent-ink); font-weight: 600; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 10px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-track { background: transparent; }

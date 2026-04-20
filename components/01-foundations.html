@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>01 · Foundations — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  .swatch-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .sw-card { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--bg-elev); }
+  .sw-chip { height: 72px; }
+  .sw-meta { padding: 8px 10px; font-size: var(--fs-xs); }
+  .sw-name { font-weight: 600; font-size: var(--fs-sm); }
+  .sw-token { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); margin-top: 2px; }
+  .sw-val { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+  .type-row { display: grid; grid-template-columns: 160px 1fr auto; gap: 20px; padding: 14px 16px; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .type-row:last-child { border-bottom: 0; }
+  .type-row .label { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .type-row .sample { line-height: 1.15; }
+  .type-row .spec { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+  .space-row { display: grid; grid-template-columns: 80px 1fr 120px; gap: 16px; align-items: center; padding: 8px 0; }
+  .space-bar { height: 14px; background: var(--accent-weak); border-radius: 3px; border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent); }
+
+  .radius-row { display: flex; gap: 18px; flex-wrap: wrap; }
+  .radius-card { width: 96px; text-align: center; }
+  .radius-card .box { height: 64px; background: var(--accent-weak); border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent); }
+  .radius-card .lbl { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+  .elev-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .elev-card { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; padding: 20px; text-align: center; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+  .icon-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .ic-cell {
+    border: 1px solid var(--line); border-radius: 6px;
+    background: var(--bg-elev);
+    padding: 14px 8px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: var(--text-muted); font-family: var(--font-mono); font-size: 10px;
+  }
+  .ic-cell svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .ic-cell:hover { border-color: var(--accent); color: var(--accent-ink); }
+
+  .princ { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px; }
+  .princ .card { padding: 16px; }
+  .princ h4 { margin: 0 0 6px; font-size: var(--fs-md); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .princ h4 .n { font-family: var(--font-mono); font-size: 10px; color: var(--accent-ink); background: var(--accent-weak); padding: 1px 5px; border-radius: 3px; }
+  .princ p { margin: 0; font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.55; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link active" href="01-foundations.html">01 · Foundations <span class="n">6</span></a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives <span class="n">12</span></a>
+      <a class="lib-link" href="03-data.html">03 · Data display <span class="n">8</span></a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation <span class="n">7</span></a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays <span class="n">9</span></a>
+      <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">This page</div>
+      <a class="lib-link" href="#principles">Principles</a>
+      <a class="lib-link" href="#color">Color</a>
+      <a class="lib-link" href="#type">Type</a>
+      <a class="lib-link" href="#spacing">Spacing</a>
+      <a class="lib-link" href="#radius">Radius</a>
+      <a class="lib-link" href="#elevation">Elevation</a>
+      <a class="lib-link" href="#icons">Icons</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Part 01 · Foundations</div>
+      <h1 class="lib-h1">Design tokens, color, type & space.</h1>
+      <p class="lib-lede">
+        NextCli uses a cool blue-tinted neutral ramp with a single azure accent.
+        Everything on this page is expressed as CSS custom properties in <span class="mono">tokens.css</span>.
+      </p>
+    </header>
+
+    <section id="principles">
+      <h2 class="lib-section-title">Principles</h2>
+      <p class="lib-section-sub">Three rules that shape every decision below.</p>
+      <div class="princ">
+        <div class="card"><h4><span class="n">01</span> Calm over loud</h4><p>Cool hues, hairline borders, tight typography. Color is spent only on state and the single accent — everything else stays neutral so data can speak.</p></div>
+        <div class="card"><h4><span class="n">02</span> Density earns trust</h4><p>This is a tool for operators. 13px base, 34px rows, 1px lines. Every px of padding must justify itself.</p></div>
+        <div class="card"><h4><span class="n">03</span> Monospace for truth</h4><p>IDs, counts, SHAs, durations — anything a user might copy, compare, or grep — renders in JetBrains Mono with tabular numerals.</p></div>
+      </div>
+    </section>
+
+    <section id="color">
+      <h2 class="lib-section-title">Color</h2>
+      <p class="lib-section-sub">All colors are defined in the OKLCH space so we get perceptually even lightness ramps across hues.</p>
+
+      <div class="demo">
+        <div class="demo-label">Neutrals <span class="sub">6 steps · cool-tinted</span></div>
+        <div class="demo-body plain" style="padding: 18px">
+          <div class="swatch-row" data-render="neutrals"></div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Accent & Status <span class="sub">one accent; four states</span></div>
+        <div class="demo-body plain" style="padding: 18px">
+          <div class="swatch-row" data-render="accents"></div>
+        </div>
+        <div class="demo-foot">// usage
+color: var(--text);              // default body
+background: var(--bg-elev);      // cards, dropdowns, modals
+border-color: var(--line);       // all hairlines
+color: var(--accent-ink);        // links, selected state</div>
+      </div>
+    </section>
+
+    <section id="type">
+      <h2 class="lib-section-title">Type</h2>
+      <p class="lib-section-sub">Two families: <b>Inter</b> for UI at -0.003em tracking, <b>JetBrains Mono</b> for anything quantitative. Nothing else.</p>
+
+      <div class="demo">
+        <div class="demo-label">Scale</div>
+        <div class="demo-body plain" style="padding: 0">
+          <div class="type-row"><span class="label">2xl · Display</span><span class="sample" style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em">Developers ship on NextCli</span><span class="spec">28 / 1.1 / -0.02em</span></div>
+          <div class="type-row"><span class="label">xl · H1</span><span class="sample" style="font-size: 20px; font-weight: 600; letter-spacing: -0.015em">Services overview</span><span class="spec">20 / 1.2 / -0.015em</span></div>
+          <div class="type-row"><span class="label">lg · H2</span><span class="sample" style="font-size: 15px; font-weight: 600; letter-spacing: -0.01em">Recent deployments</span><span class="spec">15 / 1.3 / -0.01em</span></div>
+          <div class="type-row"><span class="label">md · Body</span><span class="sample" style="font-size: 13px">The request was rejected because it exceeded the plan's rate limit.</span><span class="spec">13 / 1.5</span></div>
+          <div class="type-row"><span class="label">sm · UI</span><span class="sample" style="font-size: 12.5px">Deploy to production</span><span class="spec">12.5 / 1.4</span></div>
+          <div class="type-row"><span class="label">xs · Label</span><span class="sample" style="font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500">Last deployed</span><span class="spec">11.5 / 0.05em tracking</span></div>
+          <div class="type-row"><span class="label">xxs · Caption</span><span class="sample" style="font-size: 10.5px; color: var(--text-dim)">Provisioned 3m ago in us-east-1</span><span class="spec">10.5 / 1.4</span></div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Monospace · tabular numerals</div>
+        <div class="demo-body plain" style="padding: 20px">
+          <div class="col" style="gap: 6px">
+            <div class="mono num" style="font-size: 28px; font-weight: 500; letter-spacing: -0.03em">12,840 <span style="color: var(--text-dim); font-size: 13px">requests / min</span></div>
+            <div class="mono num" style="font-size: 18px; color: var(--text-muted)">0.34% <span style="color: var(--text-dim); font-size: 12px">error rate</span></div>
+            <div class="mono" style="font-size: 12px; color: var(--text-dim)">dep_8f2a71 · bb08af1 · 2m 14s</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="spacing">
+      <h2 class="lib-section-title">Spacing</h2>
+      <p class="lib-section-sub">A 4-point scale. Layouts snap to 8px, internal padding uses 12/16, generous vertical rhythm uses 24/32.</p>
+      <div class="demo">
+        <div class="demo-label">Scale</div>
+        <div class="demo-body plain" style="padding: 18px 24px" data-render="spacing"></div>
+      </div>
+    </section>
+
+    <section id="radius">
+      <h2 class="lib-section-title">Radius</h2>
+      <p class="lib-section-sub">Softer than sharp, harder than rounded. 6px for controls; 8–12px for containers.</p>
+      <div class="demo">
+        <div class="demo-label">Scale</div>
+        <div class="demo-body plain"><div class="radius-row" data-render="radius"></div></div>
+      </div>
+    </section>
+
+    <section id="elevation">
+      <h2 class="lib-section-title">Elevation</h2>
+      <p class="lib-section-sub">Flat by default. Shadow is for modals, popovers, and toasts only.</p>
+      <div class="demo">
+        <div class="demo-label">Scale</div>
+        <div class="demo-body plain" style="padding: 40px">
+          <div class="elev-row">
+            <div class="elev-card" style="box-shadow: var(--shadow-xs)">--shadow-xs<br>flat · hairline</div>
+            <div class="elev-card" style="box-shadow: var(--shadow-sm)">--shadow-sm<br>cards, buttons</div>
+            <div class="elev-card" style="box-shadow: var(--shadow-md)">--shadow-md<br>dropdowns</div>
+            <div class="elev-card" style="box-shadow: var(--shadow-lg)">--shadow-lg<br>modals, toasts</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="icons">
+      <h2 class="lib-section-title">Icons</h2>
+      <p class="lib-section-sub">1.5px stroke, round caps & joins, 18×18 default. Monochrome always — color comes from currentColor.</p>
+      <div class="demo">
+        <div class="demo-label">Core set · 24 glyphs</div>
+        <div class="demo-body plain" style="padding: 14px"><div class="icon-grid" data-render="icons"></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const neutrals = [
+    ['bg','Canvas','oklch(0.995 0.004 240)'],
+    ['bg-sunk','Sunk','oklch(0.975 0.006 240)'],
+    ['panel','Panel','oklch(0.985 0.005 240)'],
+    ['line','Line','oklch(0.92 0.008 240)'],
+    ['text-muted','Muted','oklch(0.52 0.015 250)'],
+    ['text','Text','oklch(0.22 0.02 250)'],
+  ];
+  document.querySelector('[data-render="neutrals"]').innerHTML = neutrals.map(s => `
+    <div class="sw-card">
+      <div class="sw-chip" style="background: var(--${s[0]})"></div>
+      <div class="sw-meta">
+        <div class="sw-name">${s[1]}</div>
+        <div class="sw-token">--${s[0]}</div>
+        <div class="sw-val">${s[2]}</div>
+      </div>
+    </div>`).join('');
+
+  const accents = [
+    ['accent','Azure','oklch(0.62 0.14 230)', 'white'],
+    ['accent-weak','Weak','oklch(0.95 0.04 230)', 'var(--accent-ink)'],
+    ['ok','Success','oklch(0.66 0.13 155)', 'white'],
+    ['warn','Warning','oklch(0.76 0.14 75)', 'oklch(0.25 0.08 75)'],
+    ['err','Error','oklch(0.62 0.18 22)', 'white'],
+    ['info','Info','oklch(0.62 0.14 230)', 'white'],
+  ];
+  document.querySelector('[data-render="accents"]').innerHTML = accents.map(s => `
+    <div class="sw-card">
+      <div class="sw-chip" style="background: var(--${s[0]}); color: ${s[3]}; display: flex; align-items: flex-end; padding: 8px; font-family: var(--font-mono); font-size: 10px">Aa 123</div>
+      <div class="sw-meta">
+        <div class="sw-name">${s[1]}</div>
+        <div class="sw-token">--${s[0]}</div>
+        <div class="sw-val">${s[2]}</div>
+      </div>
+    </div>`).join('');
+
+  const sp = [['--sp-1','4px',4],['--sp-2','8px',8],['--sp-3','12px',12],['--sp-4','16px',16],['--sp-5','24px',24],['--sp-6','32px',32],['--sp-7','48px',48],['--sp-8','64px',64]];
+  document.querySelector('[data-render="spacing"]').innerHTML = sp.map(s => `
+    <div class="space-row">
+      <span class="mono" style="font-size: 11px; color: var(--text-dim)">${s[0]}</span>
+      <div class="space-bar" style="width: ${s[2]}px"></div>
+      <span class="mono" style="font-size: 11px; color: var(--text-muted); text-align: right">${s[1]}</span>
+    </div>`).join('');
+
+  const rad = [['--r-xs','4','xs · pills'],['--r-sm','6','sm · controls'],['--r-md','8','md · cards'],['--r-lg','12','lg · modals'],['--r-xl','16','xl · feature']];
+  document.querySelector('[data-render="radius"]').innerHTML = rad.map(r => `
+    <div class="radius-card">
+      <div class="box" style="border-radius: ${r[1]}px"></div>
+      <div class="lbl">${r[0]}<br>${r[2]}</div>
+    </div>`).join('');
+
+  const icons = [
+    ['cloud','<path d="M6 18a4 4 0 0 1 0-8 6 6 0 0 1 11.3-1.5A4.5 4.5 0 0 1 17 18z"/>'],
+    ['server','<rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/><circle cx="7" cy="7" r="0.6" fill="currentColor"/><circle cx="7" cy="17" r="0.6" fill="currentColor"/>'],
+    ['db','<ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/><path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/>'],
+    ['deploy','<path d="M4 12h16"/><path d="M14 6l6 6-6 6"/>'],
+    ['logs','<path d="M4 6h12M4 10h16M4 14h10M4 18h14"/>'],
+    ['chart','<path d="M3 17l5-6 4 4 4-7 5 9"/>'],
+    ['bell','<path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/><path d="M10 20a2 2 0 0 0 4 0"/>'],
+    ['key','<circle cx="8" cy="15" r="3.5"/><path d="M11 13l9-9"/><path d="M17 7l3 3"/>'],
+    ['user','<circle cx="12" cy="8" r="3.5"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/>'],
+    ['users','<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.2"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/>'],
+    ['cog','<circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>'],
+    ['search','<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>'],
+    ['plus','<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'],
+    ['check','<polyline points="5 12 10 17 20 7"/>'],
+    ['x','<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>'],
+    ['chev-d','<polyline points="6 9 12 15 18 9"/>'],
+    ['chev-r','<polyline points="9 6 15 12 9 18"/>'],
+    ['arrow-r','<line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>'],
+    ['upload','<polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/><path d="M20 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2"/>'],
+    ['download','<polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/><path d="M20 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2"/>'],
+    ['globe','<circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/>'],
+    ['rocket','<path d="M15 9a3 3 0 1 0-6 0 3 3 0 0 0 6 0z"/><path d="M9 11L5 15l4 4 4-4"/><path d="M15 11l4 4-4 4-4-4"/>'],
+    ['zap','<polygon points="13 2 4 14 12 14 11 22 20 10 12 10"/>'],
+    ['folder','<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'],
+  ];
+  document.querySelector('[data-render="icons"]').innerHTML = icons.map(i => `<div class="ic-cell"><svg viewBox="0 0 24 24">${i[1]}</svg>${i[0]}</div>`).join('');
+
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+</script>
+</body>
+</html>

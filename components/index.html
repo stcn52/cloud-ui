@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NextCli · Component library</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  .parts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 24px; }
+  .part {
+    display: block; text-decoration: none;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--bg-elev); padding: 20px; transition: border-color .15s, transform .15s;
+  }
+  .part:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .part .n { font-family: var(--font-mono); font-size: 11px; color: var(--accent-ink); background: var(--accent-weak); padding: 2px 7px; border-radius: 4px; display: inline-block; margin-bottom: 12px; }
+  .part h3 { margin: 0 0 6px; font-size: 18px; font-weight: 600; letter-spacing: -0.015em; color: var(--text); }
+  .part p { margin: 0 0 14px; font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.55; }
+  .part .list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .part .list .pill { font-weight: 400; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 22px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .stat .n { font-family: var(--font-mono); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  .stat .l { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link active" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">Product</div>
+      <a class="lib-link" href="../NextCli Console.html">↗ Console demo</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Component library</div>
+      <h1 class="lib-h1" style="font-size: 42px">NextCli design system.</h1>
+      <p class="lib-lede">
+        A calm, dense, operator-first system. Built on 2 CSS files, 1 token layer, and 0 runtime dependencies —
+        everything on these pages renders from <span class="mono">tokens.css</span> + <span class="mono">components.css</span>.
+      </p>
+    </header>
+
+    <div class="stats">
+      <div class="stat"><div class="n">5</div><div class="l">Parts</div></div>
+      <div class="stat"><div class="n">40+</div><div class="l">Components</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">Themes</div></div>
+      <div class="stat"><div class="n">0</div><div class="l">JS dependencies</div></div>
+    </div>
+
+    <div class="parts">
+      <a class="part" href="01-foundations.html">
+        <span class="n">01</span>
+        <h3>Foundations</h3>
+        <p>Design tokens in OKLCH, cool-tinted neutrals, a single azure accent, Inter + JetBrains Mono, a 4-point spacing scale, and a 24-glyph icon set.</p>
+        <div class="list"><span class="pill">Color</span><span class="pill">Type</span><span class="pill">Space</span><span class="pill">Radius</span><span class="pill">Elevation</span><span class="pill">Icons</span></div>
+      </a>
+      <a class="part" href="02-primitives.html">
+        <span class="n">02</span>
+        <h3>Primitives</h3>
+        <p>Buttons, inputs, selects, checkboxes, radios, switches, pills, badges, avatars, keyboard keys. One base class per atom, with small modifier variants.</p>
+        <div class="list"><span class="pill">Button</span><span class="pill">Input</span><span class="pill">Toggle</span><span class="pill">Pill</span><span class="pill">Avatar</span></div>
+      </a>
+      <a class="part" href="03-data.html">
+        <span class="n">03</span>
+        <h3>Data display</h3>
+        <p>The point of the product. KPI cards, dense 34px tables, monochrome charts with one accent, live log viewer, heatmap, pipeline steps, progress + ring.</p>
+        <div class="list"><span class="pill">KPI</span><span class="pill">Charts</span><span class="pill">Tables</span><span class="pill">Logs</span><span class="pill">Pipeline</span></div>
+      </a>
+      <a class="part" href="04-navigation.html">
+        <span class="n">04</span>
+        <h3>Navigation</h3>
+        <p>Sidebar, topbar, breadcrumbs, tabs, segmented controls, pagination. One persistent shell — no hover menus, no mega nav.</p>
+        <div class="list"><span class="pill">Sidebar</span><span class="pill">Topbar</span><span class="pill">Tabs</span><span class="pill">Segmented</span></div>
+      </a>
+      <a class="part" href="05-overlays.html">
+        <span class="n">05</span>
+        <h3>Overlays & feedback</h3>
+        <p>Banners stay. Toasts disappear. Dialogs confirm destructive acts. Drawers edit in place. A ⌘K palette is the universal shortcut. Tooltips are a last resort.</p>
+        <div class="list"><span class="pill">Dialog</span><span class="pill">Drawer</span><span class="pill">Popover</span><span class="pill">Toast</span><span class="pill">Banner</span><span class="pill">⌘K palette</span></div>
+      </a>
+      <a class="part" href="06-advanced.html">
+        <span class="n">06</span>
+        <h3>Advanced controls</h3>
+        <p>Dropdowns, trees, cascaders, date pickers, tag inputs, copy fields. The detailed controls operators live inside.</p>
+        <div class="list"><span class="pill">Dropdown</span><span class="pill">Context</span><span class="pill">Tree</span><span class="pill">Cascader</span><span class="pill">Date range</span><span class="pill">Tag input</span></div>
+      </a>
+    </div>
+
+    <div class="banner info" style="margin-top: 36px">
+      <svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16" r="0.6" fill="currentColor"/></svg>
+      <div class="body">
+        <div class="title">See it in context</div>
+        Everything here assembled into a working product lives in <a href="../NextCli Console.html" style="text-decoration: underline">NextCli Console</a> — open the Tweaks panel to swap accent, radius, density, and theme live.
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+</script>
+</body>
+</html>

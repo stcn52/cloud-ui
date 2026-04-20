@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>04 · Navigation — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  .shell { width: 100%; height: 420px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: grid; grid-template-columns: 200px 1fr; background: var(--bg); }
+  .shell-nav { background: var(--panel); border-right: 1px solid var(--line); padding: 14px 10px; font-size: var(--fs-sm); display: flex; flex-direction: column; gap: 2px; }
+  .shell-nav .brand { display: flex; align-items: center; gap: 8px; padding: 2px 8px 14px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .shell-nav .mk { width: 18px; height: 18px; border-radius: 5px; background: linear-gradient(135deg, var(--accent), var(--accent-ink)); }
+  .shell-nav a { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 5px; color: var(--text-muted); }
+  .shell-nav a.on { background: var(--accent-weak); color: var(--accent-ink); font-weight: 500; }
+  .shell-nav a:hover:not(.on) { background: var(--bg-sunk); color: var(--text); }
+  .shell-nav svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  .shell-nav .grp { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 10px 8px 4px; }
+  .shell-top { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--bg-elev); }
+  .shell-body { padding: 16px; background: var(--bg); height: calc(100% - 44px); overflow: auto; }
+  .side-nav { width: 220px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 10px; font-size: var(--fs-sm); }
+  .side-nav .head { display: flex; align-items: center; gap: 8px; padding: 0 8px 14px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .side-nav .mk { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), var(--accent-ink)); }
+  .side-nav a { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 5px; color: var(--text-muted); text-decoration: none; }
+  .side-nav a.on { background: var(--accent-weak); color: var(--accent-ink); font-weight: 500; }
+  .side-nav a:hover:not(.on) { background: var(--bg-sunk); color: var(--text); }
+  .side-nav svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  .side-nav .grp { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 12px 8px 4px; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link active" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+      <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">This page</div>
+      <a class="lib-link" href="#sidebar">Sidebar</a>
+      <a class="lib-link" href="#topbar">Topbar</a>
+      <a class="lib-link" href="#crumbs">Breadcrumbs</a>
+      <a class="lib-link" href="#tabs">Tabs</a>
+      <a class="lib-link" href="#segmented">Segmented</a>
+      <a class="lib-link" href="#pagination">Pagination</a>
+      <a class="lib-link" href="#shell">Full shell</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Part 04 · Navigation</div>
+      <h1 class="lib-h1">Finding your way around.</h1>
+      <p class="lib-lede">A persistent left sidebar, a slim top chrome, and in-page tabs / segmented controls. No hover menus, no mega nav.</p>
+    </header>
+
+    <section id="sidebar">
+      <h2 class="lib-section-title">Sidebar</h2>
+      <p class="lib-section-sub">200px, 13px labels, 13px icons, 5px row padding. Grouped by domain, not feature count.</p>
+      <div class="demo">
+        <div class="demo-label">Primary nav</div>
+        <div class="demo-body plain" style="padding: 16px">
+          <div class="side-nav" id="sideNav">
+            <div class="head">
+              <div class="mk"></div>
+              <span style="font-weight: 600">NextCli</span>
+              <select class="select sm" style="margin-left: auto; height: 20px; font-size: 10px; width: 72px"><option>Linden</option></select>
+            </div>
+            <div id="sideNavList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="topbar">
+      <h2 class="lib-section-title">Topbar</h2>
+      <div class="demo">
+        <div class="demo-label">Chrome · search + actions</div>
+        <div class="demo-body plain" style="padding: 0">
+          <div style="display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--bg-elev)">
+            <div class="crumbs">
+              <span>Linden Labs</span>
+              <svg class="sep" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+              <span>Services</span>
+              <svg class="sep" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+              <span class="leaf">api-gateway</span>
+            </div>
+            <div class="input-group" style="margin-left: 24px; width: 260px">
+              <div class="affix"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+              <input class="input sm" placeholder="Search…">
+              <div class="affix r"><kbd>⌘K</kbd></div>
+            </div>
+            <div style="flex: 1"></div>
+            <span class="pill mono">us-east-1</span>
+            <button class="btn icon sm ghost" title="Notifications" style="position: relative">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/></svg>
+              <span style="position: absolute; top: 2px; right: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--err)"></span>
+            </button>
+            <button class="btn sm primary">+ New</button>
+            <div class="avatar sm">MC</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="crumbs">
+      <h2 class="lib-section-title">Breadcrumbs</h2>
+      <div class="demo">
+        <div class="demo-label">Path</div>
+        <div class="demo-body">
+          <div class="crumbs">
+            <span>Workspaces</span>
+            <svg class="sep" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+            <span>Linden Labs</span>
+            <svg class="sep" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+            <span>Services</span>
+            <svg class="sep" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+            <span class="leaf">api-gateway</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tabs">
+      <h2 class="lib-section-title">Tabs</h2>
+      <div class="demo">
+        <div class="demo-label">Underline</div>
+        <div class="demo-body plain" style="padding: 0 20px; background: var(--bg-elev)">
+          <div class="tabs" style="padding-top: 8px">
+            <div class="tab active">Overview</div>
+            <div class="tab">Deployments <span class="pill mono" style="margin-left: 4px; height: 14px; font-size: 9px">142</span></div>
+            <div class="tab">Logs</div>
+            <div class="tab">Metrics</div>
+            <div class="tab">Env vars</div>
+            <div class="tab">Settings</div>
+          </div>
+          <div style="padding: 20px 0; color: var(--text-muted); font-size: var(--fs-sm)">Tab content…</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="segmented">
+      <h2 class="lib-section-title">Segmented & time range</h2>
+      <div class="demo">
+        <div class="demo-label">Pick one</div>
+        <div class="demo-body">
+          <div class="seg"><button>1h</button><button>6h</button><button class="on">24h</button><button>7d</button><button>30d</button></div>
+          <div class="seg"><button class="on">Graph</button><button>Table</button></div>
+          <div class="seg"><button class="on">All</button><button>Production</button><button>Preview</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pagination">
+      <h2 class="lib-section-title">Pagination</h2>
+      <div class="demo">
+        <div class="demo-label">Numbered & cursor</div>
+        <div class="demo-body" style="flex-direction: column; align-items: stretch; gap: 14px">
+          <div class="spread">
+            <span class="mono" style="font-size: 11px; color: var(--text-dim)">Showing 1–25 of 482</span>
+            <div class="pagination">
+              <button class="btn sm ghost">‹ Prev</button>
+              <button class="btn sm on">1</button>
+              <button class="btn sm ghost">2</button>
+              <button class="btn sm ghost">3</button>
+              <span>…</span>
+              <button class="btn sm ghost">20</button>
+              <button class="btn sm ghost">Next ›</button>
+            </div>
+          </div>
+          <div class="spread">
+            <span class="mono" style="font-size: 11px; color: var(--text-dim)">Loaded 120 events</span>
+            <button class="btn sm">Load more ↓</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="shell">
+      <h2 class="lib-section-title">Full shell composition</h2>
+      <p class="lib-section-sub">Sidebar + topbar + body working together.</p>
+      <div class="demo">
+        <div class="demo-label">Console shell</div>
+        <div class="demo-body plain" style="padding: 16px">
+          <div class="shell">
+            <div class="shell-nav">
+              <div class="brand"><div class="mk"></div><span style="font-weight:600">NextCli</span></div>
+              <a class="on"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 4 4-7 5 9"/></svg>Overview</a>
+              <a><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>Services</a>
+              <a><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v14c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/></svg>Databases</a>
+              <a><svg viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M14 6l6 6-6 6"/></svg>Deployments</a>
+              <a><svg viewBox="0 0 24 24"><path d="M4 6h12M4 10h16M4 14h10M4 18h14"/></svg>Logs</a>
+              <div class="grp">Account</div>
+              <a><svg viewBox="0 0 24 24"><polygon points="13 2 4 14 12 14 11 22 20 10 12 10"/></svg>Billing</a>
+              <a><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/></svg>Team</a>
+            </div>
+            <div>
+              <div class="shell-top">
+                <div class="crumbs"><span>Linden</span><svg class="sep" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg><span class="leaf">Overview</span></div>
+                <div style="flex: 1"></div>
+                <div class="seg"><button>1h</button><button class="on">24h</button><button>7d</button></div>
+                <button class="btn sm primary">+ New</button>
+                <div class="avatar sm">MC</div>
+              </div>
+              <div class="shell-body">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px">
+                  <div class="card kpi"><div class="kpi-label">Requests/m</div><div class="kpi-value" style="font-size: 20px">12,840</div></div>
+                  <div class="card kpi"><div class="kpi-label">p95</div><div class="kpi-value" style="font-size: 20px">184ms</div></div>
+                  <div class="card kpi"><div class="kpi-label">Errors</div><div class="kpi-value" style="font-size: 20px">0.34%</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const sideIcons = {
+    chart: '<path d="M3 17l5-6 4 4 4-7 5 9"/>',
+    server: '<rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/>',
+    db: '<ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v14c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/>',
+    deploy: '<path d="M4 12h16"/><path d="M14 6l6 6-6 6"/>',
+    logs: '<path d="M4 6h12M4 10h16M4 14h10M4 18h14"/>',
+    bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/>',
+    zap: '<polygon points="13 2 4 14 12 14 11 22 20 10 12 10"/>',
+    users: '<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/>',
+    key: '<circle cx="8" cy="15" r="3.5"/><path d="M11 13l9-9"/>',
+    cog: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>',
+  };
+  const main = [
+    ['Overview','chart',true],['Services','server',false],['Databases','db',false],
+    ['Deployments','deploy',false],['Logs','logs',false],['Monitoring','bell',false],
+  ];
+  const acct = [['Billing','zap'],['Team','users'],['API keys','key'],['Settings','cog']];
+  let html = '';
+  main.forEach(i => {
+    html += `<a href="#" class="${i[2]?'on':''}"><svg viewBox="0 0 24 24">${sideIcons[i[1]]}</svg>${i[0]}${i[0]==='Logs'?'<span class="pill mono" style="margin-left:auto;height:16px;font-size:9px">12</span>':''}</a>`;
+  });
+  html += `<div class="grp">Account</div>`;
+  acct.forEach(i => {
+    html += `<a href="#"><svg viewBox="0 0 24 24">${sideIcons[i[1]]}</svg>${i[0]}</a>`;
+  });
+  document.getElementById('sideNavList').innerHTML = html;
+
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+</script>
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>06 · Advanced controls — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  .scene { position: relative; width: 100%; min-height: 300px; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 8px; padding: 20px; }
+  .menu { width: 240px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); padding: 4px; font-size: var(--fs-sm); }
+  .menu .group-label { padding: 6px 10px 2px; font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .menu .row-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 5px; cursor: default; color: var(--text); }
+  .menu .row-item:hover { background: var(--bg-sunk); }
+  .menu .row-item.active { background: var(--accent-weak); color: var(--accent-ink); }
+  .menu .row-item.disabled { opacity: 0.4; cursor: not-allowed; }
+  .menu .row-item.danger { color: var(--err); }
+  .menu .row-item.danger:hover { background: color-mix(in oklch, var(--err) 10%, transparent); }
+  .menu .row-item svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.5; flex-shrink: 0; }
+  .menu .row-item .check { color: var(--accent); margin-left: auto; }
+  .menu .row-item.submenu::after { content: "›"; margin-left: auto; color: var(--text-dim); font-size: 14px; font-family: var(--font-mono); }
+  .menu .row-item .kbd-tail { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+  .menu .sep-h { height: 1px; background: var(--line); margin: 4px 0; }
+  .menu-search { padding: 6px 8px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+  .menu-search input { width: 100%; border: 0; outline: 0; background: transparent; font-size: var(--fs-sm); color: var(--text); }
+  .drag-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg-elev); }
+  .drag-row + .drag-row { margin-top: 6px; }
+  .drag-row.ghost { opacity: 0.5; border-style: dashed; }
+  .drag-handle { color: var(--text-dim); cursor: grab; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+      <a class="lib-link active" href="06-advanced.html">06 · Advanced controls</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">This page</div>
+      <a class="lib-link" href="#dropdown">Dropdown menu</a>
+      <a class="lib-link" href="#context">Context menu</a>
+      <a class="lib-link" href="#split">Split button</a>
+      <a class="lib-link" href="#combobox">Combobox</a>
+      <a class="lib-link" href="#multiselect">Multi-select</a>
+      <a class="lib-link" href="#tree">Tree</a>
+      <a class="lib-link" href="#cascader">Cascader</a>
+      <a class="lib-link" href="#taginput">Tag input</a>
+      <a class="lib-link" href="#daterange">Date range</a>
+      <a class="lib-link" href="#color">Color picker</a>
+      <a class="lib-link" href="#inline">Inline edit</a>
+      <a class="lib-link" href="#copy">Copy-to-clipboard</a>
+      <a class="lib-link" href="#reorder">Drag to reorder</a>
+      <a class="lib-link" href="#stepper">Number stepper</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Part 06 · Advanced controls</div>
+      <h1 class="lib-h1">The controls under the surface.</h1>
+      <p class="lib-lede">Dropdowns, trees, cascaders, date pickers — anything that opens or expands. Designed to feel snappy at operator speed, with keyboard hints everywhere.</p>
+    </header>
+
+    <section id="dropdown">
+      <h2 class="lib-section-title">Dropdown menu</h2>
+      <p class="lib-section-sub">Grouped items, shortcuts on the right rail, destructive items always last.</p>
+      <div class="demo">
+        <div class="demo-label">Service picker · filtered, grouped, checked</div>
+        <div class="demo-body" style="gap: 32px; align-items: flex-start">
+          <div class="menu">
+            <div class="menu-search">
+              <div class="row" style="gap: 6px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                <input placeholder="Filter services…" value="api">
+              </div>
+            </div>
+            <div class="group-label">Production</div>
+            <div class="row-item active"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg><mark>api</mark>-gateway<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+            <div class="row-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg><mark>api</mark>-auth</div>
+            <div class="row-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>internal-<mark>api</mark></div>
+            <div class="group-label">Staging</div>
+            <div class="row-item disabled"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg><mark>api</mark>-gateway-stg</div>
+          </div>
+
+          <div class="menu">
+            <div class="row-item"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New deployment<span class="kbd-tail">⌘↵</span></div>
+            <div class="row-item"><svg viewBox="0 0 24 24"><path d="M17 3L17 21M7 3L7 21M3 12L21 12"/></svg>Rollback…<span class="kbd-tail">⌘⇧R</span></div>
+            <div class="row-item submenu"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>Environment</div>
+            <div class="sep-h"></div>
+            <div class="row-item"><svg viewBox="0 0 24 24"><path d="M4 6h12M4 10h16M4 14h10"/></svg>View logs<span class="kbd-tail">L</span></div>
+            <div class="row-item"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 4 4-7 5 9"/></svg>Metrics<span class="kbd-tail">M</span></div>
+            <div class="sep-h"></div>
+            <div class="row-item"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="6" height="6"/><rect x="13" y="13" width="6" height="6"/></svg>Duplicate<span class="kbd-tail">⌘D</span></div>
+            <div class="row-item"><svg viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="10" rx="1"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></svg>Pause</div>
+            <div class="sep-h"></div>
+            <div class="row-item danger"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M6 6l1 14h10l1-14"/></svg>Delete…<span class="kbd-tail">⌫</span></div>
+          </div>
+
+          <div style="position: relative">
+            <div class="menu">
+              <div class="row-item">Production</div>
+              <div class="row-item active submenu">Staging</div>
+              <div class="row-item">Preview</div>
+              <div class="row-item">Development</div>
+            </div>
+            <div class="menu" style="position: absolute; top: -4px; left: 244px; width: 200px">
+              <div class="row-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>stg-us-east-1</div>
+              <div class="row-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>stg-eu-west-1</div>
+              <div class="row-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>stg-ap-south-1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">States</div>
+        <div class="demo-body">
+          <div class="menu" style="width: 220px">
+            <div class="row-item">Default</div>
+            <div class="row-item" style="background: var(--bg-sunk)">Hover</div>
+            <div class="row-item active">Active<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+            <div class="row-item disabled">Disabled</div>
+            <div class="sep-h"></div>
+            <div class="row-item danger">Destructive</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="context">
+      <h2 class="lib-section-title">Context menu</h2>
+      <p class="lib-section-sub">Right-click any row, node, or file. Flips to stay on-screen.</p>
+      <div class="demo">
+        <div class="demo-label">Right-clicked a service row</div>
+        <div class="demo-body plain" style="padding: 0">
+          <div class="scene" style="padding: 0; min-height: 280px">
+            <table class="tbl">
+              <thead><tr><th style="width:20px"></th><th>Name</th><th>Status</th><th>Region</th><th>Requests/m</th></tr></thead>
+              <tbody>
+                <tr><td><input type="checkbox" class="check"></td><td>api-gateway</td><td><span class="pill ok"><span class="dotc"></span>Healthy</span></td><td class="mono">us-east-1</td><td class="mono num">8,420</td></tr>
+                <tr style="background: var(--accent-weak)"><td><input type="checkbox" class="check" checked></td><td><b>ingest-worker</b></td><td><span class="pill warn"><span class="dotc"></span>Degraded</span></td><td class="mono">us-east-1</td><td class="mono num">12,800</td></tr>
+                <tr><td><input type="checkbox" class="check"></td><td>billing-sync</td><td><span class="pill ok"><span class="dotc"></span>Healthy</span></td><td class="mono">eu-west-1</td><td class="mono num">84</td></tr>
+                <tr><td><input type="checkbox" class="check"></td><td>mail-relay</td><td><span class="pill err"><span class="dotc"></span>Failing</span></td><td class="mono">us-east-1</td><td class="mono num">—</td></tr>
+              </tbody>
+            </table>
+            <div class="menu" style="position: absolute; top: 112px; left: 280px; width: 220px; box-shadow: var(--shadow-lg)">
+              <div class="row-item"><svg viewBox="0 0 24 24"><path d="M9 17l-4-5 4-5M15 7l4 5-4 5"/></svg>Open detail<span class="kbd-tail">↵</span></div>
+              <div class="row-item"><svg viewBox="0 0 24 24"><rect x="8" y="2" width="12" height="16" rx="1"/><path d="M4 6v14a2 2 0 0 0 2 2h10"/></svg>Copy ID<span class="kbd-tail">⌘C</span></div>
+              <div class="row-item"><svg viewBox="0 0 24 24"><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/></svg>Redeploy<span class="kbd-tail">⌘⇧D</span></div>
+              <div class="row-item"><svg viewBox="0 0 24 24"><path d="M12 2v6M2 12h6M22 12h-6M12 22v-6"/></svg>Restart<span class="kbd-tail">⌘R</span></div>
+              <div class="sep-h"></div>
+              <div class="row-item submenu"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 13h7v7h-7z"/></svg>Move to…</div>
+              <div class="row-item submenu"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg>Export as…</div>
+              <div class="sep-h"></div>
+              <div class="row-item danger"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete<span class="kbd-tail">⌫</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="split">
+      <h2 class="lib-section-title">Split button</h2>
+      <div class="demo">
+        <div class="demo-label">Primary action + variant dropdown</div>
+        <div class="demo-body">
+          <div class="split">
+            <button class="btn primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/></svg>Deploy to production</button>
+            <button class="btn primary"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          </div>
+          <div class="split">
+            <button class="btn">Save</button>
+            <button class="btn"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          </div>
+          <div class="split">
+            <button class="btn sm">Run query</button>
+            <button class="btn sm"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="combobox">
+      <h2 class="lib-section-title">Combobox / autocomplete</h2>
+      <p class="lib-section-sub">Type to filter; matched substring highlighted inline.</p>
+      <div class="demo">
+        <div class="demo-label">Region selector</div>
+        <div class="demo-body" style="gap: 28px; align-items: flex-start">
+          <div style="width: 300px">
+            <label class="field-label">Region</label>
+            <div class="combo">
+              <div class="input-group">
+                <input class="input" value="us-e" placeholder="Search region…">
+                <div class="affix r"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="list" style="position: relative; margin-top: 4px">
+                <div class="group-label">Americas</div>
+                <div class="opt active"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg><mark>us-e</mark>ast-1<span class="sub">N. Virginia</span></div>
+                <div class="opt"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg><mark>us-e</mark>ast-2<span class="sub">Ohio</span></div>
+                <div class="opt"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>us-west-2<span class="sub">Oregon</span></div>
+                <div class="group-label">Europe</div>
+                <div class="opt"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>eu-west-1<span class="sub">Ireland</span></div>
+                <div class="opt"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>eu-central-1<span class="sub">Frankfurt</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="width: 260px">
+            <label class="field-label">Empty state</label>
+            <div class="combo">
+              <div class="input-group"><input class="input" value="atlantis"></div>
+              <div class="list" style="position: relative; margin-top: 4px; padding: 16px; text-align: center">
+                <div style="color: var(--text-dim); font-size: 11px">No region matches <span class="mono">atlantis</span></div>
+                <button class="btn xs ghost" style="margin-top: 6px">Request a region ↗</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="multiselect">
+      <h2 class="lib-section-title">Multi-select</h2>
+      <div class="demo">
+        <div class="demo-label">Environment filter</div>
+        <div class="demo-body" style="align-items: flex-start">
+          <div style="width: 280px">
+            <label class="field-label">Environments <span class="mono" style="color: var(--text-dim); font-size: 10px">(2 selected)</span></label>
+            <div class="tag-input">
+              <span class="tag">production<button>×</button></span>
+              <span class="tag">staging<button>×</button></span>
+              <input placeholder="Add…" style="min-width: 60px">
+            </div>
+            <div class="menu" style="margin-top: 4px; width: 100%">
+              <div class="row-item"><input type="checkbox" class="check" checked>Production<span style="margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim)">24</span></div>
+              <div class="row-item"><input type="checkbox" class="check" checked>Staging<span style="margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim)">12</span></div>
+              <div class="row-item"><input type="checkbox" class="check">Preview<span style="margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim)">48</span></div>
+              <div class="row-item"><input type="checkbox" class="check">Development<span style="margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim)">3</span></div>
+              <div class="sep-h"></div>
+              <div class="row-item" style="color: var(--accent-ink); font-size: 11px"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Select all</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tree">
+      <h2 class="lib-section-title">Tree</h2>
+      <p class="lib-section-sub">14px indent per level, dashed guide lines, monospace meta on the right.</p>
+      <div class="demo">
+        <div class="demo-label">Resource tree · workspace → project → service</div>
+        <div class="demo-body plain" style="padding: 16px">
+          <div class="tree" style="width: 420px">
+            <div class="node open">
+              <span class="caret"><svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19"/></svg></span>
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+              Linden Labs
+              <span class="meta">3 projects</span>
+            </div>
+            <div class="children">
+              <div class="node open">
+                <span class="caret"><svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19"/></svg></span>
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l9-4 9 4-9 4-9-4zm0 5l9 4 9-4"/></svg>
+                api-platform
+                <span class="meta">8 services</span>
+              </div>
+              <div class="children">
+                <div class="node selected"><span class="caret leaf"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>api-gateway<span class="meta" style="color: var(--accent-ink)">v142</span></div>
+                <div class="node"><span class="caret leaf"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>auth-service<span class="meta">v88</span></div>
+                <div class="node"><span class="caret leaf"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>ingest-worker<span class="meta">v204</span></div>
+                <div class="node open">
+                  <span class="caret"><svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19"/></svg></span>
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v14c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/></svg>
+                  postgres-primary
+                </div>
+                <div class="children">
+                  <div class="node"><span class="caret leaf"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>users_db<span class="meta">12 GB</span></div>
+                  <div class="node"><span class="caret leaf"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>events_db<span class="meta">84 GB</span></div>
+                </div>
+              </div>
+              <div class="node">
+                <span class="caret"><svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19"/></svg></span>
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l9-4 9 4-9 4-9-4zm0 5l9 4 9-4"/></svg>
+                billing
+                <span class="meta">4 services</span>
+              </div>
+              <div class="node">
+                <span class="caret"><svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19"/></svg></span>
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l9-4 9 4-9 4-9-4zm0 5l9 4 9-4"/></svg>
+                analytics
+                <span class="meta">6 services</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cascader">
+      <h2 class="lib-section-title">Cascader</h2>
+      <p class="lib-section-sub">Drill through related hierarchies — region → AZ → subnet.</p>
+      <div class="demo">
+        <div class="demo-label">Pick region → AZ → subnet</div>
+        <div class="demo-body" style="gap: 16px; align-items: flex-start">
+          <button class="btn" style="width: 300px; justify-content: space-between">
+            <span class="mono" style="font-size: 12px">us-east-1 / use1-az4 / subnet-0a8f</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="cascader">
+            <div class="cascader-col">
+              <div class="opt">us-west-2<span class="sub">›</span></div>
+              <div class="opt active">us-east-1<span class="sub">›</span></div>
+              <div class="opt">us-east-2<span class="sub">›</span></div>
+              <div class="opt">eu-west-1<span class="sub">›</span></div>
+              <div class="opt">eu-central-1<span class="sub">›</span></div>
+              <div class="opt">ap-south-1<span class="sub">›</span></div>
+            </div>
+            <div class="cascader-col">
+              <div class="opt">use1-az1<span class="sub">›</span></div>
+              <div class="opt">use1-az2<span class="sub">›</span></div>
+              <div class="opt">use1-az3<span class="sub">›</span></div>
+              <div class="opt active">use1-az4<span class="sub">›</span></div>
+            </div>
+            <div class="cascader-col">
+              <div class="opt selected">subnet-0a8f<span class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+              <div class="opt">subnet-4c1d</div>
+              <div class="opt">subnet-9b72</div>
+              <div class="opt">subnet-e340</div>
+              <div class="opt" style="color: var(--text-dim)">+ Create new subnet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="taginput">
+      <h2 class="lib-section-title">Tag input</h2>
+      <p class="lib-section-sub"><kbd>↵</kbd> or <kbd>,</kbd> to add, <kbd>⌫</kbd> on empty to delete the last.</p>
+      <div class="demo">
+        <div class="demo-label">Labels, domains, emails</div>
+        <div class="demo-body" style="flex-direction: column; align-items: stretch; gap: 16px; max-width: 520px">
+          <div>
+            <label class="field-label">Tags</label>
+            <div class="tag-input">
+              <span class="tag">team:platform<button>×</button></span>
+              <span class="tag">tier:1<button>×</button></span>
+              <span class="tag">owner:maya<button>×</button></span>
+              <input placeholder="Add tag…">
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Allowed domains</label>
+            <div class="tag-input">
+              <span class="tag">linden.com<button>×</button></span>
+              <span class="tag">*.linden.dev<button>×</button></span>
+              <input value="staging." placeholder="example.com">
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Invite collaborators</label>
+            <div class="tag-input">
+              <span class="tag">maya@linden.com<button>×</button></span>
+              <span class="tag" style="background: color-mix(in oklch, var(--err) 18%, transparent); color: var(--err)">notavalidemail<button>×</button></span>
+              <input placeholder="name@company.com">
+            </div>
+            <div style="font-size: 11px; color: var(--err); margin-top: 4px">One email is invalid.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="daterange">
+      <h2 class="lib-section-title">Date range picker</h2>
+      <p class="lib-section-sub">Presets on the left, calendar on the right.</p>
+      <div class="demo">
+        <div class="demo-label">Range</div>
+        <div class="demo-body" style="gap: 28px; align-items: flex-start">
+          <button class="btn" style="width: 240px; justify-content: space-between">
+            <span class="row" style="gap: 8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg><span class="mono" style="font-size: 12px">Mar 14 – Mar 22</span></span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div style="display: flex; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); overflow: hidden">
+            <div style="width: 140px; padding: 8px 4px; border-right: 1px solid var(--line); font-size: 12px">
+              <div style="display:flex;padding:5px 10px;border-radius:4px">Today</div>
+              <div style="display:flex;padding:5px 10px;border-radius:4px">Yesterday</div>
+              <div style="display:flex;padding:5px 10px;border-radius:4px">Last 24h</div>
+              <div style="display:flex;padding:5px 10px;border-radius:4px;background:var(--accent-weak);color:var(--accent-ink)">Last 7 days</div>
+              <div style="display:flex;padding:5px 10px;border-radius:4px">Last 30 days</div>
+              <div style="display:flex;padding:5px 10px;border-radius:4px">Last quarter</div>
+              <div style="height:1px;background:var(--line);margin:4px 0"></div>
+              <div style="display:flex;padding:5px 10px;border-radius:4px;color:var(--text-dim)">Custom…</div>
+            </div>
+            <div class="datepicker" style="border: 0; box-shadow: none; width: 240px; border-radius: 0">
+              <div class="dp-head">
+                <button class="btn icon xs ghost"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <b>March 2025</b>
+                <button class="btn icon xs ghost"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
+              <div class="dp-grid" id="cal"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="color">
+      <h2 class="lib-section-title">Color / token picker</h2>
+      <div class="demo">
+        <div class="demo-label">Tag color</div>
+        <div class="demo-body" style="gap: 28px; align-items: flex-start">
+          <button class="btn sm" style="gap: 8px"><span style="width:12px;height:12px;border-radius:3px;background:oklch(0.62 0.14 230)"></span>Primary<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <div>
+            <div class="swatches" id="swatches"></div>
+            <div class="mono" style="font-size: 10.5px; color: var(--text-dim); margin-top: 6px">token: <span style="color: var(--text)">--accent-blue</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="inline">
+      <h2 class="lib-section-title">Inline edit</h2>
+      <div class="demo">
+        <div class="demo-label">Click to edit in place</div>
+        <div class="demo-body" style="flex-direction: column; align-items: stretch; gap: 14px; max-width: 500px">
+          <div>
+            <div class="field-label">Service name</div>
+            <span class="inline-edit" style="font-size: 18px; font-weight: 600">api-gateway<svg class="pencil" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20h4L20 8l-4-4L4 16z"/></svg></span>
+          </div>
+          <div>
+            <div class="field-label">Being edited</div>
+            <div style="display: flex; align-items: center; gap: 6px">
+              <input class="input sm" value="api-gateway" style="width: 220px">
+              <button class="btn icon sm primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></button>
+              <button class="btn icon sm ghost"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+              <span class="mono" style="font-size: 10px; color: var(--text-dim)">⌘↵ save · esc cancel</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Description</div>
+            <div class="inline-edit" style="color: var(--text-dim); font-size: 13px">Click to add description…<svg class="pencil" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20h4L20 8l-4-4L4 16z"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="copy">
+      <h2 class="lib-section-title">Copy-to-clipboard</h2>
+      <div class="demo">
+        <div class="demo-label">IDs & secrets</div>
+        <div class="demo-body" style="flex-direction: column; align-items: flex-start; gap: 12px">
+          <div class="row" style="gap: 12px">
+            <span class="field-label" style="width: 80px; margin: 0">Service ID</span>
+            <span class="copy-field"><span class="val">svc_8f2a10e47c9b</span><button class="btn icon xs ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></span>
+          </div>
+          <div class="row" style="gap: 12px">
+            <span class="field-label" style="width: 80px; margin: 0">API key</span>
+            <span class="copy-field"><span class="val">nc_live_••••••••••••K7qZ</span><button class="btn icon xs ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="btn icon xs ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button></span>
+          </div>
+          <div class="row" style="gap: 12px">
+            <span class="field-label" style="width: 80px; margin: 0">Just copied</span>
+            <span class="copy-field" style="border-color: var(--ok); color: var(--ok)"><span class="val">svc_8f2a10e47c9b</span><span class="row" style="gap: 4px; color: var(--ok); font-size: 11px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Copied</span></span>
+          </div>
+          <div class="row" style="gap: 12px; align-items: flex-start">
+            <span class="field-label" style="width: 80px; margin: 4px 0 0">Connection</span>
+            <div style="background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 11.5px; color: var(--text); position: relative; min-width: 420px">
+              <div style="color: var(--text-dim); margin-bottom: 4px">$ psql</div>
+              <div>postgres://maya:••••@db.linden.cloud:5432/events_db</div>
+              <button class="btn icon xs ghost" style="position: absolute; top: 6px; right: 6px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="reorder">
+      <h2 class="lib-section-title">Drag to reorder</h2>
+      <div class="demo">
+        <div class="demo-label">Priority order</div>
+        <div class="demo-body" style="flex-direction: column; align-items: stretch; max-width: 500px">
+          <div class="drag-row"><span class="drag-handle"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="2" cy="2" r="1.3"/><circle cx="8" cy="2" r="1.3"/><circle cx="2" cy="7" r="1.3"/><circle cx="8" cy="7" r="1.3"/><circle cx="2" cy="12" r="1.3"/><circle cx="8" cy="12" r="1.3"/></svg></span><span class="mono" style="font-size:11px;color:var(--text-dim);width:20px">1.</span>Severity (desc)</div>
+          <div class="drag-row" style="border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak)"><span class="drag-handle" style="color: var(--accent)"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="2" cy="2" r="1.3"/><circle cx="8" cy="2" r="1.3"/><circle cx="2" cy="7" r="1.3"/><circle cx="8" cy="7" r="1.3"/><circle cx="2" cy="12" r="1.3"/><circle cx="8" cy="12" r="1.3"/></svg></span><span class="mono" style="font-size:11px;color:var(--text-dim);width:20px">2.</span>First seen (asc)<span style="margin-left:auto;font-size:11px;color:var(--text-dim)">dragging…</span></div>
+          <div class="drag-row ghost"><span class="drag-handle"></span><span style="color:var(--text-dim);font-size:11px">drop here</span></div>
+          <div class="drag-row"><span class="drag-handle"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="2" cy="2" r="1.3"/><circle cx="8" cy="2" r="1.3"/><circle cx="2" cy="7" r="1.3"/><circle cx="8" cy="7" r="1.3"/><circle cx="2" cy="12" r="1.3"/><circle cx="8" cy="12" r="1.3"/></svg></span><span class="mono" style="font-size:11px;color:var(--text-dim);width:20px">3.</span>Service (asc)</div>
+          <button class="btn sm ghost" style="margin-top: 8px; align-self: flex-start">+ Add sort key</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="stepper">
+      <h2 class="lib-section-title">Number stepper & slider</h2>
+      <div class="demo">
+        <div class="demo-label">Numeric controls</div>
+        <div class="demo-body" style="gap: 28px; align-items: flex-start">
+          <div>
+            <label class="field-label">Replicas</label>
+            <div style="display:inline-flex; height:28px; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:var(--bg-elev); box-shadow:var(--shadow-sm)">
+              <button class="btn ghost" style="height:26px;border-radius:0;border:0;box-shadow:none;border-right:1px solid var(--line)">−</button>
+              <input class="input" value="4" style="height:26px;border:0;border-radius:0;width:52px;text-align:center;font-family:var(--font-mono)">
+              <button class="btn ghost" style="height:26px;border-radius:0;border:0;box-shadow:none;border-left:1px solid var(--line)">+</button>
+            </div>
+            <div class="mono" style="font-size: 10.5px; color: var(--text-dim); margin-top: 4px">min 1 · max 20</div>
+          </div>
+          <div style="flex: 1; max-width: 340px">
+            <div class="spread" style="margin-bottom: 8px"><label class="field-label" style="margin: 0">Memory</label><span class="mono" style="font-size:11px;color:var(--text)">2.5 GB</span></div>
+            <div style="position:relative;height:20px">
+              <div style="position:absolute;top:9px;left:0;right:0;height:3px;background:var(--bg-sunk);border-radius:999px"></div>
+              <div style="position:absolute;top:9px;left:0;width:38%;height:3px;background:var(--accent);border-radius:999px"></div>
+              <div style="position:absolute;top:4px;left:calc(38% - 7px);width:14px;height:14px;border-radius:50%;background:var(--bg-elev);border:2px solid var(--accent);box-shadow:var(--shadow-sm)"></div>
+            </div>
+            <div class="spread mono" style="font-size: 10.5px; color: var(--text-dim); margin-top: 4px"><span>512 MB</span><span>8 GB</span></div>
+          </div>
+          <div>
+            <label class="field-label">Timeout</label>
+            <div class="input-group" style="width: 160px">
+              <input class="input" value="30" style="text-align: right; font-family: var(--font-mono)">
+              <div class="affix r"><span style="font-size: 11px; color: var(--text-dim)">seconds</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const cal = document.getElementById('cal');
+  let calHTML = ['M','T','W','T','F','S','S'].map(d => `<div class="h">${d}</div>`).join('');
+  const prevDays = [24,25,26,27,28];
+  prevDays.forEach(d => calHTML += `<div class="d dim">${d}</div>`);
+  for (let i = 1; i <= 31; i++) {
+    let cls = 'd';
+    if (i === 14) cls += ' start';
+    else if (i > 14 && i < 22) cls += ' range';
+    else if (i === 22) cls += ' end';
+    else if (i === 18) cls += ' today';
+    calHTML += `<div class="${cls}">${i}</div>`;
+  }
+  const total = 5 + 31;
+  for (let i = 1; i <= 42 - total; i++) calHTML += `<div class="d dim">${i}</div>`;
+  cal.innerHTML = calHTML;
+
+  const colors = [
+    ['oklch(0.62 0.14 230)', '--accent-blue', true],
+    ['oklch(0.58 0.17 280)', '--accent-violet', false],
+    ['oklch(0.64 0.17 330)', '--accent-pink', false],
+    ['oklch(0.58 0.2 28)',   '--accent-red', false],
+    ['oklch(0.7 0.17 65)',   '--accent-amber', false],
+    ['oklch(0.74 0.18 140)', '--accent-green', false],
+    ['oklch(0.7 0.11 200)',  '--accent-cyan', false],
+    ['oklch(0.6 0.08 260)',  '--accent-slate', false],
+    ['oklch(0.76 0.1 90)',   '--accent-olive', false],
+    ['oklch(0.82 0.08 170)', '--accent-mint', false],
+    ['oklch(0.78 0.1 20)',   '--accent-coral', false],
+    ['oklch(0.5 0 0)',       '--accent-gray', false],
+  ];
+  document.getElementById('swatches').innerHTML = colors.map(c =>
+    `<div class="swatch${c[2]?' on':''}" style="background:${c[0]}" title="${c[1]}"></div>`
+  ).join('');
+
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+</script>
+</body>
+</html>

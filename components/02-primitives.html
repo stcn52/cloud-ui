@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>02 · Primitives — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link active" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+      <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">This page</div>
+      <a class="lib-link" href="#buttons">Buttons</a>
+      <a class="lib-link" href="#inputs">Inputs</a>
+      <a class="lib-link" href="#selects">Select & textarea</a>
+      <a class="lib-link" href="#toggles">Checkbox, radio, switch</a>
+      <a class="lib-link" href="#pills">Pills & badges</a>
+      <a class="lib-link" href="#avatars">Avatars</a>
+      <a class="lib-link" href="#keyboard">Keyboard</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">Product</div>
+      <a class="lib-link" href="../NextCli Console.html">↗ Console demo</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Part 02 · Primitives</div>
+      <h1 class="lib-h1">The atoms every screen is built from.</h1>
+      <p class="lib-lede">
+        Buttons, inputs, pills and toggles. Every variant is a modifier class on a single base —
+        never a new component. Keep the surface tiny on purpose.
+      </p>
+    </header>
+
+    <section id="buttons">
+      <h2 class="lib-section-title">Buttons</h2>
+      <p class="lib-section-sub">One base <code class="mono">.btn</code>, six intents, three sizes. Primary is reserved for the main action on a page — never two at once.</p>
+
+      <div class="demo">
+        <div class="demo-label">Intents <span class="sub">.btn.primary · .subtle · .ghost · .outline · .danger</span></div>
+        <div class="demo-body">
+          <button class="btn primary">Deploy to prod</button>
+          <button class="btn">Cancel</button>
+          <button class="btn subtle">Promote</button>
+          <button class="btn ghost">Skip for now</button>
+          <button class="btn outline">Outline</button>
+          <button class="btn danger">Delete project</button>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Sizes <span class="sub">.xs · .sm · (default) · .lg</span></div>
+        <div class="demo-body">
+          <button class="btn primary xs">xs</button>
+          <button class="btn primary sm">sm</button>
+          <button class="btn primary">default</button>
+          <button class="btn primary lg">lg</button>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">States</div>
+        <div class="demo-body">
+          <button class="btn primary">Default</button>
+          <button class="btn primary" style="filter: brightness(1.06)">Hover</button>
+          <button class="btn primary" style="box-shadow: var(--shadow-sm), var(--focus-ring)">Focus</button>
+          <button class="btn primary loading">Saving…</button>
+          <button class="btn primary" disabled>Disabled</button>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">With icon & group</div>
+        <div class="demo-body">
+          <button class="btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/></svg>
+            Deploy
+          </button>
+          <button class="btn primary">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New resource
+          </button>
+          <button class="btn icon" title="More">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>
+          </button>
+          <div class="btn-group">
+            <button class="btn">Day</button>
+            <button class="btn" style="background:var(--bg-sunk)">Week</button>
+            <button class="btn">Month</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="inputs">
+      <h2 class="lib-section-title">Text inputs</h2>
+
+      <div class="demo">
+        <div class="demo-label">Sizes & states</div>
+        <div class="demo-body" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start">
+          <div class="field"><label>Default</label><input class="input" placeholder="linden-labs"></div>
+          <div class="field"><label>Small</label><input class="input sm" placeholder="Filter"></div>
+          <div class="field"><label>Large</label><input class="input lg" placeholder="Project name"></div>
+          <div class="field"><label>Focused</label><input class="input" value="api-gateway" style="border-color: var(--accent); box-shadow: var(--focus-ring)"></div>
+          <div class="field"><label>Disabled</label><input class="input" value="locked" disabled></div>
+          <div class="field"><label>Error</label><input class="input invalid" value="bad value"><span class="err">Must be lowercase kebab-case.</span></div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">With affix & icon</div>
+        <div class="demo-body" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; align-items: start">
+          <div class="field"><label>Endpoint</label>
+            <div class="input-group">
+              <div class="affix">https://</div>
+              <input class="input mono" value="api.linden.dev">
+              <div class="affix r">.linden.sh</div>
+            </div>
+          </div>
+          <div class="field"><label>Price cap</label>
+            <div class="input-group">
+              <div class="affix">$</div>
+              <input class="input mono num" value="25.00">
+              <div class="affix r">USD / mo</div>
+            </div>
+          </div>
+          <div class="field"><label>Search</label>
+            <div class="input-group">
+              <div class="affix"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+              <input class="input" placeholder="Find a service…">
+              <div class="affix r"><kbd>⌘K</kbd></div>
+            </div>
+          </div>
+          <div class="field"><label>Secret</label>
+            <div class="input-group">
+              <input class="input mono" value="••••••••••8a71">
+              <div class="affix r"><button class="btn xs ghost" style="height:18px">reveal</button></div>
+            </div>
+            <span class="hint">Never shown again after you leave this page.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="selects">
+      <h2 class="lib-section-title">Select & Textarea</h2>
+      <div class="demo">
+        <div class="demo-label">Native select</div>
+        <div class="demo-body" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start">
+          <div class="field"><label>Region</label>
+            <select class="select">
+              <option>us-east-1 (N. Virginia)</option>
+              <option>us-west-2 (Oregon)</option>
+              <option>eu-west-1 (Ireland)</option>
+            </select>
+          </div>
+          <div class="field"><label>Plan</label>
+            <select class="select">
+              <option>Starter · $7 /mo</option>
+              <option>Pro 2× · $24 /mo</option>
+              <option>Pro 4× · $48 /mo</option>
+            </select>
+          </div>
+          <div class="field"><label>Notes</label>
+            <textarea class="textarea" placeholder="Migration runbook…"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="toggles">
+      <h2 class="lib-section-title">Checkbox, Radio, Switch</h2>
+
+      <div class="demo">
+        <div class="demo-label">Checkbox</div>
+        <div class="demo-body">
+          <label class="check-row"><input type="checkbox" class="check"><span class="lbl">Unchecked</span></label>
+          <label class="check-row"><input type="checkbox" class="check" checked><span class="lbl">Checked</span></label>
+          <label class="check-row"><input type="checkbox" class="check" id="indet"><span class="lbl">Indeterminate</span></label>
+          <label class="check-row"><input type="checkbox" class="check" disabled><span class="lbl" style="color:var(--text-dim)">Disabled</span></label>
+          <script>document.getElementById('indet').indeterminate = true;</script>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Radio</div>
+        <div class="demo-body">
+          <label class="radio-row"><input type="radio" name="r" class="radio"><span class="lbl">Public</span></label>
+          <label class="radio-row"><input type="radio" name="r" class="radio" checked><span class="lbl">Team only</span></label>
+          <label class="radio-row"><input type="radio" name="r" class="radio"><span class="lbl">Owner only</span></label>
+          <label class="radio-row"><input type="radio" name="r" class="radio" disabled><span class="lbl" style="color:var(--text-dim)">Enterprise</span></label>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Switch</div>
+        <div class="demo-body">
+          <label class="check-row"><input type="checkbox" class="switch"><span class="lbl">Auto-deploy main</span></label>
+          <label class="check-row"><input type="checkbox" class="switch" checked><span class="lbl">Preview deploys</span></label>
+          <label class="check-row"><input type="checkbox" class="switch" checked><span class="lbl">2FA required</span></label>
+          <label class="check-row"><input type="checkbox" class="switch" disabled><span class="lbl" style="color:var(--text-dim)">Audit log (Enterprise)</span></label>
+        </div>
+      </div>
+    </section>
+
+    <section id="pills">
+      <h2 class="lib-section-title">Pills & Badges</h2>
+
+      <div class="demo">
+        <div class="demo-label">Status pills</div>
+        <div class="demo-body">
+          <span class="pill ok"><span class="dotc"></span>Healthy</span>
+          <span class="pill warn"><span class="dotc"></span>Degraded</span>
+          <span class="pill err"><span class="dotc"></span>Failing</span>
+          <span class="pill info"><span class="dotc"></span>Building</span>
+          <span class="pill"><span class="dotc"></span>Paused</span>
+          <span class="pill solid">v142</span>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Tag / chip</div>
+        <div class="demo-body">
+          <span class="pill mono">env:prod</span>
+          <span class="pill mono">region:us-east-1</span>
+          <span class="pill mono info">service:api-gateway</span>
+          <span class="pill mono">level:ERROR<button class="x">×</button></span>
+          <span class="pill lg"><span class="dotc" style="color:var(--ok)"></span>Online · 12 instances</span>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Status dot</div>
+        <div class="demo-body" style="gap: 20px">
+          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot ok"></span> Operational</span>
+          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot warn"></span> Degraded</span>
+          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot err"></span> Outage</span>
+          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot"></span> Unknown</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="avatars">
+      <h2 class="lib-section-title">Avatars</h2>
+
+      <div class="demo">
+        <div class="demo-label">Shapes, sizes, stack</div>
+        <div class="demo-body">
+          <div class="avatar sm">MC</div>
+          <div class="avatar">JP</div>
+          <div class="avatar lg">AP</div>
+          <div class="avatar sq">JK</div>
+          <div class="avatar-stack">
+            <div class="avatar" style="background: linear-gradient(135deg, oklch(0.78 0.08 40), oklch(0.55 0.12 10))">MC</div>
+            <div class="avatar" style="background: linear-gradient(135deg, oklch(0.78 0.08 180), oklch(0.55 0.12 210))">TW</div>
+            <div class="avatar" style="background: linear-gradient(135deg, oklch(0.78 0.08 280), oklch(0.55 0.12 310))">AP</div>
+            <div class="avatar" style="background: linear-gradient(135deg, oklch(0.78 0.08 120), oklch(0.55 0.12 150))">JK</div>
+            <div class="avatar" style="background: var(--bg-sunk); color: var(--text-muted); border: 1px solid var(--line)">+3</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="keyboard">
+      <h2 class="lib-section-title">Keyboard</h2>
+      <div class="demo">
+        <div class="demo-label">Keys</div>
+        <div class="demo-body">
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>⌘</kbd><kbd>K</kbd> open palette</span>
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>⇧</kbd><kbd>/</kbd> shortcuts</span>
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>G</kbd> then <kbd>D</kbd> go to deployments</span>
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>↵</kbd> confirm</span>
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>Esc</kbd> dismiss</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+</script>
+</body>
+</html>
