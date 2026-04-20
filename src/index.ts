@@ -1,5 +1,19 @@
 import './styles/index.css'
 
+// Config, locales, hooks
+export {
+  ConfigProvider,
+  useConfig,
+  useLocale,
+  useTheme,
+  useSize,
+  type ConfigProviderProps,
+  type ConfigValue,
+  type Theme,
+  type Size,
+} from './context/ConfigProvider'
+export { en, zhCN, type Locale } from './locale'
+
 // 02 · Primitives
 export * from './components/Button'
 export * from './components/Input'
