@@ -1,5 +1,6 @@
 import { useMemo, useState, type HTMLAttributes } from 'react'
 import { tv } from 'tailwind-variants'
+import { useLocale } from '../../context/ConfigProvider'
 
 function startOfDay(d: Date): Date {
   const x = new Date(d)
@@ -79,6 +80,7 @@ export function DatePicker({
   className,
   ...rest
 }: DatePickerProps) {
+  const locale = useLocale()
   const today = useMemo(() => startOfDay(new Date()), [])
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | DateRange | null>(defaultValue)
   const value = valueProp !== undefined ? valueProp : uncontrolledValue
@@ -163,7 +165,7 @@ export function DatePicker({
         <button
           type="button"
           className={navBtn()}
-          aria-label="Previous month"
+          aria-label={locale.datePicker.prevMonth}
           onClick={() => setMonth(addMonths(viewMonth, -1))}
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -176,7 +178,7 @@ export function DatePicker({
         <button
           type="button"
           className={navBtn()}
-          aria-label="Next month"
+          aria-label={locale.datePicker.nextMonth}
           onClick={() => setMonth(addMonths(viewMonth, 1))}
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>

@@ -1,0 +1,1111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>09 · App layouts — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* Shared layout-demo shell */
+  .demo-body.page { padding: 0; background: var(--bg); display: block; min-height: 0; }
+  .frame { background: var(--bg); overflow: hidden; }
+  .chrome { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--panel); font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+  .chrome .dots { display: flex; gap: 4px; }
+  .chrome .dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); }
+  .chrome .url { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 2px 8px; text-align: center; }
+
+  /* Generic mini-app scaffolding */
+  .mini-side { background: var(--panel); border-right: 1px solid var(--line); padding: 12px 10px; font-size: 12px; }
+  .mini-side .brand { display: flex; align-items: center; gap: 8px; padding: 4px 6px 12px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .mini-side .brand .m { width: 20px; height: 20px; border-radius: 5px; background: linear-gradient(135deg, var(--accent), var(--accent-ink)); }
+  .mini-side .brand b { font-size: 12.5px; }
+  .mini-side .ttl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 6px 6px 2px; font-weight: 500; }
+  .mini-side a { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 5px; color: var(--text-muted); cursor: default; font-size: 12px; }
+  .mini-side a .c { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+  .mini-side a.on { background: var(--accent-weak); color: var(--accent-ink); font-weight: 500; }
+  .mini-side a svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; flex-shrink: 0; }
+
+  .mini-top { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--bg-elev); }
+  .mini-top .trail { font-size: 12px; color: var(--text-dim); display: flex; gap: 5px; align-items: center; }
+  .mini-top .trail .sep { color: var(--line-strong); }
+  .mini-top .trail b { color: var(--text); }
+
+  /* Tile / card helpers */
+  .tile { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .tile .h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  .tile .l { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); font-weight: 500; }
+  .tile .v { font-family: var(--font-mono); font-size: 22px; font-weight: 500; letter-spacing: -0.01em; margin-top: 4px; }
+
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+  .span-4 { grid-column: span 4; }
+
+  .spark { width: 100%; height: 28px; }
+
+  /* Split bar for small bars */
+  .minibar { height: 6px; background: var(--bg-sunk); border-radius: 3px; overflow: hidden; }
+  .minibar > span { display: block; height: 100%; background: var(--accent); }
+
+  /* Detail/Inspector */
+  .inspect { padding: 14px 16px; font-size: 12px; display: flex; flex-direction: column; gap: 14px; }
+  .inspect .kv { display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; font-family: var(--font-mono); font-size: 11px; }
+  .inspect .kv .k { color: var(--text-dim); }
+  .inspect .kv .v { color: var(--text); }
+
+  /* Command center grid layout */
+  .cc { display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: minmax(90px, auto); gap: 10px; padding: 14px; }
+  .cc .tile { padding: 10px 12px; }
+
+  /* Fake sparkline svg helper */
+  .mini-chart { width: 100%; height: 120px; background: var(--bg-sunk); border-radius: 4px; position: relative; overflow: hidden; }
+
+  /* Docs-layout bits */
+  .docs-grid { display: grid; grid-template-columns: 200px 1fr 220px; min-height: 460px; }
+  .docs-nav { border-right: 1px solid var(--line); background: var(--panel); padding: 16px 12px; font-size: 12px; }
+  .docs-nav .ttl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 8px 6px 4px; font-weight: 500; }
+  .docs-nav a { display: block; padding: 4px 6px; border-radius: 4px; color: var(--text-muted); }
+  .docs-nav a.on { color: var(--accent-ink); background: var(--accent-weak); }
+  .docs-nav a.sub { padding-left: 16px; color: var(--text-dim); font-size: 11.5px; }
+  .docs-body { padding: 22px 28px; max-width: 640px; }
+  .docs-body h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 8px; }
+  .docs-body p { font-size: 13px; color: var(--text-muted); line-height: 1.65; max-width: 560px; }
+  .docs-toc { border-left: 1px solid var(--line); padding: 16px 14px; font-size: 11.5px; background: var(--bg); }
+  .docs-toc .ttl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 0 4px 6px; font-weight: 500; }
+  .docs-toc a { display: block; padding: 3px 6px; color: var(--text-muted); border-radius: 3px; border-left: 2px solid transparent; }
+  .docs-toc a.on { color: var(--accent-ink); border-left-color: var(--accent); }
+
+  /* Auth split */
+  .auth { display: grid; grid-template-columns: 1fr 1fr; min-height: 500px; }
+  .auth-panel { padding: 44px 48px; display: flex; flex-direction: column; justify-content: center; }
+  .auth-art { background:
+      radial-gradient(circle at 30% 30%, color-mix(in oklch, var(--accent) 24%, transparent), transparent 60%),
+      radial-gradient(circle at 70% 70%, color-mix(in oklch, oklch(0.64 0.17 330) 22%, transparent), transparent 60%),
+      linear-gradient(135deg, oklch(0.22 0.04 250), oklch(0.16 0.04 250));
+    display: flex; flex-direction: column; justify-content: space-between; padding: 36px; color: white; position: relative; overflow: hidden; }
+  .auth-art::before { content:""; position: absolute; inset: 0; background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 48px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 48px); }
+  .auth-art > * { position: relative; }
+
+  /* Two-pane editor */
+  .edit { display: grid; grid-template-columns: 220px 1fr 1fr; min-height: 460px; }
+  .edit-files { background: var(--panel); border-right: 1px solid var(--line); padding: 10px; font-family: var(--font-mono); font-size: 11px; }
+  .edit-files .f { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 3px; color: var(--text-muted); cursor: default; }
+  .edit-files .f.on { background: var(--accent-weak); color: var(--accent-ink); }
+  .edit-pane { border-right: 1px solid var(--line); }
+  .edit-pane .head { padding: 6px 12px; font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); border-bottom: 1px solid var(--line); background: var(--bg-sunk); display: flex; align-items: center; gap: 8px; }
+  .edit-pane .body-code { padding: 12px; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.65; color: var(--text); white-space: pre; overflow: auto; }
+  .edit-pane .body-code .cm { color: var(--text-dim); font-style: italic; }
+  .edit-pane .body-code .kw { color: oklch(0.54 0.18 280); }
+  .edit-pane .body-code .str { color: oklch(0.52 0.16 140); }
+
+  /* Kanban big */
+  .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 14px; min-height: 420px; }
+  .board .col { background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+  .board .col h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 2px 4px 8px; display: flex; justify-content: space-between; }
+  .board .k { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; box-shadow: var(--shadow-sm); font-size: 12px; }
+
+  /* Calendar layout */
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 72px; }
+  .cal .cell { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px 8px; font-size: 11px; color: var(--text-muted); position: relative; }
+  .cal .cell .d { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); }
+  .cal .cell.today .d { color: var(--accent-ink); font-weight: 700; }
+  .cal .cell .ev { display: block; padding: 2px 5px; border-radius: 3px; font-size: 10.5px; margin-top: 3px; color: var(--accent-ink); background: var(--accent-weak); border-left: 2px solid var(--accent); }
+  .cal .cell .ev.warn { color: oklch(0.45 0.12 75); background: color-mix(in oklch, var(--warn) 15%, transparent); border-left-color: var(--warn); }
+  .cal .cell .ev.err { color: var(--err); background: color-mix(in oklch, var(--err) 14%, transparent); border-left-color: var(--err); }
+  .cal .head { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); border-bottom: 1px solid var(--line); padding: 6px 8px; font-weight: 500; background: var(--bg-sunk); }
+
+  /* Full-bleed marketing */
+  .mkt { background: var(--bg); color: var(--text); }
+  .mkt-nav { display: flex; align-items: center; padding: 14px 28px; border-bottom: 1px solid var(--line); }
+  .mkt-nav .links { display: flex; gap: 18px; margin: 0 auto; font-size: 13px; color: var(--text-muted); }
+  .mkt-hero { padding: 56px 28px 48px; max-width: 900px; margin: 0 auto; text-align: left; }
+  .mkt-hero h1 { font-size: 44px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.05; margin: 12px 0 14px; }
+  .mkt-hero .eyebrow { font-family: var(--font-mono); font-size: 11px; color: var(--accent-ink); letter-spacing: 0.06em; text-transform: uppercase; }
+  .mkt-hero p { font-size: 15px; color: var(--text-muted); max-width: 580px; line-height: 1.6; }
+  .mkt-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 0 28px 40px; max-width: 1100px; margin: 0 auto; }
+  .mkt-features .f { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-elev); }
+  .mkt-features .f .ico { width: 28px; height: 28px; border-radius: 6px; background: var(--accent-weak); color: var(--accent-ink); display: grid; place-items: center; margin-bottom: 8px; }
+
+  /* Status / incident layout */
+  .stat-grid { display: grid; grid-template-columns: 1fr 280px; min-height: 420px; }
+  .svc-row { display: grid; grid-template-columns: 1fr 120px 60px; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 12.5px; align-items: center; }
+  .svc-row .bars { display: flex; gap: 1.5px; height: 18px; }
+  .svc-row .bars span { flex: 1; background: var(--ok); border-radius: 1px; }
+  .svc-row .bars span.w { background: var(--warn); }
+  .svc-row .bars span.e { background: var(--err); }
+  .svc-row .bars span.n { background: var(--line); }
+
+  /* Gallery layout */
+  .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 14px; }
+  .gallery .card { position: relative; aspect-ratio: 4/3; border-radius: 8px; border: 1px solid var(--line); background:
+      linear-gradient(135deg, oklch(0.95 0.04 230), oklch(0.92 0.08 230)); overflow: hidden; cursor: default; padding: 0; }
+  .gallery .card:nth-child(2) { background: linear-gradient(135deg, oklch(0.94 0.04 330), oklch(0.88 0.10 330)); }
+  .gallery .card:nth-child(3) { background: linear-gradient(135deg, oklch(0.94 0.04 140), oklch(0.88 0.10 140)); }
+  .gallery .card:nth-child(4) { background: linear-gradient(135deg, oklch(0.94 0.04 75), oklch(0.88 0.12 75)); }
+  .gallery .card:nth-child(5) { background: linear-gradient(135deg, oklch(0.94 0.04 280), oklch(0.88 0.10 280)); }
+  .gallery .card:nth-child(6) { background: linear-gradient(135deg, oklch(0.94 0.04 200), oklch(0.88 0.10 200)); }
+  .gallery .card:nth-child(7) { background: linear-gradient(135deg, oklch(0.94 0.04 20), oklch(0.88 0.10 20)); }
+  .gallery .card:nth-child(8) { background: linear-gradient(135deg, oklch(0.94 0.04 170), oklch(0.88 0.08 170)); }
+  .gallery .meta { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.4)); color: white; font-size: 11px; display: flex; justify-content: space-between; }
+
+  /* Onboarding 3-pane */
+  .obord { display: grid; grid-template-columns: 280px 1fr; min-height: 480px; }
+  .obord .steps { padding: 28px 24px; background: var(--panel); border-right: 1px solid var(--line); }
+  .obord .steps h4 { font-size: 15px; font-weight: 600; margin: 0 0 12px; }
+  .obord .steps .step { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 10px 0; align-items: flex-start; }
+  .obord .steps .step .n { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg-elev); display: grid; place-items: center; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); }
+  .obord .steps .step.done .n { background: var(--ok); border-color: var(--ok); color: white; }
+  .obord .steps .step.on .n { background: var(--accent); border-color: var(--accent); color: white; box-shadow: 0 0 0 3px var(--accent-weak); }
+  .obord .steps .step b { font-size: 12.5px; display: block; }
+  .obord .steps .step span { font-size: 11.5px; color: var(--text-dim); }
+  .obord .steps .step.on b { color: var(--accent-ink); }
+  .obord .panel { padding: 36px 48px; }
+  .obord .panel h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 4px; }
+  .obord .panel p { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; max-width: 520px; }
+  .obord .tchoice { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 640px; }
+  .obord .tchoice .c { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: var(--bg-elev); cursor: default; }
+  .obord .tchoice .c.sel { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
+
+  /* IDE-style layout (4-pane) */
+  .ide { display: grid; grid-template-columns: 44px 220px 1fr 300px; grid-template-rows: 1fr 140px; min-height: 520px; }
+  .ide .rail { background: var(--bg-sunk); border-right: 1px solid var(--line); padding: 8px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; grid-row: span 2; }
+  .ide .rail button { width: 28px; height: 28px; border-radius: 5px; display: grid; place-items: center; color: var(--text-muted); }
+  .ide .rail button.on { background: var(--accent-weak); color: var(--accent-ink); }
+  .ide .rail svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+  .ide .tree { background: var(--panel); border-right: 1px solid var(--line); padding: 10px 8px; font-family: var(--font-mono); font-size: 11px; grid-row: span 2; overflow: hidden; }
+  .ide .tree .f { display: flex; align-items: center; gap: 4px; padding: 2px 4px; border-radius: 3px; color: var(--text-muted); }
+  .ide .tree .f.on { background: var(--accent-weak); color: var(--accent-ink); }
+  .ide .tree .f.indent { padding-left: 18px; }
+  .ide .main { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); }
+  .ide .tabs { display: flex; border-bottom: 1px solid var(--line); background: var(--bg-sunk); }
+  .ide .tabs .t { padding: 6px 12px; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); border-right: 1px solid var(--line); cursor: default; }
+  .ide .tabs .t.on { background: var(--bg); color: var(--text); border-bottom: 1px solid var(--bg); margin-bottom: -1px; }
+  .ide .code { flex: 1; padding: 14px 16px; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.65; white-space: pre; overflow: auto; }
+  .ide .code .ln { display: inline-block; width: 24px; color: var(--text-dim); user-select: none; }
+  .ide .code .cm { color: var(--text-dim); font-style: italic; }
+  .ide .code .kw { color: oklch(0.54 0.18 280); }
+  .ide .code .str { color: oklch(0.52 0.16 140); }
+  .ide .code .fn { color: oklch(0.55 0.15 230); }
+  .ide .side { background: var(--panel); padding: 12px 14px; font-size: 12px; grid-row: span 2; border-left: 1px solid var(--line); }
+  .ide .side h4 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin: 12px 0 4px; }
+  .ide .terminal { background: oklch(0.14 0.02 240); color: oklch(0.9 0.02 240); font-family: var(--font-mono); font-size: 11px; padding: 10px 14px; line-height: 1.6; overflow: auto; grid-column: 3; border-top: 1px solid var(--line); }
+  .ide .terminal .p { color: oklch(0.68 0.14 140); }
+  .ide .terminal .i { color: oklch(0.68 0.12 230); }
+
+  /* Inbox / 3-pane mail */
+  .inbox { display: grid; grid-template-columns: 180px 280px 1fr; min-height: 460px; }
+  .inbox .folders { background: var(--panel); border-right: 1px solid var(--line); padding: 10px 8px; font-size: 12.5px; }
+  .inbox .folders a { display: flex; padding: 4px 8px; border-radius: 4px; color: var(--text-muted); justify-content: space-between; }
+  .inbox .folders a.on { background: var(--accent-weak); color: var(--accent-ink); }
+  .inbox .list { border-right: 1px solid var(--line); overflow: hidden; }
+  .inbox .list .item { padding: 10px 14px; border-bottom: 1px solid var(--line); cursor: default; font-size: 12.5px; }
+  .inbox .list .item.on { background: var(--accent-weak); border-left: 3px solid var(--accent); padding-left: 11px; }
+  .inbox .list .item .row1 { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .inbox .list .item b { font-size: 12.5px; }
+  .inbox .list .item .p { font-size: 11.5px; color: var(--text-dim); }
+  .inbox .list .item .sn { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .inbox .read { padding: 18px 22px; }
+  .inbox .read h3 { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+
+  /* Network topology */
+  .topo { position: relative; padding: 24px; background:
+      radial-gradient(circle, var(--line) 1px, transparent 1px) 0 0 / 16px 16px, var(--bg); min-height: 360px; }
+  .topo svg { width: 100%; height: 360px; display: block; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+      <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
+      <a class="lib-link" href="07-more.html">07 · More components</a>
+      <a class="lib-link" href="08-compositions.html">08 · Compositions</a>
+      <a class="lib-link active" href="09-layouts.html">09 · App layouts</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">This page</div>
+      <a class="lib-link" href="#cmd-center">Command center</a>
+      <a class="lib-link" href="#three-pane">Three-pane app</a>
+      <a class="lib-link" href="#ide">IDE shell</a>
+      <a class="lib-link" href="#inbox">Inbox (mail)</a>
+      <a class="lib-link" href="#docs">Docs shell</a>
+      <a class="lib-link" href="#status">Status board</a>
+      <a class="lib-link" href="#board">Kanban board</a>
+      <a class="lib-link" href="#calendar">Calendar</a>
+      <a class="lib-link" href="#gallery">Gallery</a>
+      <a class="lib-link" href="#onboard">Onboarding canvas</a>
+      <a class="lib-link" href="#auth">Auth split</a>
+      <a class="lib-link" href="#marketing">Marketing</a>
+      <a class="lib-link" href="#topology">Topology / graph</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Part 09 · App layouts</div>
+      <h1 class="lib-h1">Big frames.</h1>
+      <p class="lib-lede">Full-page shells: dashboards, editors, inboxes, boards, calendars. Each one is a complete arrangement of nav + content + context — the scaffolding the product screens hang on.</p>
+    </header>
+
+    <!-- ──────── Command center ──────── -->
+    <section id="cmd-center">
+      <h2 class="lib-section-title">Command center</h2>
+      <p class="lib-section-sub">Dense 6-column dashboard grid. KPI row across the top, a wide chart, live logs, alert feed.</p>
+      <div class="demo">
+        <div class="demo-label">Ops overview · 1400 × 720</div>
+        <div class="demo-body page">
+          <div class="frame">
+            <div class="mini-top">
+              <div class="trail"><span>Linden</span><span class="sep">/</span><span>api-platform</span><span class="sep">/</span><b>Overview</b></div>
+              <div class="seg" style="margin-left: auto"><button>1h</button><button class="on">24h</button><button>7d</button><button>30d</button></div>
+              <button class="btn sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>Refresh</button>
+              <button class="btn sm primary">+ New deploy</button>
+            </div>
+            <div class="cc">
+              <div class="tile span-2">
+                <div class="l">Requests / min</div>
+                <div class="v">24,812 <span class="delta up" style="font-size:10.5px;margin-left:4px">+12.4%</span></div>
+                <svg class="spark" viewBox="0 0 200 32" preserveAspectRatio="none"><polyline fill="none" stroke="var(--accent)" stroke-width="1.5" points="0,22 10,20 20,18 30,16 40,20 50,14 60,12 70,16 80,10 90,12 100,8 110,10 120,6 130,8 140,4 150,6 160,10 170,6 180,4 190,8 200,4"/></svg>
+              </div>
+              <div class="tile">
+                <div class="l">p95 latency</div>
+                <div class="v">124<span style="font-size:12px;color:var(--text-dim);margin-left:2px">ms</span></div>
+                <div class="minibar" style="margin-top:8px"><span style="width: 62%; background: var(--ok)"></span></div>
+              </div>
+              <div class="tile">
+                <div class="l">Error rate</div>
+                <div class="v" style="color: var(--warn)">0.48<span style="font-size:12px;color:var(--text-dim)">%</span></div>
+                <div class="minibar" style="margin-top:8px"><span style="width:8%;background:var(--warn)"></span></div>
+              </div>
+              <div class="tile">
+                <div class="l">Uptime · 30d</div>
+                <div class="v" style="color: var(--ok)">99.987<span style="font-size:12px;color:var(--text-dim)">%</span></div>
+                <div style="font-size: 10.5px; color: var(--text-dim); margin-top: 6px; font-family: var(--font-mono)">SLA: 99.95%</div>
+              </div>
+              <div class="tile">
+                <div class="l">Cost today</div>
+                <div class="v">$48.20</div>
+                <div style="font-size: 10.5px; color: var(--text-dim); margin-top: 6px; font-family: var(--font-mono)">proj. $1,452 / mo</div>
+              </div>
+
+              <div class="tile span-4" style="padding: 12px 14px 8px">
+                <div class="h" style="margin-bottom: 6px"><div class="l">Request volume</div><div class="row" style="gap:8px"><span style="font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;background:var(--accent);border-radius:50%"></span>Success</span><span style="font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;background:var(--warn);border-radius:50%"></span>4xx</span><span style="font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;background:var(--err);border-radius:50%"></span>5xx</span></div></div>
+                <svg viewBox="0 0 600 160" style="width: 100%; height: 160px" preserveAspectRatio="none">
+                  <defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+                  <g stroke="var(--line)" stroke-width="0.5"><line x1="0" y1="40" x2="600" y2="40"/><line x1="0" y1="80" x2="600" y2="80"/><line x1="0" y1="120" x2="600" y2="120"/></g>
+                  <path d="M0 120 L30 110 L60 100 L90 115 L120 98 L150 88 L180 92 L210 82 L240 74 L270 86 L300 70 L330 62 L360 72 L390 58 L420 52 L450 58 L480 46 L510 42 L540 50 L570 36 L600 44 L600 160 L0 160 Z" fill="url(#g1)"/>
+                  <polyline fill="none" stroke="var(--accent)" stroke-width="1.6" points="0,120 30,110 60,100 90,115 120,98 150,88 180,92 210,82 240,74 270,86 300,70 330,62 360,72 390,58 420,52 450,58 480,46 510,42 540,50 570,36 600,44"/>
+                  <polyline fill="none" stroke="var(--warn)" stroke-width="1.2" opacity="0.8" points="0,138 30,142 60,140 90,136 120,140 150,132 180,140 210,138 240,130 270,134 300,128 330,132 360,126 390,130 420,128 450,124 480,128 510,122 540,126 570,120 600,124"/>
+                  <polyline fill="none" stroke="var(--err)" stroke-width="1" opacity="0.7" points="0,154 30,152 60,150 90,148 120,150 150,146 180,150 210,148 240,148 270,146 300,144 330,148 360,146 390,148 420,146 450,144 480,148 510,144 540,146 570,142 600,146"/>
+                </svg>
+              </div>
+              <div class="tile span-2" style="padding: 0; overflow: hidden">
+                <div class="h" style="padding: 12px 14px 8px; margin-bottom: 0; border-bottom: 1px solid var(--line)">
+                  <div class="l">Live alerts</div>
+                  <span class="pill err"><span class="dotc"></span>3 active</span>
+                </div>
+                <div style="padding: 6px 14px; max-height: 190px; overflow: hidden">
+                  <div style="padding: 6px 0; border-bottom: 1px solid var(--line)">
+                    <div class="row" style="gap:6px;margin-bottom:2px"><span class="pill err" style="height:16px;font-size:9.5px">P1</span><b style="font-size:12px">Elevated 5xx — checkout</b></div>
+                    <div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">14:22 · api-gateway · 1.2k affected</div>
+                  </div>
+                  <div style="padding: 6px 0; border-bottom: 1px solid var(--line)">
+                    <div class="row" style="gap:6px;margin-bottom:2px"><span class="pill warn" style="height:16px;font-size:9.5px">P2</span><b style="font-size:12px">DB connection pool 82%</b></div>
+                    <div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">14:18 · postgres-primary</div>
+                  </div>
+                  <div style="padding: 6px 0">
+                    <div class="row" style="gap:6px;margin-bottom:2px"><span class="pill warn" style="height:16px;font-size:9.5px">P2</span><b style="font-size:12px">Memory &gt; 80% · ingest-worker</b></div>
+                    <div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">14:05 · us-east-1</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tile span-3" style="padding: 0; overflow: hidden">
+                <div class="h" style="padding: 12px 14px 8px; margin-bottom: 0; border-bottom: 1px solid var(--line)"><div class="l">Services · health</div></div>
+                <div style="padding: 6px 0">
+                  <div style="display:grid;grid-template-columns:1fr 50px 56px 50px;gap:8px;padding:6px 14px;font-size:11.5px;align-items:center"><b style="font-size:12px">api-gateway</b><span class="pill ok" style="height:16px">ok</span><span class="mono" style="color:var(--text-dim);text-align:right">124ms</span><span class="mono num" style="text-align:right">8.4k</span></div>
+                  <div style="display:grid;grid-template-columns:1fr 50px 56px 50px;gap:8px;padding:6px 14px;font-size:11.5px;align-items:center"><b style="font-size:12px">auth-service</b><span class="pill ok" style="height:16px">ok</span><span class="mono" style="color:var(--text-dim);text-align:right">42ms</span><span class="mono num" style="text-align:right">2.1k</span></div>
+                  <div style="display:grid;grid-template-columns:1fr 50px 56px 50px;gap:8px;padding:6px 14px;font-size:11.5px;align-items:center"><b style="font-size:12px">ingest-worker</b><span class="pill warn" style="height:16px">deg</span><span class="mono" style="color:var(--warn);text-align:right">342ms</span><span class="mono num" style="text-align:right">12.8k</span></div>
+                  <div style="display:grid;grid-template-columns:1fr 50px 56px 50px;gap:8px;padding:6px 14px;font-size:11.5px;align-items:center"><b style="font-size:12px">billing-sync</b><span class="pill ok" style="height:16px">ok</span><span class="mono" style="color:var(--text-dim);text-align:right">88ms</span><span class="mono num" style="text-align:right">84</span></div>
+                  <div style="display:grid;grid-template-columns:1fr 50px 56px 50px;gap:8px;padding:6px 14px;font-size:11.5px;align-items:center"><b style="font-size:12px">mail-relay</b><span class="pill err" style="height:16px">down</span><span class="mono" style="color:var(--err);text-align:right">—</span><span class="mono num" style="text-align:right">—</span></div>
+                </div>
+              </div>
+              <div class="tile span-3" style="padding: 0; overflow: hidden">
+                <div class="h" style="padding: 12px 14px 8px; margin-bottom: 0; border-bottom: 1px solid var(--line)"><div class="l">Deploys · last 24h</div></div>
+                <div style="padding: 8px 14px;">
+                  <svg viewBox="0 0 300 80" style="width:100%;height:80px" preserveAspectRatio="none">
+                    <g fill="var(--accent)">
+                      <rect x="0" y="50" width="8" height="30" rx="1"/><rect x="12" y="58" width="8" height="22" rx="1"/><rect x="24" y="44" width="8" height="36" rx="1"/><rect x="36" y="62" width="8" height="18" rx="1"/>
+                      <rect x="48" y="40" width="8" height="40" rx="1"/><rect x="60" y="52" width="8" height="28" rx="1"/><rect x="72" y="58" width="8" height="22" rx="1"/><rect x="84" y="46" width="8" height="34" rx="1"/>
+                      <rect x="96" y="64" width="8" height="16" rx="1"/><rect x="108" y="56" width="8" height="24" rx="1"/><rect x="120" y="48" width="8" height="32" rx="1"/><rect x="132" y="60" width="8" height="20" rx="1"/>
+                      <rect x="144" y="42" width="8" height="38" rx="1"/><rect x="156" y="50" width="8" height="30" rx="1"/><rect x="168" y="54" width="8" height="26" rx="1"/><rect x="180" y="38" width="8" height="42" rx="1"/>
+                    </g>
+                    <rect x="192" y="48" width="8" height="32" rx="1" fill="var(--err)"/>
+                    <g fill="var(--accent)">
+                      <rect x="204" y="54" width="8" height="26" rx="1"/><rect x="216" y="46" width="8" height="34" rx="1"/><rect x="228" y="50" width="8" height="30" rx="1"/>
+                    </g>
+                  </svg>
+                  <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-top:2px"><span>48 succeeded</span><span style="color:var(--err)">1 failed</span><span>4 rolled-back</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Three-pane ──────── -->
+    <section id="three-pane">
+      <h2 class="lib-section-title">Three-pane: nav · list · inspector</h2>
+      <p class="lib-section-sub">The workhorse layout for resource-heavy products: navigate on the left, browse the middle, dive into details on the right.</p>
+      <div class="demo">
+        <div class="demo-label">Services · instance selected</div>
+        <div class="demo-body page">
+          <div class="frame" style="display: grid; grid-template-columns: 180px 1fr 300px; min-height: 480px">
+            <aside class="mini-side">
+              <div class="brand"><div class="m"></div><b>Linden</b></div>
+              <div class="ttl">Build</div>
+              <a><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview</a>
+              <a class="on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>Services<span class="c">12</span></a>
+              <a><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v14c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/></svg>Databases<span class="c">3</span></a>
+              <a><svg viewBox="0 0 24 24"><path d="M12 2l10 6v8l-10 6L2 16V8z"/></svg>Storage</a>
+              <a><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4zM2 20h20"/></svg>Domains</a>
+              <div class="ttl">Run</div>
+              <a><svg viewBox="0 0 24 24"><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/></svg>Deploys</a>
+              <a><svg viewBox="0 0 24 24"><path d="M4 6h12M4 10h16M4 14h10"/></svg>Logs</a>
+              <a><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 4 4-7 5 9"/></svg>Metrics</a>
+              <div class="ttl">Team</div>
+              <a><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 16 0v1"/></svg>Members</a>
+              <a><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Billing</a>
+            </aside>
+
+            <div style="display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line)">
+              <div style="padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--panel); display: flex; gap: 8px; align-items: center">
+                <div style="position: relative; flex: 1">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.7" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%)"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input class="input" style="padding-left: 26px; height: 26px; width: 100%" placeholder="Filter 12 services…">
+                </div>
+                <button class="btn sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              </div>
+              <div style="overflow: auto; flex: 1">
+                <div class="svc-row" style="grid-template-columns: 22px 1fr 60px 60px; padding: 8px 14px; background: var(--accent-weak); border-left: 3px solid var(--accent)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" stroke-width="1.6"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>
+                  <div><b style="font-size:12.5px;color:var(--accent-ink)">api-gateway</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">v142 · us-east-1</div></div>
+                  <span class="pill ok" style="justify-self: start"><span class="dotc"></span>ok</span>
+                  <span class="mono num" style="text-align: right; font-size: 11px">8.4k/m</span>
+                </div>
+                <div class="svc-row" style="grid-template-columns: 22px 1fr 60px 60px; padding: 8px 14px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.6"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>
+                  <div><b style="font-size:12.5px">auth-service</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">v88 · us-east-1</div></div>
+                  <span class="pill ok"><span class="dotc"></span>ok</span>
+                  <span class="mono num" style="text-align: right; font-size: 11px">2.1k/m</span>
+                </div>
+                <div class="svc-row" style="grid-template-columns: 22px 1fr 60px 60px; padding: 8px 14px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.6"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>
+                  <div><b style="font-size:12.5px">ingest-worker</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">v204 · us-east-1</div></div>
+                  <span class="pill warn"><span class="dotc"></span>deg</span>
+                  <span class="mono num" style="text-align: right; font-size: 11px">12.8k/m</span>
+                </div>
+                <div class="svc-row" style="grid-template-columns: 22px 1fr 60px 60px; padding: 8px 14px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.6"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>
+                  <div><b style="font-size:12.5px">billing-sync</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">v12 · eu-west-1</div></div>
+                  <span class="pill ok"><span class="dotc"></span>ok</span>
+                  <span class="mono num" style="text-align: right; font-size: 11px">84/m</span>
+                </div>
+                <div class="svc-row" style="grid-template-columns: 22px 1fr 60px 60px; padding: 8px 14px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.6"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>
+                  <div><b style="font-size:12.5px">mail-relay</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">v44 · us-east-1</div></div>
+                  <span class="pill err"><span class="dotc"></span>fail</span>
+                  <span class="mono num" style="text-align: right; font-size: 11px">—</span>
+                </div>
+                <div class="svc-row" style="grid-template-columns: 22px 1fr 60px 60px; padding: 8px 14px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.6"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>
+                  <div><b style="font-size:12.5px">image-resize</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">v16 · us-east-1</div></div>
+                  <span class="pill ok"><span class="dotc"></span>ok</span>
+                  <span class="mono num" style="text-align: right; font-size: 11px">620/m</span>
+                </div>
+                <div class="svc-row" style="grid-template-columns: 22px 1fr 60px 60px; padding: 8px 14px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.6"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg>
+                  <div><b style="font-size:12.5px">webhook-proxy</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">v8 · eu-west-1</div></div>
+                  <span class="pill ok"><span class="dotc"></span>ok</span>
+                  <span class="mono num" style="text-align: right; font-size: 11px">4.4k/m</span>
+                </div>
+              </div>
+            </div>
+
+            <aside class="inspect" style="background: var(--panel)">
+              <div>
+                <div class="row" style="gap:6px;margin-bottom:4px"><b style="font-size:14px">api-gateway</b><span class="pill ok"><span class="dotc"></span>Healthy</span></div>
+                <div style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono)">svc_8f2a10e47c9b</div>
+              </div>
+              <div>
+                <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 6px; font-weight: 500">Metadata</div>
+                <div class="kv">
+                  <span class="k">version</span><span class="v">v142</span>
+                  <span class="k">region</span><span class="v">us-east-1</span>
+                  <span class="k">replicas</span><span class="v">4 / 4</span>
+                  <span class="k">memory</span><span class="v">2.5 GB</span>
+                  <span class="k">cpu</span><span class="v">1.2 vCPU</span>
+                  <span class="k">uptime</span><span class="v">14d 6h</span>
+                  <span class="k">deploy</span><span class="v">14:22 today</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 6px; font-weight: 500">Traffic · 1h</div>
+                <svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none" style="height: 40px"><polyline fill="none" stroke="var(--accent)" stroke-width="1.5" points="0,30 10,28 20,24 30,26 40,20 50,16 60,20 70,14 80,18 90,12 100,8 110,14 120,10 130,6 140,12 150,8 160,4 170,10 180,6 190,2 200,6"/></svg>
+              </div>
+              <div style="display: flex; gap: 6px">
+                <button class="btn sm primary" style="flex: 1">Open</button>
+                <button class="btn sm">Logs</button>
+                <button class="btn sm icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── IDE shell ──────── -->
+    <section id="ide">
+      <h2 class="lib-section-title">IDE shell</h2>
+      <p class="lib-section-sub">Icon rail + file tree + editor + inspector + bottom terminal. For any config / code editing surface.</p>
+      <div class="demo">
+        <div class="demo-label">Config editor · with live validation</div>
+        <div class="demo-body page">
+          <div class="frame ide">
+            <div class="rail">
+              <button class="on"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 5l9 4 9-4"/></svg></button>
+              <button><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+              <button><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9z"/></svg></button>
+              <button><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg></button>
+              <button style="margin-top:auto"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5"/></svg></button>
+            </div>
+            <div class="tree">
+              <div style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 4px 4px 6px; font-weight: 500">api-platform</div>
+              <div class="f">▸ .github</div>
+              <div class="f">▾ infra</div>
+              <div class="f indent">gateway.yml</div>
+              <div class="f indent on">▸ postgres.yml</div>
+              <div class="f indent">worker.yml</div>
+              <div class="f indent">redis.yml</div>
+              <div class="f">▸ src</div>
+              <div class="f">▸ tests</div>
+              <div class="f">.env.example</div>
+              <div class="f">Dockerfile</div>
+              <div class="f">package.json</div>
+              <div class="f">README.md</div>
+            </div>
+            <div class="main">
+              <div class="tabs">
+                <div class="t on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> postgres.yml <span style="margin-left:6px;color:var(--warn)">●</span></div>
+                <div class="t">gateway.yml</div>
+                <div class="t">.env.example</div>
+              </div>
+              <div class="code"><span class="ln">1</span><span class="cm"># Primary postgres instance</span>
+<span class="ln">2</span><span class="kw">version</span>: <span class="str">"17.2"</span>
+<span class="ln">3</span><span class="kw">replicas</span>: <span class="fn">3</span>
+<span class="ln">4</span><span class="kw">resources</span>:
+<span class="ln">5</span>  <span class="kw">memory</span>: <span class="fn">8Gi</span>
+<span class="ln">6</span>  <span class="kw">cpu</span>: <span class="fn">2</span>
+<span class="ln">7</span>  <span class="kw">storage</span>: <span class="fn">500Gi</span>
+<span class="ln">8</span>
+<span class="ln">9</span><span class="kw">backups</span>:
+<span class="ln">10</span>  <span class="kw">enabled</span>: <span class="str">true</span>
+<span class="ln">11</span>  <span class="kw">retention</span>: <span class="fn">14d</span>
+<span class="ln">12</span>  <span class="kw">schedule</span>: <span class="str">"0 3 * * *"</span>
+<span class="ln">13</span>
+<span class="ln">14</span><span class="kw">network</span>:
+<span class="ln">15</span>  <span class="kw">vpc</span>: <span class="str">vpc-prod-use1</span>
+<span class="ln">16</span>  <span class="kw">subnet</span>: <span class="str">subnet-0a8f</span>
+<span class="ln">17</span>  <span class="kw">firewall</span>:
+<span class="ln">18</span>    - <span class="kw">source</span>: <span class="str">api-gateway.svc</span>
+<span class="ln">19</span>      <span class="kw">port</span>: <span class="fn">5432</span>
+<span class="ln">20</span></div>
+            </div>
+            <aside class="side">
+              <h4>Validation</h4>
+              <div class="row" style="gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span style="font-size:11.5px">Schema matches <code style="font-family:var(--font-mono);font-size:10.5px;background:var(--bg-sunk);padding:0 4px;border-radius:2px">v3.1</code></span></div>
+              <div class="row" style="gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.8"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span style="font-size:11.5px;color:var(--warn)">Retention below org policy (30d)</span></div>
+              <h4>Outline</h4>
+              <div style="font-size: 11px; font-family: var(--font-mono); line-height: 1.7">
+                <div>• version</div>
+                <div>• replicas</div>
+                <div>• resources <span style="color:var(--text-dim)">{3}</span></div>
+                <div>• backups <span style="color:var(--text-dim)">{3}</span></div>
+                <div>• network <span style="color:var(--text-dim)">{3}</span></div>
+              </div>
+              <h4>Peers · recent edits</h4>
+              <div class="row" style="gap:6px"><div class="avatar sm" style="background:oklch(0.62 0.14 230);color:white">MC</div><span style="font-size:11px">Maya · <span style="color:var(--text-dim)">l.6</span></span></div>
+              <div class="row" style="gap:6px"><div class="avatar sm" style="background:oklch(0.7 0.17 65);color:white">PR</div><span style="font-size:11px">Priya · <span style="color:var(--text-dim)">l.18</span></span></div>
+            </aside>
+            <div class="terminal">
+<span class="p">nc ›</span> validate infra/postgres.yml
+<span class="i">✓</span> schema valid
+<span class="i">⚠</span> retention 14d below org policy (30d). override? [y/N]: _<span class="cursor"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Inbox ──────── -->
+    <section id="inbox">
+      <h2 class="lib-section-title">Inbox · three-pane mail</h2>
+      <p class="lib-section-sub">Folders → message list → reading pane. For alerts inbox, activity feeds, or team messages.</p>
+      <div class="demo">
+        <div class="demo-label">Notifications · incident selected</div>
+        <div class="demo-body page">
+          <div class="frame inbox">
+            <aside class="folders">
+              <div style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 6px 8px; font-weight: 500">Filters</div>
+              <a class="on">Inbox<span class="mono" style="color:var(--text-dim)">12</span></a>
+              <a>Assigned to me<span class="mono" style="color:var(--text-dim)">3</span></a>
+              <a>Mentions</a>
+              <a>Starred</a>
+              <a>Resolved</a>
+              <div style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 10px 8px 4px; font-weight: 500">By severity</div>
+              <a><span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--err)"></span>P1</span><span class="mono" style="color:var(--text-dim)">3</span></a>
+              <a><span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--warn)"></span>P2</span><span class="mono" style="color:var(--text-dim)">6</span></a>
+              <a><span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent)"></span>P3</span><span class="mono" style="color:var(--text-dim)">14</span></a>
+              <div style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 10px 8px 4px; font-weight: 500">Services</div>
+              <a>api-gateway</a>
+              <a>ingest-worker</a>
+              <a>postgres-primary</a>
+            </aside>
+            <div class="list">
+              <div class="item on">
+                <div class="row1"><b>api-gateway</b><span class="mono" style="color:var(--text-dim);font-size:10.5px">14:22</span></div>
+                <div class="p" style="color:var(--err)">P1 · Elevated 5xx errors</div>
+                <div class="sn">Error rate jumped from 0.2% to 4.8% over 4 minutes. Triggered by retry storm after staging push.</div>
+              </div>
+              <div class="item">
+                <div class="row1"><b>postgres-primary</b><span class="mono" style="color:var(--text-dim);font-size:10.5px">14:18</span></div>
+                <div class="p" style="color:var(--warn)">P2 · Connection pool 82%</div>
+                <div class="sn">Pool near exhaustion. Consider scaling replicas or raising max-connections.</div>
+              </div>
+              <div class="item">
+                <div class="row1"><b>ingest-worker</b><span class="mono" style="color:var(--text-dim);font-size:10.5px">14:05</span></div>
+                <div class="p" style="color:var(--warn)">P2 · Memory over 80%</div>
+                <div class="sn">Heap pressure climbing steadily for 2h. Likely the leak Maya was investigating.</div>
+              </div>
+              <div class="item">
+                <div class="row1"><b>Build #482</b><span class="mono" style="color:var(--text-dim);font-size:10.5px">13:52</span></div>
+                <div class="p">CI · passed (+48 tests)</div>
+                <div class="sn">Branch feature/rate-limit-v2. All checks green, ready to merge.</div>
+              </div>
+              <div class="item">
+                <div class="row1"><b>billing-sync</b><span class="mono" style="color:var(--text-dim);font-size:10.5px">13:30</span></div>
+                <div class="p">P3 · Invoice export succeeded</div>
+                <div class="sn">Monthly rollup for March exported to s3://billing-archive/.</div>
+              </div>
+              <div class="item">
+                <div class="row1"><b>Maya Chen</b><span class="mono" style="color:var(--text-dim);font-size:10.5px">13:12</span></div>
+                <div class="p">Mentioned you in #incident-2204</div>
+                <div class="sn">@jonas can you check the metrics dashboard once v142 is live? The p95 graph should drop.</div>
+              </div>
+            </div>
+            <div class="read">
+              <div class="row" style="gap: 8px; margin-bottom: 6px"><span class="pill err"><span class="dotc"></span>P1 · active</span><span class="mono" style="font-size: 10.5px; color: var(--text-dim)">INC-2204 · opened 4m ago</span></div>
+              <h3>Elevated 5xx errors on api-gateway</h3>
+              <div class="row" style="gap: 8px; font-size: 12px; color: var(--text-muted); margin-bottom: 16px">
+                <div class="avatar sm" style="background: oklch(0.64 0.17 330); color: white">JK</div>
+                <span>Jonas Klein triggered · auto-assigned to <b style="color:var(--text)">you</b></span>
+              </div>
+              <div style="font-size: 13px; line-height: 1.65; color: var(--text-muted); margin-bottom: 14px; max-width: 540px">Error rate jumped from 0.2% → 4.8% over 4 minutes. Correlates with staging push of <span class="mono" style="background: var(--bg-sunk); padding: 1px 5px; border-radius: 3px; color: var(--text)">api-gateway@v142-rc3</span> at 14:18. Automatic retry storm suspected.</div>
+              <svg viewBox="0 0 500 100" style="width: 100%; max-width: 540px; height: 100px; background: var(--bg-sunk); border-radius: 6px; padding: 8px; box-sizing: border-box"><polyline fill="none" stroke="var(--err)" stroke-width="1.5" points="0,80 50,78 100,76 150,78 200,76 250,40 300,20 350,28 400,32 450,30 500,28"/></svg>
+              <div class="row" style="gap: 6px; margin-top: 16px">
+                <button class="btn sm primary">Acknowledge</button>
+                <button class="btn sm">Escalate</button>
+                <button class="btn sm">Snooze 1h</button>
+                <button class="btn sm ghost">View in runbook →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Docs ──────── -->
+    <section id="docs">
+      <h2 class="lib-section-title">Docs shell</h2>
+      <p class="lib-section-sub">Sidebar TOC + article + anchor links on the right. For API reference, guides, changelog.</p>
+      <div class="demo">
+        <div class="demo-label">Docs · "Deploying services"</div>
+        <div class="demo-body page">
+          <div class="frame docs-grid">
+            <aside class="docs-nav">
+              <div class="ttl">Getting started</div>
+              <a>Introduction</a>
+              <a>Quickstart</a>
+              <a>Architecture</a>
+              <div class="ttl">Services</div>
+              <a class="on">Deploying</a>
+              <a class="sub on">Overview</a>
+              <a class="sub">From Git</a>
+              <a class="sub">From Docker</a>
+              <a class="sub">Rollback</a>
+              <a>Scaling</a>
+              <a>Secrets</a>
+              <div class="ttl">Databases</div>
+              <a>Postgres</a>
+              <a>Redis</a>
+              <a>Backups</a>
+              <div class="ttl">Reference</div>
+              <a>CLI</a>
+              <a>REST API</a>
+              <a>Webhooks</a>
+            </aside>
+            <article class="docs-body">
+              <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-bottom: 8px">SERVICES ▸ DEPLOYING</div>
+              <h2>Deploying services</h2>
+              <p>A deploy is the unit of change for a service. Each deploy is immutable, addressable by an id, and can be rolled back at any time. Deploys go through <b>build → probe → release → observe</b>, and the platform promotes traffic gradually unless you opt out.</p>
+              <div style="margin: 18px 0 6px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-weight: 500">Deploy from git</div>
+              <div style="background: oklch(0.14 0.02 240); color: oklch(0.9 0.02 240); padding: 12px 14px; border-radius: 6px; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.6"><span style="color: oklch(0.58 0.04 240)"># Authenticate once</span><br><span style="color: oklch(0.76 0.14 300)">$</span> nc login<br><br><span style="color: oklch(0.58 0.04 240)"># Deploy current branch</span><br><span style="color: oklch(0.76 0.14 300)">$</span> nc deploy <span style="color: oklch(0.8 0.14 140)">--service=api-gateway</span> <span style="color: oklch(0.8 0.14 140)">--env=production</span></div>
+              <p style="margin-top: 18px">Once a deploy starts, its id is stable — you can stream logs, pause the rollout, or roll back using the same reference.</p>
+              <div class="banner info" style="margin-top: 14px"><svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16" r="0.6" fill="currentColor"/></svg><div class="body"><b>Gradual rollout is default.</b> New traffic starts at 1% and ramps over 10 minutes. Override with <code style="font-family: var(--font-mono); font-size: 11px; background: var(--bg-sunk); padding: 0 4px; border-radius: 2px">--rollout=instant</code>.</div></div>
+              <div style="margin: 22px 0 8px; font-size: 14px; font-weight: 600">Phases</div>
+              <ol style="font-size: 13px; color: var(--text-muted); line-height: 1.7; padding-left: 20px"><li><b style="color: var(--text)">Build</b> — resolve dependencies, run tests, produce image.</li><li><b style="color: var(--text)">Probe</b> — start one instance, wait for health checks.</li><li><b style="color: var(--text)">Release</b> — gradually shift traffic.</li><li><b style="color: var(--text)">Observe</b> — stream metrics; auto-rollback if error budget is spent.</li></ol>
+            </article>
+            <aside class="docs-toc">
+              <div class="ttl">On this page</div>
+              <a>Overview</a>
+              <a class="on">Deploy from git</a>
+              <a>Phases</a>
+              <a>Environments</a>
+              <a>Rollback</a>
+              <a>Canary &amp; blue/green</a>
+              <a>Platform signals</a>
+              <div class="ttl" style="margin-top: 14px">Was this page helpful?</div>
+              <div class="row" style="gap: 4px; padding: 4px"><button class="btn xs"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9V5a3 3 0 0 0-3-3L7 11v11h11l3-7v-6h-7z"/></svg>Yes</button><button class="btn xs"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" transform="rotate(180)"><path d="M14 9V5a3 3 0 0 0-3-3L7 11v11h11l3-7v-6h-7z"/></svg>No</button></div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Status board ──────── -->
+    <section id="status">
+      <h2 class="lib-section-title">Status board</h2>
+      <p class="lib-section-sub">Public-facing service health. 90-day uptime bars + current incident feed.</p>
+      <div class="demo">
+        <div class="demo-label">status.linden.cloud</div>
+        <div class="demo-body page">
+          <div class="frame" style="background: var(--bg)">
+            <div style="padding: 28px 32px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 16px; background: var(--panel)">
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: color-mix(in oklch, var(--ok) 16%, transparent); display: grid; place-items: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><div style="font-size: 18px; font-weight: 600; letter-spacing: -0.015em">All systems operational</div><div style="font-size: 12px; color: var(--text-dim); font-family: var(--font-mono); margin-top: 2px">Last updated · Apr 21, 14:22 UTC · refreshes every 30s</div></div>
+              <div style="margin-left: auto; font-size: 11px; color: var(--text-dim); font-family: var(--font-mono); text-align: right"><div>uptime · 30d · 99.987%</div><div>incidents · 90d · 3</div></div>
+            </div>
+            <div class="stat-grid">
+              <div style="overflow: auto">
+                <div style="padding: 10px 16px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-weight: 500; border-bottom: 1px solid var(--line); background: var(--bg-sunk)">API · 4 services</div>
+                <div class="svc-row"><b style="font-size: 13px">api-gateway <span class="pill ok" style="height:16px;margin-left:4px">ok</span></b><div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="mono" style="font-size:11px;text-align:right;color:var(--text-dim)">100%</span></div>
+                <div class="svc-row"><b style="font-size: 13px">auth-service <span class="pill ok" style="height:16px;margin-left:4px">ok</span></b><div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span class="w"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="mono" style="font-size:11px;text-align:right;color:var(--text-dim)">99.9%</span></div>
+                <div class="svc-row"><b style="font-size: 13px">webhooks <span class="pill ok" style="height:16px;margin-left:4px">ok</span></b><div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="mono" style="font-size:11px;text-align:right;color:var(--text-dim)">100%</span></div>
+                <div class="svc-row"><b style="font-size: 13px">ingest <span class="pill warn" style="height:16px;margin-left:4px">deg</span></b><div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span class="w"></span><span class="e"></span><span class="w"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span class="w"></span><span class="w"></span></div><span class="mono" style="font-size:11px;text-align:right;color:var(--warn)">98.4%</span></div>
+                <div style="padding: 10px 16px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-weight: 500; border-bottom: 1px solid var(--line); background: var(--bg-sunk); border-top: 1px solid var(--line)">Databases · 3</div>
+                <div class="svc-row"><b style="font-size: 13px">postgres-primary <span class="pill ok" style="height:16px;margin-left:4px">ok</span></b><div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="mono" style="font-size:11px;text-align:right;color:var(--text-dim)">100%</span></div>
+                <div class="svc-row"><b style="font-size: 13px">redis-primary <span class="pill ok" style="height:16px;margin-left:4px">ok</span></b><div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="mono" style="font-size:11px;text-align:right;color:var(--text-dim)">100%</span></div>
+                <div class="svc-row"><b style="font-size: 13px">backups <span class="pill ok" style="height:16px;margin-left:4px">ok</span></b><div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="mono" style="font-size:11px;text-align:right;color:var(--text-dim)">100%</span></div>
+              </div>
+              <aside style="border-left: 1px solid var(--line); padding: 14px 18px; background: var(--panel)">
+                <div style="font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-weight: 500; margin-bottom: 10px">Recent incidents</div>
+                <div style="padding: 8px 0; border-bottom: 1px solid var(--line)"><div class="row" style="gap: 6px; margin-bottom: 4px"><span class="pill warn" style="height: 16px">ongoing</span><b style="font-size: 12.5px">Degraded ingest latency</b></div><div style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono)">Apr 21, 14:05 · 17m</div></div>
+                <div style="padding: 8px 0; border-bottom: 1px solid var(--line)"><div class="row" style="gap: 6px; margin-bottom: 4px"><span class="pill ok" style="height: 16px">resolved</span><b style="font-size: 12.5px">Scheduled DB maintenance</b></div><div style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono)">Apr 18, 02:00 · 2h</div></div>
+                <div style="padding: 8px 0"><div class="row" style="gap: 6px; margin-bottom: 4px"><span class="pill ok" style="height: 16px">resolved</span><b style="font-size: 12.5px">Auth TLS handshake errors</b></div><div style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono)">Apr 12, 09:44 · 23m</div></div>
+                <button class="btn sm ghost" style="width: 100%; margin-top: 12px">View all incidents →</button>
+                <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line)">
+                  <div style="font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-weight: 500; margin-bottom: 8px">Subscribe</div>
+                  <button class="btn sm" style="width: 100%"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>Get status updates</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Board ──────── -->
+    <section id="board">
+      <h2 class="lib-section-title">Kanban board</h2>
+      <p class="lib-section-sub">Full-height column board — incidents, feature work, or onboarding tasks.</p>
+      <div class="demo">
+        <div class="demo-label">Incident board</div>
+        <div class="demo-body page">
+          <div class="frame">
+            <div class="mini-top">
+              <div class="trail"><span>Ops</span><span class="sep">/</span><b>Incidents</b></div>
+              <div class="seg" style="margin-left: auto"><button class="on">Board</button><button>List</button><button>Timeline</button></div>
+              <div class="avatar-stack"><div class="avatar sm" style="background:oklch(0.62 0.14 230);color:white">MC</div><div class="avatar sm" style="background:oklch(0.64 0.17 330);color:white">JK</div><div class="avatar sm" style="background:oklch(0.7 0.17 65);color:white">PR</div></div>
+              <button class="btn sm primary">+ New incident</button>
+            </div>
+            <div class="board">
+              <div class="col">
+                <h4><span>Triage<span style="font-family:var(--font-mono);color:var(--text-muted);margin-left:6px">4</span></span><button class="btn icon xs ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></h4>
+                <div class="k"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill err" style="height:16px">P1</span><span class="pill info" style="height:16px;font-family:var(--font-mono)">api</span></div><b style="font-size:12.5px">Elevated 5xx in checkout</b><div class="row" style="margin-top:6px;justify-content:space-between;font-size:10.5px;color:var(--text-dim)"><span class="mono">#2204</span><div class="avatar-stack"><div class="avatar sm" style="background:oklch(0.62 0.14 230);color:white;width:16px;height:16px;font-size:8px">MC</div></div></div></div>
+                <div class="k"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill warn" style="height:16px">P2</span><span class="pill info" style="height:16px;font-family:var(--font-mono)">db</span></div><b style="font-size:12.5px">DB slow queries on weekend</b><div class="row" style="margin-top:6px;justify-content:space-between;font-size:10.5px;color:var(--text-dim)"><span class="mono">#2203</span><span>2h ago</span></div></div>
+                <div class="k"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill info" style="height:16px">P3</span></div><b style="font-size:12.5px">Clock drift on node-14</b><div class="row" style="margin-top:6px;justify-content:space-between;font-size:10.5px;color:var(--text-dim)"><span class="mono">#2202</span><span>5h</span></div></div>
+                <div class="k"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill info" style="height:16px">P3</span></div><b style="font-size:12.5px">Staging env billing anomaly</b><div class="row" style="margin-top:6px;justify-content:space-between;font-size:10.5px;color:var(--text-dim)"><span class="mono">#2201</span><span>yesterday</span></div></div>
+              </div>
+              <div class="col">
+                <h4><span>Investigating<span style="font-family:var(--font-mono);color:var(--text-muted);margin-left:6px">2</span></span></h4>
+                <div class="k" style="border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-weak), var(--shadow-sm)"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill err" style="height:16px">P1</span></div><b style="font-size:12.5px">Memory leak · ingest-worker</b><div class="row" style="margin-top:6px;justify-content:space-between;font-size:10.5px;color:var(--text-dim)"><span class="mono">#2198</span><div class="avatar-stack"><div class="avatar sm" style="background:oklch(0.62 0.14 230);color:white;width:16px;height:16px;font-size:8px">MC</div></div></div></div>
+                <div class="k"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill warn" style="height:16px">P2</span></div><b style="font-size:12.5px">CDN cache miss rate 34%</b><div class="row" style="margin-top:6px;justify-content:space-between;font-size:10.5px;color:var(--text-dim)"><span class="mono">#2195</span><div class="avatar-stack"><div class="avatar sm" style="background:oklch(0.64 0.17 330);color:white;width:16px;height:16px;font-size:8px">JK</div></div></div></div>
+              </div>
+              <div class="col">
+                <h4><span>Fix in progress<span style="font-family:var(--font-mono);color:var(--text-muted);margin-left:6px">1</span></span></h4>
+                <div class="k"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill info" style="height:16px">PR</span></div><b style="font-size:12.5px">Patch rate-limit regression</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono); margin-top: 4px">+48 −12 · 3 checks</div><div class="row" style="margin-top:6px;justify-content:space-between;font-size:10.5px;color:var(--text-dim)"><span class="mono">#482</span><div class="avatar-stack"><div class="avatar sm" style="background:oklch(0.7 0.17 65);color:white;width:16px;height:16px;font-size:8px">PR</div></div></div></div>
+              </div>
+              <div class="col">
+                <h4><span>Resolved<span style="font-family:var(--font-mono);color:var(--text-muted);margin-left:6px">12</span></span></h4>
+                <div class="k" style="opacity:.65"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill ok" style="height:16px">done</span></div><b style="font-size:12.5px">Auth token expiry mismatch</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono); margin-top: 4px">resolved · 2h</div></div>
+                <div class="k" style="opacity:.65"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill ok" style="height:16px">done</span></div><b style="font-size:12.5px">Missing metrics · billing-sync</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono); margin-top: 4px">resolved · 4h</div></div>
+                <div class="k" style="opacity:.65"><div style="display:flex;gap:6px;margin-bottom:5px"><span class="pill ok" style="height:16px">done</span></div><b style="font-size:12.5px">Region-eu-west-1 routing</b><div style="font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono); margin-top: 4px">resolved · yesterday</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Calendar ──────── -->
+    <section id="calendar">
+      <h2 class="lib-section-title">Calendar</h2>
+      <p class="lib-section-sub">Month view with events. Deploy windows, on-call rotations, maintenance.</p>
+      <div class="demo">
+        <div class="demo-label">April 2026 · Ops calendar</div>
+        <div class="demo-body page">
+          <div class="frame">
+            <div class="mini-top">
+              <div class="trail"><b>April 2026</b></div>
+              <div class="row" style="gap: 4px; margin-left: 12px"><button class="btn icon sm ghost"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><button class="btn sm ghost">Today</button><button class="btn icon sm ghost"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+              <div class="seg" style="margin-left: auto"><button>Day</button><button>Week</button><button class="on">Month</button></div>
+              <button class="btn sm primary">+ Schedule</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr)">
+              <div class="head" style="border-right: 1px solid var(--line)">Mon</div><div class="head" style="border-right: 1px solid var(--line)">Tue</div><div class="head" style="border-right: 1px solid var(--line)">Wed</div><div class="head" style="border-right: 1px solid var(--line)">Thu</div><div class="head" style="border-right: 1px solid var(--line)">Fri</div><div class="head" style="border-right: 1px solid var(--line)">Sat</div><div class="head">Sun</div>
+            </div>
+            <div class="cal">
+              <div class="cell"><span class="d" style="color:var(--text-dim);opacity:.5">30</span></div>
+              <div class="cell"><span class="d" style="color:var(--text-dim);opacity:.5">31</span></div>
+              <div class="cell"><span class="d">1</span></div>
+              <div class="cell"><span class="d">2</span><span class="ev">Deploy v140</span></div>
+              <div class="cell"><span class="d">3</span></div>
+              <div class="cell"><span class="d" style="color:var(--text-dim);opacity:.5">4</span></div>
+              <div class="cell"><span class="d" style="color:var(--text-dim);opacity:.5">5</span></div>
+
+              <div class="cell"><span class="d">6</span><span class="ev">Retrospective 15:00</span></div>
+              <div class="cell"><span class="d">7</span></div>
+              <div class="cell"><span class="d">8</span><span class="ev warn">Maintenance 02:00</span></div>
+              <div class="cell"><span class="d">9</span></div>
+              <div class="cell"><span class="d">10</span><span class="ev">Deploy v141</span><span class="ev">On-call Maya</span></div>
+              <div class="cell"><span class="d" style="color:var(--text-dim);opacity:.5">11</span></div>
+              <div class="cell"><span class="d" style="color:var(--text-dim);opacity:.5">12</span><span class="ev err">INC-2195 resolved</span></div>
+
+              <div class="cell"><span class="d">13</span></div>
+              <div class="cell"><span class="d">14</span><span class="ev">GDPR review</span></div>
+              <div class="cell"><span class="d">15</span></div>
+              <div class="cell"><span class="d">16</span><span class="ev warn">DB maintenance 02:00–04:00</span></div>
+              <div class="cell"><span class="d">17</span></div>
+              <div class="cell"><span class="d" style="color:var(--text-dim);opacity:.5">18</span></div>
+              <div class="cell"><span class="d" style="color:var(--text-dim);opacity:.5">19</span></div>
+
+              <div class="cell"><span class="d">20</span><span class="ev">On-call Jonas</span></div>
+              <div class="cell today" style="background: color-mix(in oklch, var(--accent) 7%, transparent)"><span class="d">21</span><span class="ev err">INC-2204 active</span><span class="ev">Deploy v142</span></div>
+              <div class="cell"><span class="d">22</span><span class="ev">SSL renewal</span></div>
+              <div class="cell"><span class="d">23</span></div>
+              <div class="cell"><span class="d">24</span><span class="ev">Demo · Q2 plan</span></div>
+              <div class="cell" style="border-bottom: none"><span class="d" style="color:var(--text-dim);opacity:.5">25</span></div>
+              <div class="cell" style="border-bottom: none"><span class="d" style="color:var(--text-dim);opacity:.5">26</span></div>
+
+              <div class="cell" style="border-bottom: none"><span class="d">27</span></div>
+              <div class="cell" style="border-bottom: none"><span class="d">28</span></div>
+              <div class="cell" style="border-bottom: none"><span class="d">29</span></div>
+              <div class="cell" style="border-bottom: none"><span class="d">30</span><span class="ev">Month-end report</span></div>
+              <div class="cell" style="border-bottom: none"><span class="d" style="color:var(--text-dim);opacity:.5">1</span></div>
+              <div class="cell" style="border-bottom: none; border-right: none"><span class="d" style="color:var(--text-dim);opacity:.5">2</span></div>
+              <div class="cell" style="border-bottom: none; border-right: none"><span class="d" style="color:var(--text-dim);opacity:.5">3</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Gallery ──────── -->
+    <section id="gallery">
+      <h2 class="lib-section-title">Gallery / asset grid</h2>
+      <p class="lib-section-sub">Visual card grid — environments, templates, screenshots.</p>
+      <div class="demo">
+        <div class="demo-label">Deploy templates</div>
+        <div class="demo-body page">
+          <div class="frame">
+            <div class="mini-top">
+              <div class="trail"><b>Templates</b></div>
+              <div class="row" style="margin-left: auto; gap: 6px">
+                <div style="position: relative"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.7" style="position:absolute;left:8px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="input" style="padding-left: 26px; height: 28px; width: 200px" placeholder="Search templates…"></div>
+                <div class="seg"><button class="on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button><button><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button></div>
+              </div>
+            </div>
+            <div class="gallery">
+              <button class="card"><div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.8);backdrop-filter:blur(4px);padding:2px 6px;border-radius:3px;font-family:var(--font-mono);font-size:10px;color:var(--text)">official</div><div class="meta"><b>Next.js + Postgres</b><span class="mono">3.4k</span></div></button>
+              <button class="card"><div class="meta"><b>Rails monolith</b><span class="mono">2.1k</span></div></button>
+              <button class="card"><div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.8);backdrop-filter:blur(4px);padding:2px 6px;border-radius:3px;font-family:var(--font-mono);font-size:10px;color:var(--text)">official</div><div class="meta"><b>FastAPI + Redis</b><span class="mono">1.8k</span></div></button>
+              <button class="card"><div class="meta"><b>Go microservice</b><span class="mono">940</span></div></button>
+              <button class="card"><div class="meta"><b>Rust + axum</b><span class="mono">612</span></div></button>
+              <button class="card"><div class="meta"><b>Nuxt 3 + TRPC</b><span class="mono">488</span></div></button>
+              <button class="card"><div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.8);backdrop-filter:blur(4px);padding:2px 6px;border-radius:3px;font-family:var(--font-mono);font-size:10px;color:var(--text)">new</div><div class="meta"><b>Cron workers</b><span class="mono">240</span></div></button>
+              <button class="card"><div class="meta"><b>Static site</b><span class="mono">120</span></div></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Onboarding canvas ──────── -->
+    <section id="onboard">
+      <h2 class="lib-section-title">Onboarding canvas</h2>
+      <p class="lib-section-sub">Steps on the left, big focus area on the right. Used for first-run + wizard-style flows.</p>
+      <div class="demo">
+        <div class="demo-label">Create workspace · step 2 of 4</div>
+        <div class="demo-body page">
+          <div class="frame obord">
+            <div class="steps">
+              <h4>Set up Linden</h4>
+              <div class="step done"><div class="n"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div><b>Workspace</b><span>Linden Labs · created</span></div></div>
+              <div class="step on"><div class="n">2</div><div><b>Pick a template</b><span>Start with your stack</span></div></div>
+              <div class="step"><div class="n">3</div><div><b>Invite teammates</b><span>Or skip for now</span></div></div>
+              <div class="step"><div class="n">4</div><div><b>First deploy</b><span>Ship hello world</span></div></div>
+              <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--text-dim); line-height: 1.6">Takes about 4 minutes. You can skip any step and come back later from Settings → Setup.</div>
+            </div>
+            <div class="panel">
+              <div style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-ink); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px">Step 2</div>
+              <h2>Pick a starter template.</h2>
+              <p>Each template is a minimal working service — language, framework, and a connected database — ready to deploy. You can change or remove any of this later.</p>
+              <div class="tchoice">
+                <div class="c"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:24px;height:24px;border-radius:5px;background:oklch(0.94 0.04 230);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600">Nx</div><b style="font-size:13px">Next.js</b></div><div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">React SSR + Postgres + Redis</div></div>
+                <div class="c sel"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:24px;height:24px;border-radius:5px;background:oklch(0.94 0.04 30);color:oklch(0.4 0.15 30);display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600">Ry</div><b style="font-size:13px">Rails</b><span style="margin-left:auto;color:var(--accent-ink);font-size:10.5px;font-family:var(--font-mono)">✓ picked</span></div><div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Monolith + Postgres + Sidekiq</div></div>
+                <div class="c"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:24px;height:24px;border-radius:5px;background:oklch(0.94 0.04 140);color:oklch(0.4 0.15 140);display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600">Fa</div><b style="font-size:13px">FastAPI</b></div><div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Python + Postgres + Redis</div></div>
+                <div class="c"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:24px;height:24px;border-radius:5px;background:oklch(0.94 0.04 200);color:oklch(0.4 0.15 200);display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600">Go</div><b style="font-size:13px">Go + chi</b></div><div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Small API + Postgres</div></div>
+                <div class="c"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:24px;height:24px;border-radius:5px;background:oklch(0.94 0.04 280);color:oklch(0.4 0.15 280);display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600">Rs</div><b style="font-size:13px">Rust + axum</b></div><div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">axum + sqlx + Postgres</div></div>
+                <div class="c"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:24px;height:24px;border-radius:5px;background:var(--bg-sunk);color:var(--text-muted);display:grid;place-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><b style="font-size:13px">Blank project</b></div><div style="font-size:11.5px;color:var(--text-dim);line-height:1.5">Bring your own Dockerfile</div></div>
+              </div>
+              <div class="row" style="gap: 8px; margin-top: 24px"><button class="btn">← Back</button><button class="btn primary">Continue with Rails →</button><button class="btn ghost" style="margin-left: auto">Skip</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Auth ──────── -->
+    <section id="auth">
+      <h2 class="lib-section-title">Auth split</h2>
+      <p class="lib-section-sub">Two-column: branded side + form side. Sign-in, sign-up, magic link, SSO.</p>
+      <div class="demo">
+        <div class="demo-label">Sign in</div>
+        <div class="demo-body page">
+          <div class="frame auth">
+            <div class="auth-panel">
+              <div class="row" style="gap: 10px; margin-bottom: 30px"><div style="width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), var(--accent-ink))"></div><b style="font-size: 16px">NextCli</b></div>
+              <h2 style="font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 6px">Welcome back.</h2>
+              <p style="font-size: 13.5px; color: var(--text-muted); margin: 0 0 22px">Sign in to your workspace to continue.</p>
+              <div style="display: flex; flex-direction: column; gap: 10px; max-width: 340px">
+                <button class="btn lg" style="justify-content: center; gap: 8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 4.4 2.9 8.2 6.8 9.5.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.5-1.1-4.5-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.5 5 .4.3.7.9.7 1.8v2.6c0 .3.2.6.7.5C19.1 20.2 22 16.4 22 12c0-5.5-4.5-10-10-10z"/></svg>Continue with GitHub</button>
+                <button class="btn lg" style="justify-content: center; gap: 8px"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22 12c0-.8-.1-1.6-.2-2.3H12v4.4h5.6c-.2 1.3-1 2.4-2 3.1v2.6h3.3c1.9-1.8 3.1-4.4 3.1-7.8z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.5l-3.2-2.5a6 6 0 0 1-9-3.2H3v2.6C4.6 19.6 8 22 12 22z"/><path fill="#FBBC05" d="M6.4 13.7a6 6 0 0 1 0-3.7V7.3H3A10 10 0 0 0 3 16.7z"/><path fill="#EA4335" d="M12 6.5c1.5 0 2.8.5 3.8 1.5l2.8-2.8A10 10 0 0 0 3 7.3l3.3 2.6c.8-2.3 3-3.7 5.7-3.7z"/></svg>Continue with Google</button>
+                <button class="btn lg" style="justify-content: center; gap: 8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Sign in with SSO</button>
+                <div class="row" style="margin: 14px 0; gap: 8px"><div style="flex: 1; height: 1px; background: var(--line)"></div><span style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono)">OR EMAIL</span><div style="flex: 1; height: 1px; background: var(--line)"></div></div>
+                <label style="font-size: 11.5px; color: var(--text-muted); margin-bottom: -6px">Email</label>
+                <input class="input lg" placeholder="you@linden.com">
+                <label style="font-size: 11.5px; color: var(--text-muted); margin-bottom: -6px; display: flex; justify-content: space-between; align-items: center">Password <a href="#" style="color: var(--accent-ink); text-decoration: underline; font-size: 11px">Forgot?</a></label>
+                <input class="input lg" type="password" value="••••••••••">
+                <button class="btn lg primary" style="justify-content: center; margin-top: 4px">Sign in →</button>
+                <p style="font-size: 11.5px; color: var(--text-dim); text-align: center; margin: 12px 0 0">Don't have an account? <a href="#" style="color: var(--accent-ink); text-decoration: underline">Start free →</a></p>
+              </div>
+            </div>
+            <div class="auth-art">
+              <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.8">Ship 3× faster</div>
+              <div style="margin-top: auto">
+                <div style="font-size: 22px; font-weight: 500; letter-spacing: -0.015em; line-height: 1.3; max-width: 340px">"We moved from three SaaS tools to NextCli in one weekend. Everything feels calmer."</div>
+                <div class="row" style="gap: 10px; margin-top: 22px"><div class="avatar" style="background: oklch(0.72 0.12 330); color: white">AB</div><div><b style="font-size: 12.5px">Ari Bell</b><div style="font-size: 11px; opacity: 0.7; font-family: var(--font-mono)">CTO · Paper Co.</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Marketing ──────── -->
+    <section id="marketing">
+      <h2 class="lib-section-title">Marketing / landing</h2>
+      <p class="lib-section-sub">Public-facing hero + three-up feature grid. Same type + token vocabulary as the product.</p>
+      <div class="demo">
+        <div class="demo-label">nextcli.dev · homepage</div>
+        <div class="demo-body page">
+          <div class="frame mkt">
+            <nav class="mkt-nav">
+              <div class="row" style="gap: 8px"><div style="width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), var(--accent-ink))"></div><b style="font-size: 13.5px">NextCli</b></div>
+              <div class="links"><a>Product</a><a>Pricing</a><a>Docs</a><a>Changelog</a><a>Customers</a></div>
+              <div class="row" style="gap: 6px"><button class="btn sm ghost">Sign in</button><button class="btn sm primary">Start free</button></div>
+            </nav>
+            <div class="mkt-hero">
+              <div class="eyebrow">↗ Apr 21 · launching region ap-south-2</div>
+              <h1>The cloud console your ops team stops complaining about.</h1>
+              <p>NextCli gives platform teams one dense, keyboard-driven console for services, databases, logs and deploys — no tab gymnastics, no layer of abstractions you have to memorize.</p>
+              <div class="row" style="gap: 8px; margin-top: 18px"><button class="btn lg primary">Start free · no card</button><button class="btn lg">Read the docs →</button></div>
+              <div class="row" style="gap: 20px; margin-top: 28px; font-size: 12px; color: var(--text-dim)">
+                <span><span class="mono" style="color: var(--ok); margin-right: 4px">✓</span>99.99% SLA</span>
+                <span><span class="mono" style="color: var(--ok); margin-right: 4px">✓</span>SOC-2 Type II</span>
+                <span><span class="mono" style="color: var(--ok); margin-right: 4px">✓</span>Deploy in 4 minutes</span>
+              </div>
+            </div>
+            <div class="mkt-features">
+              <div class="f">
+                <div class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg></div>
+                <b style="font-size: 14px">Services</b>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 0; line-height: 1.55">Ship from Git or Docker. Instant rollback, gradual rollout, automatic probes.</p>
+              </div>
+              <div class="f">
+                <div class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v14c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/></svg></div>
+                <b style="font-size: 14px">Databases</b>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 0; line-height: 1.55">Postgres, Redis, ClickHouse. Backups, PITR, read replicas — one checkbox each.</p>
+              </div>
+              <div class="f">
+                <div class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l5-6 4 4 4-7 5 9"/></svg></div>
+                <b style="font-size: 14px">Observability</b>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 0; line-height: 1.55">Logs, metrics, traces — already on. Alert from the same query that surfaced the bug.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────── Topology ──────── -->
+    <section id="topology">
+      <h2 class="lib-section-title">Topology / graph canvas</h2>
+      <p class="lib-section-sub">Service-mesh view. Nodes and edges on a grid, with status dots and live RPS on the edges.</p>
+      <div class="demo">
+        <div class="demo-label">api-platform · service mesh</div>
+        <div class="demo-body page">
+          <div class="frame">
+            <div class="mini-top">
+              <div class="trail"><b>Service mesh</b><span class="sep">/</span><span>prod</span></div>
+              <div class="seg" style="margin-left: auto"><button class="on">Traffic</button><button>Errors</button><button>Latency</button></div>
+              <button class="btn sm ghost"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8"/></svg></button>
+            </div>
+            <div class="topo">
+              <svg viewBox="0 0 800 360" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="var(--line-strong)"/></marker>
+                  <marker id="arrW" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="var(--warn)"/></marker>
+                  <marker id="arrA" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="var(--accent)"/></marker>
+                </defs>
+
+                <!-- edges -->
+                <g fill="none" stroke-width="1.4">
+                  <path d="M120 180 Q240 120 360 180" stroke="var(--accent)" marker-end="url(#arrA)"/>
+                  <path d="M360 180 Q480 100 600 160" stroke="var(--line-strong)" marker-end="url(#arr)"/>
+                  <path d="M360 180 Q480 260 600 250" stroke="var(--warn)" marker-end="url(#arrW)" stroke-dasharray="4 2"/>
+                  <path d="M360 180 Q470 180 580 180" stroke="var(--line-strong)" marker-end="url(#arr)"/>
+                  <path d="M600 160 Q680 120 720 80" stroke="var(--line-strong)" marker-end="url(#arr)"/>
+                  <path d="M600 250 Q680 280 720 320" stroke="var(--line-strong)" marker-end="url(#arr)"/>
+                  <path d="M580 180 Q680 200 720 200" stroke="var(--line-strong)" marker-end="url(#arr)"/>
+                </g>
+                <!-- edge labels -->
+                <g font-family="var(--font-mono)" font-size="10" fill="var(--text-dim)">
+                  <text x="220" y="135">8.4k rps</text>
+                  <text x="470" y="115">2.1k rps</text>
+                  <text x="460" y="275" fill="var(--warn)">12.8k · p95 342ms</text>
+                  <text x="460" y="175">620 rps</text>
+                </g>
+
+                <!-- ingress -->
+                <g>
+                  <rect x="60" y="156" width="120" height="48" rx="10" fill="var(--bg-elev)" stroke="var(--line)"/>
+                  <text x="120" y="178" text-anchor="middle" font-family="var(--font-ui)" font-weight="600" font-size="12" fill="var(--text)">CDN</text>
+                  <text x="120" y="192" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--text-dim)">edge · global</text>
+                </g>
+
+                <!-- api-gateway (center) -->
+                <g>
+                  <rect x="300" y="148" width="120" height="64" rx="10" fill="var(--accent-weak)" stroke="var(--accent)"/>
+                  <circle cx="318" cy="164" r="4" fill="var(--ok)"/>
+                  <text x="330" y="168" font-family="var(--font-ui)" font-weight="600" font-size="12" fill="var(--accent-ink)">api-gateway</text>
+                  <text x="312" y="188" font-family="var(--font-mono)" font-size="10" fill="var(--accent-ink)">v142 · 4 replicas</text>
+                  <text x="312" y="202" font-family="var(--font-mono)" font-size="10" fill="var(--accent-ink)">124ms p95</text>
+                </g>
+
+                <!-- auth -->
+                <g>
+                  <rect x="540" y="130" width="120" height="60" rx="10" fill="var(--bg-elev)" stroke="var(--line)"/>
+                  <circle cx="558" cy="146" r="4" fill="var(--ok)"/>
+                  <text x="570" y="150" font-family="var(--font-ui)" font-weight="600" font-size="12" fill="var(--text)">auth-service</text>
+                  <text x="552" y="170" font-family="var(--font-mono)" font-size="10" fill="var(--text-dim)">42ms · 2 rep.</text>
+                </g>
+
+                <!-- ingest worker -->
+                <g>
+                  <rect x="540" y="220" width="120" height="60" rx="10" fill="var(--bg-elev)" stroke="var(--warn)"/>
+                  <circle cx="558" cy="236" r="4" fill="var(--warn)"/>
+                  <text x="570" y="240" font-family="var(--font-ui)" font-weight="600" font-size="12" fill="var(--text)">ingest-worker</text>
+                  <text x="552" y="260" font-family="var(--font-mono)" font-size="10" fill="var(--warn)">342ms · degraded</text>
+                </g>
+
+                <!-- image resize -->
+                <g>
+                  <rect x="520" y="162" width="40" height="36" rx="8" fill="var(--bg-elev)" stroke="var(--line)"/>
+                  <text x="540" y="184" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--text-dim)">img</text>
+                </g>
+
+                <!-- databases right -->
+                <g>
+                  <rect x="680" y="60" width="100" height="50" rx="10" fill="var(--bg-elev)" stroke="var(--line)"/>
+                  <circle cx="696" cy="76" r="4" fill="var(--ok)"/>
+                  <text x="706" y="80" font-family="var(--font-ui)" font-weight="600" font-size="11" fill="var(--text)">postgres</text>
+                  <text x="690" y="98" font-family="var(--font-mono)" font-size="10" fill="var(--text-dim)">primary · 8.2 GB</text>
+                </g>
+                <g>
+                  <rect x="680" y="180" width="100" height="40" rx="10" fill="var(--bg-elev)" stroke="var(--line)"/>
+                  <circle cx="696" cy="196" r="4" fill="var(--ok)"/>
+                  <text x="706" y="200" font-family="var(--font-ui)" font-weight="600" font-size="11" fill="var(--text)">redis</text>
+                </g>
+                <g>
+                  <rect x="680" y="300" width="100" height="40" rx="10" fill="var(--bg-elev)" stroke="var(--line)"/>
+                  <circle cx="696" cy="316" r="4" fill="var(--ok)"/>
+                  <text x="706" y="320" font-family="var(--font-ui)" font-weight="600" font-size="11" fill="var(--text)">s3 · events</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+</script>
+</body>
+</html>

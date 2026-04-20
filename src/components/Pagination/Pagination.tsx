@@ -1,6 +1,7 @@
 import type { HTMLAttributes } from 'react'
 import { tv } from 'tailwind-variants'
 import { Button } from '../Button/Button'
+import { useLocale } from '../../context/ConfigProvider'
 
 const paginationStyles = tv({
   base: [
@@ -15,9 +16,9 @@ export interface PaginationProps extends Omit<HTMLAttributes<HTMLDivElement>, 'o
   onChange?: (page: number) => void
   /** max numeric buttons (excluding prev/next/ellipsis). default 5 */
   siblingCount?: number
-  /** Label for prev button. default "‹ Prev" */
+  /** Label for prev button. Defaults to locale. */
   prevLabel?: React.ReactNode
-  /** Label for next button. default "Next ›" */
+  /** Label for next button. Defaults to locale. */
   nextLabel?: React.ReactNode
 }
 
@@ -45,11 +46,14 @@ export function Pagination({
   total,
   onChange,
   siblingCount = 5,
-  prevLabel = '‹ Prev',
-  nextLabel = 'Next ›',
+  prevLabel,
+  nextLabel,
   className,
   ...rest
 }: PaginationProps) {
+  const locale = useLocale()
+  const resolvedPrev = prevLabel ?? locale.pagination.prev
+  const resolvedNext = nextLabel ?? locale.pagination.next
   const items = buildItems(page, total, siblingCount)
   const prev = () => page > 1 && onChange?.(page - 1)
   const next = () => page < total && onChange?.(page + 1)
@@ -57,7 +61,7 @@ export function Pagination({
   return (
     <div className={paginationStyles({ class: className })} {...rest}>
       <Button size="sm" intent="ghost" onClick={prev} disabled={page <= 1}>
-        {prevLabel}
+        {resolvedPrev}
       </Button>
       {items.map((it, i) =>
         it === '…' ? (
@@ -73,7 +77,7 @@ export function Pagination({
         ),
       )}
       <Button size="sm" intent="ghost" onClick={next} disabled={page >= total}>
-        {nextLabel}
+        {resolvedNext}
       </Button>
     </div>
   )

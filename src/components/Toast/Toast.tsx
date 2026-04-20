@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useLocale } from '../../context/ConfigProvider'
 
 export const toastStyles = tv({
   slots: {
@@ -43,6 +44,7 @@ export function Toast({
   children,
   ...rest
 }: ToastProps) {
+  const locale = useLocale()
   const { base, icon: iconCls, body, closeBtn } = toastStyles({ tone })
   return (
     <div className={base({ class: className })} role="status" {...rest}>
@@ -50,7 +52,12 @@ export function Toast({
       <span className={body()}>{children}</span>
       {actions}
       {onClose && (
-        <button type="button" onClick={onClose} aria-label="Close" className={closeBtn()}>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={locale.toast.close}
+          className={closeBtn()}
+        >
           ×
         </button>
       )}

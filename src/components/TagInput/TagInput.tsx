@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { tv } from 'tailwind-variants'
+import { useLocale } from '../../context/ConfigProvider'
 
 const tagInputStyles = tv({
   slots: {
@@ -62,6 +63,7 @@ export function TagInput({
   className,
   ...rest
 }: TagInputProps) {
+  const locale = useLocale()
   const [uncontrolled, setUncontrolled] = useState<string[]>(defaultValue)
   const [draft, setDraft] = useState('')
   const tags = valueProp ?? uncontrolled
@@ -122,7 +124,7 @@ export function TagInput({
             {t}
             <button
               type="button"
-              aria-label={`Remove ${t}`}
+              aria-label={locale.tagInput.removeTag.replace('{tag}', t)}
               onClick={(e) => {
                 e.stopPropagation()
                 remove(i)

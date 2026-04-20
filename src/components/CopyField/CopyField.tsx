@@ -1,6 +1,7 @@
 import { useRef, useState, type HTMLAttributes, type ReactNode } from 'react'
 import { tv } from 'tailwind-variants'
 import { Button } from '../Button/Button'
+import { useLocale } from '../../context/ConfigProvider'
 
 const copyFieldStyles = tv({
   slots: {
@@ -55,11 +56,14 @@ export function CopyField({
   children,
   feedbackDuration = 1400,
   extras,
-  copiedLabel = 'Copied',
-  copyLabel = 'Copy',
+  copiedLabel,
+  copyLabel,
   className,
   ...rest
 }: CopyFieldProps) {
+  const locale = useLocale()
+  const resolvedCopied = copiedLabel ?? locale.copyField.copied
+  const resolvedCopy = copyLabel ?? locale.copyField.copy
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<number | null>(null)
 
@@ -97,10 +101,10 @@ export function CopyField({
       {copied ? (
         <span className={copiedCls()} aria-live="polite">
           {OkIcon}
-          {copiedLabel}
+          {resolvedCopied}
         </span>
       ) : (
-        <Button size="xs" iconOnly intent="ghost" aria-label={copyLabel} onClick={handleCopy}>
+        <Button size="xs" iconOnly intent="ghost" aria-label={resolvedCopy} onClick={handleCopy}>
           {CopyIcon}
         </Button>
       )}

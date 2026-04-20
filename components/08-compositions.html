@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>08 · Compositions — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  .demo-body.page { padding: 0; background: var(--bg); display: block; min-height: 0; }
+  .page-frame { background: var(--bg); border-radius: 0; }
+
+  /* ---- Filter toolbar ---- */
+  .tb { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+  .tb .grow { flex: 1; }
+  .tb-chip { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 6px; font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; }
+  .tb-chip b { color: var(--text); font-weight: 500; font-family: var(--font-ui); }
+  .tb-chip.active { background: var(--accent-weak); border-color: color-mix(in oklch, var(--accent) 40%, transparent); color: var(--accent-ink); }
+
+  /* ---- Detail layout ---- */
+  .detail { display: grid; grid-template-columns: 1fr 300px; min-height: 460px; }
+  .detail-main { padding: 20px 24px; }
+  .detail-side { border-left: 1px solid var(--line); background: var(--panel); padding: 18px 20px; display: flex; flex-direction: column; gap: 18px; }
+  .meta-row { display: grid; grid-template-columns: 90px 1fr; gap: 8px; font-size: 12px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+  .meta-row:last-child { border-bottom: 0; }
+  .meta-row .k { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .meta-row .v { color: var(--text); font-family: var(--font-mono); font-size: 11.5px; }
+
+  /* ---- Settings page ---- */
+  .settings { display: grid; grid-template-columns: 180px 1fr; min-height: 480px; }
+  .settings-nav { border-right: 1px solid var(--line); padding: 16px 10px; background: var(--panel); }
+  .settings-nav a { display: block; padding: 6px 10px; font-size: 12.5px; color: var(--text-muted); border-radius: 5px; margin-bottom: 1px; }
+  .settings-nav a:hover { background: var(--bg-sunk); color: var(--text); }
+  .settings-nav a.active { background: var(--accent-weak); color: var(--accent-ink); font-weight: 500; }
+  .settings-nav .ttl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 10px 4px; }
+  .settings-body { padding: 22px 28px; max-width: 640px; }
+  .form-row { display: grid; grid-template-columns: 180px 1fr; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .form-row:last-child { border-bottom: 0; }
+  .form-row .lbl { font-size: 13px; font-weight: 500; }
+  .form-row .hlp { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; line-height: 1.5; }
+
+  /* ---- Empty state ---- */
+  .empty { padding: 56px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .empty .art { width: 68px; height: 68px; border-radius: 50%; background: var(--bg-sunk); display: grid; place-items: center; border: 1px dashed var(--line); margin-bottom: 4px; }
+
+  /* ---- Resource card w/ quick actions ---- */
+  .rc { display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 10px; }
+  .rc + .rc { margin-top: 8px; }
+  .rc .icon-sq { width: 44px; height: 44px; border-radius: 8px; background: linear-gradient(135deg, var(--accent-weak), color-mix(in oklch, var(--accent) 18%, transparent)); display: grid; place-items: center; color: var(--accent-ink); }
+  .rc h4 { margin: 0 0 3px; font-size: 13.5px; font-weight: 600; }
+  .rc .meta { font-size: 11.5px; color: var(--text-dim); font-family: var(--font-mono); display: flex; gap: 10px; }
+  .rc .meta span { display: inline-flex; align-items: center; gap: 4px; }
+
+  /* ---- Inline billing ---- */
+  .bill-row { display: grid; grid-template-columns: 1fr 80px 80px 100px; gap: 12px; padding: 10px 14px; border-bottom: 1px dashed var(--line); font-size: 12.5px; align-items: center; }
+  .bill-row.hd { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); border-bottom: 1px solid var(--line); background: var(--bg-sunk); }
+  .bill-row .q { text-align: right; font-family: var(--font-mono); }
+
+  /* ---- Onboarding checklist ---- */
+  .ck { display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); align-items: center; font-size: 12.5px; }
+  .ck:last-child { border-bottom: 0; }
+  .ck .n { width: 22px; height: 22px; border-radius: 50%; background: var(--bg-sunk); border: 1px solid var(--line); display: grid; place-items: center; font-size: 11px; color: var(--text-dim); font-family: var(--font-mono); }
+  .ck.done .n { background: var(--ok); border-color: var(--ok); color: white; }
+  .ck.active .n { background: var(--accent); border-color: var(--accent); color: white; box-shadow: 0 0 0 3px var(--accent-weak); }
+  .ck.done .lbl { color: var(--text-muted); text-decoration: line-through; }
+  .ck .hlp { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* ---- Terminal / log tailing ---- */
+  .term { background: oklch(0.16 0.015 240); color: oklch(0.9 0.01 240); font-family: var(--font-mono); font-size: 11.5px; padding: 14px 16px; border-radius: 8px; line-height: 1.6; min-height: 200px; }
+  .term .p { color: oklch(0.68 0.14 140); }
+  .term .i { color: oklch(0.68 0.12 230); }
+  .term .w { color: oklch(0.8 0.14 75); }
+  .term .e { color: oklch(0.7 0.17 22); }
+  .term .d { color: oklch(0.52 0.02 240); }
+  .term .cursor { display: inline-block; width: 8px; height: 14px; background: oklch(0.68 0.12 230); vertical-align: -2px; animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+      <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
+      <a class="lib-link" href="07-more.html">07 · More components</a>
+      <a class="lib-link active" href="08-compositions.html">08 · Compositions</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">This page</div>
+      <a class="lib-link" href="#toolbar">Filter toolbar</a>
+      <a class="lib-link" href="#list-detail">List + detail</a>
+      <a class="lib-link" href="#settings">Settings page</a>
+      <a class="lib-link" href="#empty">Empty state</a>
+      <a class="lib-link" href="#resource-cards">Resource list</a>
+      <a class="lib-link" href="#billing">Billing summary</a>
+      <a class="lib-link" href="#checklist">Onboarding checklist</a>
+      <a class="lib-link" href="#log-tail">Log tail + actions</a>
+      <a class="lib-link" href="#pricing">Pricing / plan picker</a>
+      <a class="lib-link" href="#auth">Auth form</a>
+      <a class="lib-link" href="#access-review">Access review row</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Part 08 · Compositions</div>
+      <h1 class="lib-h1">Put it together.</h1>
+      <p class="lib-lede">The atoms from parts 02–07 assembled into the screens they actually show up in. Each example is made from unmodified library components — no new CSS, just arrangement.</p>
+    </header>
+
+    <!-- ───────────────────── Filter toolbar ───────────────────── -->
+    <section id="toolbar">
+      <h2 class="lib-section-title">Filter toolbar</h2>
+      <p class="lib-section-sub">Search + saved view + active-filter chips + right-side actions. Standard header for any list screen.</p>
+      <div class="demo">
+        <div class="demo-label">Instance list · filters applied</div>
+        <div class="demo-body page">
+          <div class="tb">
+            <div class="seg"><button class="on">All</button><button>Running <span class="mono" style="color:var(--text-dim)">24</span></button><button>Stopped</button><button>Failed</button></div>
+            <div style="position: relative; width: 240px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.7" style="position: absolute; left: 9px; top: 50%; transform: translateY(-50%)"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input class="input" style="padding-left: 28px; height: 28px" placeholder="Search by name, IP, tag…">
+            </div>
+            <div class="tb-chip active">Region: <b>us-east-1</b> <span style="opacity:.5">✕</span></div>
+            <div class="tb-chip active">Status: <b>Healthy</b> <span style="opacity:.5">✕</span></div>
+            <div class="tb-chip">+ Add filter</div>
+            <div class="grow"></div>
+            <div class="row" style="gap: 6px">
+              <button class="btn sm ghost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+              <button class="btn sm ghost">Save view</button>
+              <button class="btn sm primary">+ New instance</button>
+            </div>
+          </div>
+          <div class="tb" style="padding: 6px 14px; background: var(--bg); font-size: 11.5px; color: var(--text-dim); border-bottom: 0">
+            <span class="mono">24 of 312 shown</span>
+            <span>·</span>
+            <a href="#" style="color: var(--accent-ink); text-decoration: underline">clear filters</a>
+            <div class="grow"></div>
+            <div class="row" style="gap: 6px">
+              <span class="mono">Sort:</span>
+              <button class="btn xs ghost" style="height: 20px">name ↑</button>
+              <span style="color: var(--line-strong)">|</span>
+              <div class="seg" style="height: 20px"><button class="on" style="padding: 0 6px">☰</button><button style="padding: 0 6px">▦</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── List + detail ───────────────────── -->
+    <section id="list-detail">
+      <h2 class="lib-section-title">List + detail layout</h2>
+      <p class="lib-section-sub">The bread-and-butter console layout. Breadcrumb + title at top, content + metadata sidebar below.</p>
+      <div class="demo">
+        <div class="demo-label">Instance detail</div>
+        <div class="demo-body page">
+          <div class="page-frame">
+            <div style="padding: 16px 24px 0">
+              <div class="row" style="font-size: 11.5px; color: var(--text-dim); margin-bottom: 6px">
+                <a href="#" style="color: var(--text-muted)">Compute</a>
+                <span>›</span>
+                <a href="#" style="color: var(--text-muted)">Instances</a>
+                <span>›</span>
+                <span class="mono" style="color: var(--text)">i-0a4f92bd</span>
+              </div>
+              <div class="spread">
+                <div class="row" style="gap: 10px">
+                  <h2 style="font-size: 20px; font-weight: 600; letter-spacing: -0.015em; margin: 0">analytics-worker-03</h2>
+                  <span class="pill ok"><span class="dotc"></span>Running</span>
+                  <span class="pill mono">m5.2xlarge</span>
+                </div>
+                <div class="row" style="gap: 6px">
+                  <button class="btn sm ghost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Console</button>
+                  <button class="btn sm ghost">Reboot</button>
+                  <button class="btn sm">Stop</button>
+                  <button class="btn sm ghost icon">⋯</button>
+                </div>
+              </div>
+              <div class="row" style="gap: 2px; margin-top: 14px; border-bottom: 1px solid var(--line); margin-left: -24px; margin-right: -24px; padding: 0 24px">
+                <button class="btn sm ghost" style="border-radius: 0; border-bottom: 2px solid var(--accent); color: var(--text); height: 32px">Overview</button>
+                <button class="btn sm ghost" style="height: 32px">Metrics</button>
+                <button class="btn sm ghost" style="height: 32px">Logs</button>
+                <button class="btn sm ghost" style="height: 32px">Networking</button>
+                <button class="btn sm ghost" style="height: 32px">Storage</button>
+                <button class="btn sm ghost" style="height: 32px">Tags</button>
+              </div>
+            </div>
+
+            <div class="detail">
+              <div class="detail-main">
+                <div class="grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px">
+                  <div class="card kpi"><div class="kpi-label">CPU</div><div class="kpi-value">38%</div><div class="kpi-foot"><span class="delta up">+4</span><span>vs 1h ago</span></div></div>
+                  <div class="card kpi"><div class="kpi-label">Memory</div><div class="kpi-value">64%</div><div class="kpi-foot"><span class="delta down">−2</span><span>vs 1h ago</span></div></div>
+                  <div class="card kpi"><div class="kpi-label">Network out</div><div class="kpi-value">128<span style="font-size:16px;color:var(--text-dim)"> MB/s</span></div><div class="kpi-foot"><span class="delta up">+12</span><span>vs 1h ago</span></div></div>
+                </div>
+                <div class="card">
+                  <div class="card-head">
+                    <span class="card-title">CPU · last 6h</span>
+                    <div class="seg" style="margin-left: auto; height: 22px"><button style="padding: 0 6px">1h</button><button class="on" style="padding: 0 6px">6h</button><button style="padding: 0 6px">24h</button></div>
+                  </div>
+                  <svg viewBox="0 0 600 120" style="width: 100%; display: block; padding: 14px 0">
+                    <defs><linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity="0.18"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+                    <g stroke="var(--line)" stroke-dasharray="2 3"><line x1="0" y1="30" x2="600" y2="30"/><line x1="0" y1="60" x2="600" y2="60"/><line x1="0" y1="90" x2="600" y2="90"/></g>
+                    <path d="M0,82 L40,76 L80,84 L120,62 L160,70 L200,48 L240,58 L280,42 L320,52 L360,38 L400,44 L440,32 L480,40 L520,36 L560,48 L600,40 L600,120 L0,120 Z" fill="url(#gA)"/>
+                    <polyline fill="none" stroke="var(--accent)" stroke-width="1.6" points="0,82 40,76 80,84 120,62 160,70 200,48 240,58 280,42 320,52 360,38 400,44 440,32 480,40 520,36 560,48 600,40"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="detail-side">
+                <div>
+                  <div class="kpi-label" style="margin-bottom: 8px">Details</div>
+                  <div class="meta-row"><span class="k">Instance ID</span><span class="v">i-0a4f92bd9c3e</span></div>
+                  <div class="meta-row"><span class="k">Region</span><span class="v">us-east-1a</span></div>
+                  <div class="meta-row"><span class="k">AMI</span><span class="v">ami-0e2a99f…</span></div>
+                  <div class="meta-row"><span class="k">Launched</span><span class="v">14d 2h ago</span></div>
+                  <div class="meta-row"><span class="k">Public IP</span><span class="v">54.204.18.91</span></div>
+                  <div class="meta-row"><span class="k">Private IP</span><span class="v">10.0.1.214</span></div>
+                </div>
+                <div>
+                  <div class="kpi-label" style="margin-bottom: 8px">Tags</div>
+                  <div class="row" style="gap: 4px">
+                    <span class="pill">env: prod</span><span class="pill">team: data</span><span class="pill">owner: maya</span><span class="pill">+ Add</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="kpi-label" style="margin-bottom: 8px">Activity</div>
+                  <div style="font-size: 11.5px; line-height: 1.6">
+                    <div><span class="mono" style="color: var(--text-dim)">14:22</span> Maya restarted</div>
+                    <div><span class="mono" style="color: var(--text-dim)">09:40</span> Auto-scaled up</div>
+                    <div><span class="mono" style="color: var(--text-dim)">yesterday</span> Snapshot created</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Settings page ───────────────────── -->
+    <section id="settings">
+      <h2 class="lib-section-title">Settings page</h2>
+      <p class="lib-section-sub">Left nav + form-row pattern. Every preference has a label, description, and its matching input on the right.</p>
+      <div class="demo">
+        <div class="demo-label">Workspace settings</div>
+        <div class="demo-body page">
+          <div class="settings">
+            <div class="settings-nav">
+              <div class="ttl">Workspace</div>
+              <a>General</a>
+              <a class="active">Team & access</a>
+              <a>Billing</a>
+              <a>Usage limits</a>
+              <div class="ttl" style="margin-top: 10px">Security</div>
+              <a>API keys</a>
+              <a>SSO & SAML</a>
+              <a>Audit log</a>
+              <a>Sessions</a>
+              <div class="ttl" style="margin-top: 10px">Advanced</div>
+              <a>Integrations</a>
+              <a>Webhooks</a>
+              <a style="color: var(--err)">Danger zone</a>
+            </div>
+            <div class="settings-body">
+              <div style="margin-bottom: 18px">
+                <h3 style="margin: 0 0 4px; font-size: 17px; font-weight: 600">Team & access</h3>
+                <p style="margin: 0; font-size: 12.5px; color: var(--text-muted)">Who can sign in, and what they can touch.</p>
+              </div>
+
+              <div class="form-row">
+                <div>
+                  <div class="lbl">Default role</div>
+                  <div class="hlp">Role assigned when a new member joins via SSO.</div>
+                </div>
+                <div>
+                  <select class="input" style="width: 260px"><option>Developer</option><option>Viewer</option><option>Admin</option></select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div>
+                  <div class="lbl">Require 2FA</div>
+                  <div class="hlp">Members must enroll in TOTP or a hardware key before accessing production.</div>
+                </div>
+                <div>
+                  <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div>
+                  <div class="lbl">Allowed domains</div>
+                  <div class="hlp">Auto-approve sign-ups from these email domains.</div>
+                </div>
+                <div>
+                  <div class="row" style="gap: 4px; padding: 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg-elev); min-height: 34px; width: 320px">
+                    <span class="pill">linden.cloud <button class="x">✕</button></span>
+                    <span class="pill">acmecorp.io <button class="x">✕</button></span>
+                    <input class="input" style="border: 0; padding: 0; height: auto; background: transparent; flex: 1; min-width: 80px" placeholder="add domain…">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div>
+                  <div class="lbl">Session timeout</div>
+                  <div class="hlp">How long idle sessions stay active.</div>
+                </div>
+                <div>
+                  <div class="seg"><button>1h</button><button>4h</button><button class="on">8h</button><button>24h</button><button>Never</button></div>
+                </div>
+              </div>
+
+              <div class="form-row" style="border-bottom: 0">
+                <div>
+                  <div class="lbl" style="color: var(--err)">Delete workspace</div>
+                  <div class="hlp">Permanent. All resources, data, and members will be removed.</div>
+                </div>
+                <div>
+                  <button class="btn danger">Delete workspace…</button>
+                </div>
+              </div>
+
+              <div class="row" style="gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line)">
+                <button class="btn primary">Save changes</button>
+                <button class="btn ghost">Discard</button>
+                <span style="font-size: 11.5px; color: var(--text-dim); margin-left: auto">Last saved 2 days ago by Priya</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Empty state ───────────────────── -->
+    <section id="empty">
+      <h2 class="lib-section-title">Empty state</h2>
+      <p class="lib-section-sub">Three variants — first-time, zero-result, error. Each has one primary CTA.</p>
+      <div class="demo">
+        <div class="demo-label">First-time empty</div>
+        <div class="demo-body page">
+          <div class="empty">
+            <div class="art"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/><circle cx="7" cy="7" r="0.6" fill="currentColor"/><circle cx="7" cy="17" r="0.6" fill="currentColor"/></svg></div>
+            <h3 style="font-size: 17px; font-weight: 600; margin: 0">No services yet</h3>
+            <p style="margin: 0; color: var(--text-muted); font-size: 13px; max-width: 380px">Services are long-running containers that auto-scale and restart on failure. Spin up your first one in about 90 seconds.</p>
+            <div class="row" style="gap: 8px; margin-top: 8px">
+              <button class="btn primary">+ Create service</button>
+              <button class="btn ghost">Read the guide ↗</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-label">No search results</div>
+        <div class="demo-body page">
+          <div class="empty" style="padding: 40px 24px">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h3 style="font-size: 15px; font-weight: 600; margin: 0">No instances match "<span class="mono">payments-v3</span>"</h3>
+            <p style="margin: 0; color: var(--text-muted); font-size: 12.5px">Try a shorter query, or remove filters.</p>
+            <div class="row" style="gap: 6px; margin-top: 4px">
+              <button class="btn sm ghost">Clear search</button>
+              <button class="btn sm ghost">Remove 2 filters</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-label">Load failed</div>
+        <div class="demo-body page">
+          <div class="empty" style="padding: 40px 24px">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--err)" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16" r="0.6" fill="currentColor"/></svg>
+            <h3 style="font-size: 15px; font-weight: 600; margin: 0; color: var(--err)">Couldn't load metrics</h3>
+            <p style="margin: 0; color: var(--text-muted); font-size: 12.5px">The metrics service returned <span class="mono">503 Service Unavailable</span>.</p>
+            <div class="row" style="gap: 6px; margin-top: 4px">
+              <button class="btn sm primary">Retry</button>
+              <button class="btn sm ghost">Status page ↗</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Resource list ───────────────────── -->
+    <section id="resource-cards">
+      <h2 class="lib-section-title">Resource list · rich rows</h2>
+      <p class="lib-section-sub">For mixed-type inventories where each row needs different metadata. Alternative to a strict table.</p>
+      <div class="demo">
+        <div class="demo-label">Projects</div>
+        <div class="demo-body page" style="padding: 16px 20px">
+          <div class="rc">
+            <div class="icon-sq"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg></div>
+            <div>
+              <h4>linden-api <span class="pill mono" style="margin-left: 4px">prod</span></h4>
+              <div class="meta"><span><span class="dot ok"></span>12 services healthy</span><span>us-east-1</span><span>updated 4m ago</span></div>
+            </div>
+            <div class="row" style="gap: 6px">
+              <div class="avatar-stack"><div class="avatar sm" style="background: oklch(0.62 0.14 230); color: white">MC</div><div class="avatar sm" style="background: oklch(0.64 0.17 330); color: white">JK</div><div class="avatar sm" style="background: oklch(0.7 0.17 65); color: white">PR</div></div>
+              <button class="btn sm ghost">Open →</button>
+            </div>
+          </div>
+          <div class="rc">
+            <div class="icon-sq" style="background: linear-gradient(135deg, color-mix(in oklch, var(--warn) 18%, transparent), color-mix(in oklch, var(--warn) 28%, transparent)); color: var(--warn)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg></div>
+            <div>
+              <h4>linden-api <span class="pill mono" style="margin-left: 4px">staging</span></h4>
+              <div class="meta"><span style="color: var(--warn)"><span class="dot" style="background: var(--warn)"></span>2 degraded</span><span>us-east-1</span><span>updated 2m ago</span></div>
+            </div>
+            <div class="row" style="gap: 6px">
+              <div class="avatar-stack"><div class="avatar sm" style="background: oklch(0.62 0.14 230); color: white">MC</div><div class="avatar sm" style="background: oklch(0.7 0.17 65); color: white">PR</div></div>
+              <button class="btn sm ghost">Open →</button>
+            </div>
+          </div>
+          <div class="rc">
+            <div class="icon-sq"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v14c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/></svg></div>
+            <div>
+              <h4>data-warehouse <span class="pill mono" style="margin-left: 4px">shared</span></h4>
+              <div class="meta"><span><span class="dot ok"></span>3 databases</span><span>1.2 TB</span><span>owner: priya</span></div>
+            </div>
+            <div class="row" style="gap: 6px">
+              <div class="avatar-stack"><div class="avatar sm" style="background: oklch(0.7 0.17 65); color: white">PR</div></div>
+              <button class="btn sm ghost">Open →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Billing summary ───────────────────── -->
+    <section id="billing">
+      <h2 class="lib-section-title">Billing summary</h2>
+      <p class="lib-section-sub">Usage breakdown + running total + payment method card. All from primitives.</p>
+      <div class="demo">
+        <div class="demo-label">This month · March</div>
+        <div class="demo-body page" style="padding: 18px 24px">
+          <div style="display: grid; grid-template-columns: 1fr 260px; gap: 24px">
+            <div>
+              <div class="row" style="align-items: baseline; gap: 12px; margin-bottom: 4px">
+                <div class="mono num" style="font-size: 32px; font-weight: 500">$1,248.62</div>
+                <span class="delta up" style="font-size: 11.5px">+$184 vs last month</span>
+              </div>
+              <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 14px">Accrued through Mar 22 · forecast <span class="mono">$1,720</span></div>
+
+              <div class="progress" style="height: 6px; margin-bottom: 20px; background: var(--bg-sunk); overflow: visible"><span style="width: 72%; background: var(--accent)"></span></div>
+
+              <div class="bill-row hd"><div>Item</div><div class="q">Usage</div><div class="q">Rate</div><div class="q">Subtotal</div></div>
+              <div class="bill-row"><div><b style="font-size:12.5px">Compute</b><div style="font-size:11px;color:var(--text-dim);font-family:var(--font-mono)">m5 instances · 4 running</div></div><div class="q">2,920 h</div><div class="q">$0.192</div><div class="q">$560.64</div></div>
+              <div class="bill-row"><div><b style="font-size:12.5px">Storage</b><div style="font-size:11px;color:var(--text-dim);font-family:var(--font-mono)">SSD-backed volumes</div></div><div class="q">1.2 TB</div><div class="q">$0.08</div><div class="q">$98.40</div></div>
+              <div class="bill-row"><div><b style="font-size:12.5px">Egress</b><div style="font-size:11px;color:var(--text-dim);font-family:var(--font-mono)">Outbound across regions</div></div><div class="q">8.2 TB</div><div class="q">$0.042</div><div class="q">$344.40</div></div>
+              <div class="bill-row"><div><b style="font-size:12.5px">Databases</b><div style="font-size:11px;color:var(--text-dim);font-family:var(--font-mono)">Postgres · 2 instances</div></div><div class="q">—</div><div class="q">$122/mo</div><div class="q">$245.18</div></div>
+            </div>
+
+            <div class="col" style="gap: 14px">
+              <div class="card" style="padding: 14px">
+                <div class="kpi-label" style="margin-bottom: 8px">Payment method</div>
+                <div style="padding: 14px; background: linear-gradient(135deg, oklch(0.28 0.05 260), oklch(0.22 0.04 260)); color: white; border-radius: 8px; font-family: var(--font-mono); font-size: 12px">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px"><span style="opacity: .7">VISA</span><span>⚆</span></div>
+                  <div style="font-size: 14px; letter-spacing: 0.08em">•••• •••• •••• 4242</div>
+                  <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 10px; opacity: .7"><span>MAYA CHEN</span><span>12/27</span></div>
+                </div>
+                <button class="btn sm ghost" style="width: 100%; margin-top: 10px">Update card</button>
+              </div>
+              <div class="card" style="padding: 14px">
+                <div class="kpi-label" style="margin-bottom: 6px">Budget alert</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px">Notify when monthly spend exceeds</div>
+                <div class="row" style="gap: 6px"><input class="input" value="2000" style="height: 28px; font-family: var(--font-mono); width: 90px"><span style="font-size: 12px; color: var(--text-muted)">USD</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Onboarding checklist ───────────────────── -->
+    <section id="checklist">
+      <h2 class="lib-section-title">Onboarding checklist</h2>
+      <p class="lib-section-sub">Progressive first-run guide. Persistent until 100%, then collapses to a single "Done" state.</p>
+      <div class="demo">
+        <div class="demo-label">Get started · 3 of 5</div>
+        <div class="demo-body page">
+          <div style="padding: 16px 20px 4px">
+            <div class="spread" style="margin-bottom: 10px">
+              <div>
+                <div style="font-size: 15px; font-weight: 600">Welcome, Maya 👋</div>
+                <div style="font-size: 12px; color: var(--text-muted)">You're 60% set up · takes about 4 more minutes</div>
+              </div>
+              <div class="ring" style="--p: 60; width: 48px; height: 48px; background: conic-gradient(var(--accent) 60%, var(--bg-sunk) 0); border-radius: 50%; display: grid; place-items: center; font-family: var(--font-mono); font-size: 10px; font-weight: 600"><span style="width:36px;height:36px;background:var(--bg-elev);border-radius:50%;display:grid;place-items:center">60%</span></div>
+            </div>
+          </div>
+          <div style="border-top: 1px solid var(--line); margin: 0 20px">
+            <div class="ck done">
+              <div class="n"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><div class="lbl">Create your first project</div></div>
+              <span class="mono" style="font-size: 10.5px; color: var(--text-dim)">done 2d ago</span>
+            </div>
+            <div class="ck done">
+              <div class="n"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><div class="lbl">Connect a git repository</div></div>
+              <span class="mono" style="font-size: 10.5px; color: var(--text-dim)">done 2d ago</span>
+            </div>
+            <div class="ck done">
+              <div class="n"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div><div class="lbl">Deploy your first service</div></div>
+              <span class="mono" style="font-size: 10.5px; color: var(--text-dim)">done 4h ago</span>
+            </div>
+            <div class="ck active">
+              <div class="n">4</div>
+              <div><div class="lbl">Invite your team</div><div class="hlp">Add 2+ teammates to unlock role-based access.</div></div>
+              <button class="btn sm primary">Invite →</button>
+            </div>
+            <div class="ck">
+              <div class="n">5</div>
+              <div><div class="lbl">Set up a production environment</div><div class="hlp">Create a dedicated env with approvals + alerts.</div></div>
+              <button class="btn sm ghost">Start →</button>
+            </div>
+          </div>
+          <div style="padding: 12px 20px; text-align: right"><a href="#" style="font-size: 11.5px; color: var(--text-dim)">Dismiss and never show again</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Log tail + actions ───────────────────── -->
+    <section id="log-tail">
+      <h2 class="lib-section-title">Log tail with actions</h2>
+      <p class="lib-section-sub">Live tailing terminal + filter chips + severity counts — the debugging surface.</p>
+      <div class="demo">
+        <div class="demo-label">api-gateway · --tail=50 --follow</div>
+        <div class="demo-body page">
+          <div class="tb" style="background: var(--bg)">
+            <div class="row" style="gap: 4px">
+              <span class="pill ok" style="gap: 4px"><span class="dotc"></span>INFO <span class="mono" style="color: var(--text-dim)">2,140</span></span>
+              <span class="pill warn" style="gap: 4px"><span class="dotc"></span>WARN <span class="mono" style="color: var(--text-dim)">18</span></span>
+              <span class="pill err" style="gap: 4px"><span class="dotc"></span>ERROR <span class="mono" style="color: var(--text-dim)">3</span></span>
+            </div>
+            <div style="position: relative; width: 220px">
+              <input class="input" style="height: 26px; font-family: var(--font-mono); font-size: 11px" placeholder="filter: e.g. status:5*">
+            </div>
+            <div class="grow"></div>
+            <div class="row" style="gap: 6px">
+              <span class="row" style="gap: 6px; color: var(--ok); font-size: 11.5px; font-family: var(--font-mono)"><span class="dot ok"></span>live</span>
+              <button class="btn sm ghost">Pause</button>
+              <button class="btn sm ghost">Download</button>
+            </div>
+          </div>
+          <div style="padding: 12px 16px">
+            <div class="term">
+              <div><span class="d">14:22:18.421</span> <span class="i">INFO </span> incoming GET /v2/orders/1934 — user:maya — 12ms</div>
+              <div><span class="d">14:22:18.502</span> <span class="i">INFO </span> incoming POST /v2/checkout — user:anonymous — <span class="d">(session: 9f2e…)</span></div>
+              <div><span class="d">14:22:19.104</span> <span class="w">WARN </span> rate limit near threshold: <span class="p">user:acme-corp</span> 870/1000 rpm</div>
+              <div><span class="d">14:22:19.340</span> <span class="i">INFO </span> cache hit · orders:1934 (ttl 42s)</div>
+              <div><span class="d">14:22:20.018</span> <span class="e">ERROR</span> upstream timeout: <span class="p">payments-gateway</span> after 5000ms — retrying (1/3)</div>
+              <div><span class="d">14:22:20.612</span> <span class="e">ERROR</span> upstream timeout: <span class="p">payments-gateway</span> after 5000ms — retrying (2/3)</div>
+              <div><span class="d">14:22:21.204</span> <span class="i">INFO </span> retry succeeded on attempt 3 <span class="p">payments-gateway</span></div>
+              <div><span class="d">14:22:21.418</span> <span class="i">INFO </span> response 200 POST /v2/checkout — 3.3s</div>
+              <div><span class="d">14:22:22.002</span> <span class="w">WARN </span> slow query detected: <span class="p">SELECT * FROM users WHERE …</span> 842ms</div>
+              <div><span class="d">14:22:22.319</span> <span class="i">INFO </span> autoscale evaluator: pressure 62% · no action<span class="cursor"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Pricing / plan picker ───────────────────── -->
+    <section id="pricing">
+      <h2 class="lib-section-title">Plan picker</h2>
+      <p class="lib-section-sub">Three-tier with a featured middle plan. Billing toggle on top.</p>
+      <div class="demo">
+        <div class="demo-label">Upgrade workspace</div>
+        <div class="demo-body page" style="padding: 28px 24px">
+          <div class="col" style="align-items: center; margin-bottom: 24px; gap: 10px">
+            <div class="seg"><button>Monthly</button><button class="on">Yearly · save 20%</button></div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px">
+            <div class="card" style="padding: 20px">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-weight: 500">Starter</div>
+              <div class="row" style="align-items: baseline; gap: 4px; margin: 6px 0 4px"><span class="mono num" style="font-size: 30px; font-weight: 500">$0</span><span style="font-size: 12px; color: var(--text-muted)">/ month</span></div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px">For side projects and prototypes.</div>
+              <button class="btn" style="width: 100%">Current plan</button>
+              <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--text-muted); line-height: 1.9">
+                <div>✓ 1 project</div>
+                <div>✓ 512 MB RAM</div>
+                <div>✓ Community support</div>
+                <div>— No custom domains</div>
+                <div>— No SLA</div>
+              </div>
+            </div>
+
+            <div class="card" style="padding: 20px; border: 2px solid var(--accent); position: relative; box-shadow: var(--shadow-md)">
+              <span class="pill info" style="position: absolute; top: -10px; right: 16px">Recommended</span>
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-ink); font-weight: 600">Team</div>
+              <div class="row" style="align-items: baseline; gap: 4px; margin: 6px 0 4px"><span class="mono num" style="font-size: 30px; font-weight: 500">$39</span><span style="font-size: 12px; color: var(--text-muted)">/ user / month</span></div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px">For growing teams shipping to production.</div>
+              <button class="btn primary" style="width: 100%">Upgrade to Team</button>
+              <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--text-muted); line-height: 1.9">
+                <div>✓ Unlimited projects</div>
+                <div>✓ Up to 16 GB RAM / service</div>
+                <div>✓ Role-based access</div>
+                <div>✓ Custom domains + SSL</div>
+                <div>✓ 99.9% SLA · email support</div>
+              </div>
+            </div>
+
+            <div class="card" style="padding: 20px">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-weight: 500">Enterprise</div>
+              <div class="row" style="align-items: baseline; gap: 4px; margin: 6px 0 4px"><span class="mono num" style="font-size: 30px; font-weight: 500">Custom</span></div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px">For regulated workloads and scale.</div>
+              <button class="btn" style="width: 100%">Talk to sales →</button>
+              <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--text-muted); line-height: 1.9">
+                <div>✓ SSO · SAML · SCIM</div>
+                <div>✓ Dedicated regions (BYOC)</div>
+                <div>✓ Audit log export</div>
+                <div>✓ 99.99% SLA · 24/7 support</div>
+                <div>✓ Named CSM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Auth form ───────────────────── -->
+    <section id="auth">
+      <h2 class="lib-section-title">Auth form</h2>
+      <p class="lib-section-sub">Sign-in panel with SSO options + divider + credentials. The one screen every user sees.</p>
+      <div class="demo">
+        <div class="demo-label">Sign in to NextCli</div>
+        <div class="demo-body page" style="padding: 40px 24px; background: var(--bg-sunk); display: flex; justify-content: center">
+          <div class="card" style="padding: 28px 26px; width: 340px; box-shadow: var(--shadow-md)">
+            <div class="col" style="align-items: center; gap: 2px; margin-bottom: 20px">
+              <div class="lib-mark" style="width: 32px; height: 32px"></div>
+              <h3 style="margin: 10px 0 2px; font-size: 16px; font-weight: 600">Sign in to NextCli</h3>
+              <p style="margin: 0; font-size: 12px; color: var(--text-muted)">Welcome back. We missed you.</p>
+            </div>
+            <div class="col" style="gap: 8px; margin-bottom: 14px">
+              <button class="btn" style="height: 34px; justify-content: center; gap: 8px"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h5.9c-.3 1.4-1 2.5-2.2 3.3v2.7h3.5c2-1.9 3.3-4.6 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.2 1.1-3.8 1.1-2.9 0-5.3-2-6.2-4.6H2.2v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14a6.6 6.6 0 0 1 0-4.2V7H2.2a11 11 0 0 0 0 9.8L5.8 14z"/><path fill="#EA4335" d="M12 4.6c1.6 0 3.1.6 4.2 1.7l3.2-3.2C17.5 1.3 15 .3 12 .3A11 11 0 0 0 2.2 7l3.6 2.8c.9-2.6 3.3-4.6 6.2-4.6z"/></svg>Continue with Google</button>
+              <button class="btn" style="height: 34px; justify-content: center; gap: 8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.6.5.5 5.6.5 12a11.5 11.5 0 0 0 7.9 10.9c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0C18.9 5 20 5.3 20 5.3c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2V22c0 .3.2.7.8.6A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>Continue with GitHub</button>
+              <button class="btn" style="height: 34px; justify-content: center; gap: 8px">Sign in with SAML SSO</button>
+            </div>
+            <div class="row" style="gap: 8px; margin: 18px 0; align-items: center"><div style="flex: 1; height: 1px; background: var(--line)"></div><span style="font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em">or email</span><div style="flex: 1; height: 1px; background: var(--line)"></div></div>
+            <div class="col" style="gap: 8px">
+              <input class="input" placeholder="you@company.com" style="height: 34px">
+              <div style="position: relative">
+                <input class="input" placeholder="Password" type="password" value="••••••••" style="height: 34px; padding-right: 40px">
+                <a href="#" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--accent-ink)">Forgot?</a>
+              </div>
+              <button class="btn primary" style="height: 34px; justify-content: center; margin-top: 4px">Sign in →</button>
+            </div>
+            <div style="margin-top: 18px; text-align: center; font-size: 12px; color: var(--text-muted)">
+              New here? <a href="#" style="color: var(--accent-ink); text-decoration: underline">Create an account</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────── Access review row ───────────────────── -->
+    <section id="access-review">
+      <h2 class="lib-section-title">Team / access review</h2>
+      <p class="lib-section-sub">A focused table for the one thing that's always stressful: who has production access and why.</p>
+      <div class="demo">
+        <div class="demo-label">Members · 12</div>
+        <div class="demo-body page">
+          <table class="table">
+            <thead>
+              <tr><th style="width: 40%">Member</th><th>Role</th><th>Last active</th><th>2FA</th><th>Production</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="row" style="gap: 10px"><div class="avatar sm" style="background: oklch(0.62 0.14 230); color: white">MC</div><div><div style="font-weight: 500">Maya Chen</div><div class="mono" style="font-size: 10.5px; color: var(--text-dim)">maya@linden.cloud</div></div></div></td>
+                <td><span class="pill info">Owner</span></td>
+                <td class="mono" style="color: var(--text-dim); font-size: 11.5px">now</td>
+                <td><span class="pill ok"><span class="dotc"></span>TOTP</span></td>
+                <td><span class="pill ok"><span class="dotc"></span>Yes</span></td>
+                <td><button class="btn xs ghost icon">⋯</button></td>
+              </tr>
+              <tr>
+                <td><div class="row" style="gap: 10px"><div class="avatar sm" style="background: oklch(0.64 0.17 330); color: white">JK</div><div><div style="font-weight: 500">Jonas Köhler</div><div class="mono" style="font-size: 10.5px; color: var(--text-dim)">jonas@linden.cloud</div></div></div></td>
+                <td><span class="pill">Admin</span></td>
+                <td class="mono" style="color: var(--text-dim); font-size: 11.5px">4m ago</td>
+                <td><span class="pill ok"><span class="dotc"></span>YubiKey</span></td>
+                <td><span class="pill ok"><span class="dotc"></span>Yes</span></td>
+                <td><button class="btn xs ghost icon">⋯</button></td>
+              </tr>
+              <tr>
+                <td><div class="row" style="gap: 10px"><div class="avatar sm" style="background: oklch(0.7 0.17 65); color: white">PR</div><div><div style="font-weight: 500">Priya Raman</div><div class="mono" style="font-size: 10.5px; color: var(--text-dim)">priya@linden.cloud</div></div></div></td>
+                <td><span class="pill">Developer</span></td>
+                <td class="mono" style="color: var(--text-dim); font-size: 11.5px">12m ago</td>
+                <td><span class="pill ok"><span class="dotc"></span>TOTP</span></td>
+                <td><span class="pill warn"><span class="dotc"></span>Read-only</span></td>
+                <td><button class="btn xs ghost icon">⋯</button></td>
+              </tr>
+              <tr>
+                <td><div class="row" style="gap: 10px"><div class="avatar sm" style="background: oklch(0.74 0.18 140); color: white">SN</div><div><div style="font-weight: 500">Sam Novak</div><div class="mono" style="font-size: 10.5px; color: var(--text-dim)">sam@linden.cloud</div></div></div></td>
+                <td><span class="pill">Developer</span></td>
+                <td class="mono" style="color: var(--text-dim); font-size: 11.5px">yesterday</td>
+                <td><span class="pill err"><span class="dotc"></span>Not set</span></td>
+                <td><span class="pill err"><span class="dotc"></span>Blocked</span></td>
+                <td><button class="btn xs ghost icon">⋯</button></td>
+              </tr>
+              <tr style="opacity: .6">
+                <td><div class="row" style="gap: 10px"><div class="avatar sm" style="background: var(--bg-sunk); color: var(--text-dim)">AM</div><div><div style="font-weight: 500">Ari Murad</div><div class="mono" style="font-size: 10.5px; color: var(--text-dim)">ari@ext-contractor.io</div></div></div></td>
+                <td><span class="pill">Viewer</span></td>
+                <td class="mono" style="color: var(--text-dim); font-size: 11.5px">14d ago</td>
+                <td><span class="pill warn"><span class="dotc"></span>TOTP</span></td>
+                <td><span class="pill"><span class="dotc" style="background: var(--text-dim)"></span>None</span></td>
+                <td><button class="btn xs ghost icon">⋯</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="row" style="padding: 10px 14px; font-size: 11.5px; color: var(--text-dim); border-top: 1px solid var(--line); background: var(--bg-sunk)">
+            <span><span class="mono">3</span> members need attention</span>
+            <div class="grow"></div>
+            <button class="btn sm ghost">Export CSV</button>
+            <button class="btn sm primary">+ Invite</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="banner info" style="margin-top: 44px">
+      <svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16" r="0.6" fill="currentColor"/></svg>
+      <div class="body">
+        <div class="title">That's the whole system.</div>
+        Every screen above is built from primitives in parts 02–07 — no new CSS classes. See the full running product in <a href="../NextCli Console.html" style="text-decoration: underline">NextCli Console</a>.
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+</script>
+</body>
+</html>

@@ -11,6 +11,7 @@ import { Portal } from '../_internal/Portal'
 import { backdropClass } from '../Dialog/Dialog'
 import { Kbd } from '../Kbd/Kbd'
 import { useBodyScrollLock } from '../../utils/useBodyScrollLock'
+import { useLocale } from '../../context/ConfigProvider'
 
 const paletteStyles = tv({
   slots: {
@@ -71,11 +72,14 @@ export function CommandPalette({
   open,
   onClose,
   items,
-  placeholder = 'Search…',
-  emptyLabel = 'No results',
+  placeholder,
+  emptyLabel,
   className,
   filter = defaultFilter,
 }: CommandPaletteProps) {
+  const locale = useLocale()
+  const resolvedPlaceholder = placeholder ?? locale.commandPalette.placeholder
+  const resolvedEmpty = emptyLabel ?? locale.commandPalette.empty
   const [query, setQuery] = useState('')
   const [activeIdx, setActiveIdx] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -153,14 +157,14 @@ export function CommandPalette({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             className={s.inpInput()}
           />
-          <Kbd>esc</Kbd>
+          <Kbd>{locale.commandPalette.escape}</Kbd>
         </div>
         <div className={s.list()} role="listbox">
           {filtered.length === 0 ? (
-            <div className={s.empty()}>{emptyLabel}</div>
+            <div className={s.empty()}>{resolvedEmpty}</div>
           ) : (
             groups.map(([group, groupItems]) => (
               <div key={group || '_'}>

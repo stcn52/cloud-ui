@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useLocale } from '../../context/ConfigProvider'
 
 export const bannerStyles = tv({
   slots: {
@@ -46,6 +47,7 @@ export function Banner({
   children,
   ...rest
 }: BannerProps) {
+  const locale = useLocale()
   const { base, icon: iconCls, body, title: titleCls, dismiss } = bannerStyles({ tone })
   return (
     <div className={base({ class: className })} role="status" {...rest}>
@@ -56,7 +58,12 @@ export function Banner({
       </div>
       {actions}
       {onDismiss && (
-        <button type="button" className={dismiss()} aria-label="Dismiss" onClick={onDismiss}>
+        <button
+          type="button"
+          className={dismiss()}
+          aria-label={locale.banner.dismiss}
+          onClick={onDismiss}
+        >
           ×
         </button>
       )}

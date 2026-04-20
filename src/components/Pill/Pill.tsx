@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useLocale } from '../../context/ConfigProvider'
 
 export const pillStyles = tv({
   slots: {
@@ -61,6 +62,7 @@ export function Pill({
   children,
   ...rest
 }: PillProps) {
+  const locale = useLocale()
   const { base, dotc, removeBtn } = pillStyles({ tone, size, mono })
   return (
     <span className={base({ class: className })} {...rest}>
@@ -70,7 +72,7 @@ export function Pill({
         <button
           type="button"
           className={removeBtn()}
-          aria-label="Remove"
+          aria-label={locale.pill.remove}
           onClick={(e) => {
             e.stopPropagation()
             onRemove()
