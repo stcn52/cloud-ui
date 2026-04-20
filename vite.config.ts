@@ -26,7 +26,7 @@ export default defineConfig(() => {
       tailwindcss(),
       dts({
         include: ['src'],
-        exclude: ['playground', '**/*.test.*'],
+        exclude: ['playground', '**/*.test.*', '**/*.stories.*', '.storybook'],
         tsconfigPath: './tsconfig.build.json',
         rollupTypes: true,
       }),

@@ -18,5 +18,12 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "playground"]
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx",
+    "playground",
+    ".storybook"
+  ]
 }

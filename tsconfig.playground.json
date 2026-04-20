@@ -19,5 +19,5 @@
       "@stcn52/cloud-ui": ["./src/index.ts"]
     }
   },
-  "include": ["playground", "src"]
+  "include": ["playground", "src", ".storybook"]
 }
