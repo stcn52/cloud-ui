@@ -1,5 +1,26 @@
 import { useRef, useState, type HTMLAttributes, type ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
+import { Button } from '../Button/Button'
+
+const copyFieldStyles = tv({
+  slots: {
+    base: [
+      'inline-flex items-center gap-1.5',
+      'py-[3px] pl-2.5 pr-1',
+      'border border-line rounded-sm bg-bg-sunk',
+      'font-mono text-xs text-text',
+    ],
+    val: 'whitespace-nowrap',
+    copied: 'flex items-center gap-1 text-ok text-[11px]',
+  },
+  variants: {
+    copied: {
+      true:  { base: 'border-ok text-ok' },
+      false: {},
+    },
+  },
+  defaultVariants: { copied: false },
+})
 
 export interface CopyFieldProps extends HTMLAttributes<HTMLSpanElement> {
   /** Text written to clipboard. Falls back to `children` if omitted. */
@@ -10,6 +31,10 @@ export interface CopyFieldProps extends HTMLAttributes<HTMLSpanElement> {
   feedbackDuration?: number
   /** Optional extra trailing buttons (e.g. reveal). */
   extras?: ReactNode
+  /** Success label. default "Copied" */
+  copiedLabel?: ReactNode
+  /** Copy button aria-label. default "Copy" */
+  copyLabel?: string
 }
 
 const CopyIcon = (
@@ -30,8 +55,9 @@ export function CopyField({
   children,
   feedbackDuration = 1400,
   extras,
+  copiedLabel = 'Copied',
+  copyLabel = 'Copy',
   className,
-  style,
   ...rest
 }: CopyFieldProps) {
   const [copied, setCopied] = useState(false)
@@ -58,35 +84,25 @@ export function CopyField({
       if (timerRef.current) window.clearTimeout(timerRef.current)
       timerRef.current = window.setTimeout(() => setCopied(false), feedbackDuration)
     } catch {
-      // Ignore — caller can wrap with their own error-handling if needed
+      // Ignore
     }
   }
 
+  const { base, val, copied: copiedCls } = copyFieldStyles({ copied })
+
   return (
-    <span
-      className={cx('copy-field', className)}
-      style={copied ? { borderColor: 'var(--ok)', color: 'var(--ok)', ...style } : style}
-      {...rest}
-    >
-      <span className="val">{children ?? value}</span>
+    <span className={base({ class: className })} {...rest}>
+      <span className={val()}>{children ?? value}</span>
       {extras}
       {copied ? (
-        <span
-          className="row"
-          style={{ gap: 4, color: 'var(--ok)', fontSize: 11 }}
-          aria-live="polite"
-        >
-          {OkIcon}Copied
+        <span className={copiedCls()} aria-live="polite">
+          {OkIcon}
+          {copiedLabel}
         </span>
       ) : (
-        <button
-          type="button"
-          className="btn icon xs ghost"
-          aria-label="Copy"
-          onClick={handleCopy}
-        >
+        <Button size="xs" iconOnly intent="ghost" aria-label={copyLabel} onClick={handleCopy}>
           {CopyIcon}
-        </button>
+        </Button>
       )}
     </span>
   )

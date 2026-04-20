@@ -1,5 +1,5 @@
 import { useMemo, useState, type HTMLAttributes } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
 
 function startOfDay(d: Date): Date {
   const x = new Date(d)
@@ -25,15 +25,40 @@ const MONTH_NAMES = [
 ]
 const DOW = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
+const datePickerStyles = tv({
+  slots: {
+    base: [
+      'w-[260px] p-2.5 bg-bg-elev border border-line rounded-md shadow-md',
+      'text-xs',
+    ],
+    head: 'flex items-center justify-between mb-2 font-semibold',
+    navBtn: [
+      'inline-flex items-center justify-center w-5 h-5 rounded-xs',
+      'text-text-muted hover:bg-bg-sunk border-0 bg-transparent',
+    ],
+    grid: 'grid grid-cols-7 gap-px',
+    dow: 'text-[10px] text-center text-text-dim py-1 font-mono',
+    day: [
+      'text-center py-1 rounded-xs cursor-default font-mono',
+      'text-[11.5px] text-text hover:bg-bg-sunk',
+    ],
+  },
+  variants: {
+    dim:    { true: { day: 'text-text-dim' }, false: {} },
+    today:  { true: { day: 'border border-accent' }, false: {} },
+    start:  { true: { day: 'bg-accent text-white rounded-r-none hover:bg-accent' }, false: {} },
+    end:    { true: { day: 'bg-accent text-white rounded-l-none hover:bg-accent' }, false: {} },
+    range:  { true: { day: 'bg-accent-weak text-accent-ink rounded-none hover:bg-accent-weak' }, false: {} },
+  },
+})
+
 export type DateRange = [Date, Date]
 
 export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
-  /** Pick a single date. */
   mode?: 'single' | 'range'
   value?: Date | DateRange | null
   defaultValue?: Date | DateRange | null
   onChange?: (value: Date | DateRange | null) => void
-  /** Month to display (controlled). */
   month?: Date
   defaultMonth?: Date
   onMonthChange?: (d: Date) => void
@@ -69,7 +94,6 @@ export function DatePicker({
   const [uncontrolledMonth, setUncontrolledMonth] = useState<Date>(initialMonth)
   const viewMonth = monthProp ?? uncontrolledMonth
 
-  // Pending range pick state (first click sets start, second extends)
   const [pendingStart, setPendingStart] = useState<Date | null>(null)
 
   const setMonth = (d: Date) => {
@@ -101,13 +125,11 @@ export function DatePicker({
   const year = viewMonth.getFullYear()
   const monthIdx = viewMonth.getMonth()
   const total = daysInMonth(year, monthIdx)
-  // ISO week start (Monday = 0)
   const firstDay = new Date(year, monthIdx, 1).getDay()
   const leading = (firstDay + 6) % 7
 
   const prevMonthTotal = daysInMonth(year, monthIdx - 1)
 
-  // Build cells: (leading) prev-month dim + current + (trailing) next-month dim
   interface Cell {
     date: Date
     dim: boolean
@@ -133,12 +155,14 @@ export function DatePicker({
   const isEnd = (d: Date) => isRange(selected) && sameDay(d, selected[1])
   const isSingle = (d: Date) => selected instanceof Date && sameDay(d, selected)
 
+  const { base, head, navBtn, grid, dow } = datePickerStyles()
+
   return (
-    <div className={cx('datepicker', className)} {...rest}>
-      <div className="dp-head">
+    <div className={base({ class: className })} {...rest}>
+      <div className={head()}>
         <button
           type="button"
-          className="btn icon xs ghost"
+          className={navBtn()}
           aria-label="Previous month"
           onClick={() => setMonth(addMonths(viewMonth, -1))}
         >
@@ -151,7 +175,7 @@ export function DatePicker({
         </b>
         <button
           type="button"
-          className="btn icon xs ghost"
+          className={navBtn()}
           aria-label="Next month"
           onClick={() => setMonth(addMonths(viewMonth, 1))}
         >
@@ -160,26 +184,28 @@ export function DatePicker({
           </svg>
         </button>
       </div>
-      <div className="dp-grid">
+      <div className={grid()}>
         {DOW.map((d, i) => (
-          <div key={`${d}-${i}`} className="h">
+          <div key={`${d}-${i}`} className={dow()}>
             {d}
           </div>
         ))}
         {cells.map((c, i) => {
-          const cls = cx(
-            'd',
-            c.dim && 'dim',
-            sameDay(c.date, today) && 'today',
-            isStart(c.date) && 'start',
-            isEnd(c.date) && 'end',
-            isInRange(c.date) && 'range',
-            isSingle(c.date) && 'start',
-          )
+          const isT = sameDay(c.date, today)
+          const isS = isStart(c.date) || isSingle(c.date)
+          const isE = isEnd(c.date)
+          const isR = isInRange(c.date)
+          const { day } = datePickerStyles({
+            dim: c.dim,
+            today: isT,
+            start: isS,
+            end: isE,
+            range: isR,
+          })
           return (
             <div
               key={i}
-              className={cls}
+              className={day()}
               role="button"
               tabIndex={0}
               onClick={() => handlePick(c.date)}

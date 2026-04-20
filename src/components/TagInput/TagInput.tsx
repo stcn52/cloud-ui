@@ -6,18 +6,48 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
+
+const tagInputStyles = tv({
+  slots: {
+    base: [
+      'flex flex-wrap gap-1 items-center',
+      'min-h-[32px] p-1 border border-line rounded-sm bg-bg-elev',
+      'focus-within:border-accent focus-within:shadow-[var(--shadow-focus)]',
+    ],
+    input: [
+      'border-0 outline-0 bg-transparent',
+      'flex-1 min-w-[80px] text-sm text-text',
+      'px-1.5 py-0.5 font-[inherit]',
+    ],
+  },
+})
+
+const tagStyles = tv({
+  base: [
+    'inline-flex items-center gap-1 px-2 py-0.5 pl-2 pr-1',
+    'rounded-xs text-xs font-mono',
+    'bg-accent-weak text-accent-ink',
+    '[&>button]:border-0 [&>button]:bg-transparent [&>button]:text-inherit',
+    '[&>button]:cursor-pointer [&>button]:opacity-60 [&>button]:px-0.5',
+    '[&>button:hover]:opacity-100',
+  ],
+  variants: {
+    invalid: {
+      true:  'bg-[color-mix(in_oklch,var(--color-err)_18%,transparent)] text-err',
+      false: '',
+    },
+  },
+  defaultVariants: { invalid: false },
+})
 
 export interface TagInputProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value?: string[]
   defaultValue?: string[]
   onChange?: (next: string[]) => void
   placeholder?: string
-  /** Keys that commit the current input. default `['Enter', ',']`. */
   commitKeys?: string[]
-  /** Optional validator; returns an error message to mark the tag invalid. */
   validate?: (tag: string) => string | null
-  /** Render tag label (allow custom styles per-tag, e.g. invalid tags). */
   renderTag?: (tag: string, error: string | null) => ReactNode
 }
 
@@ -70,9 +100,11 @@ export function TagInput({
     }
   }
 
+  const { base, input: inputCls } = tagInputStyles()
+
   return (
     <div
-      className={cx('tag-input', className)}
+      className={base({ class: className })}
       onClick={() => inputRef.current?.focus()}
       {...rest}
     >
@@ -86,18 +118,7 @@ export function TagInput({
           )
         }
         return (
-          <span
-            key={`${t}-${i}`}
-            className="tag"
-            style={
-              err
-                ? {
-                    background: 'color-mix(in oklch, var(--err) 18%, transparent)',
-                    color: 'var(--err)',
-                  }
-                : undefined
-            }
-          >
+          <span key={`${t}-${i}`} className={tagStyles({ invalid: !!err })}>
             {t}
             <button
               type="button"
@@ -119,6 +140,7 @@ export function TagInput({
         onKeyDown={onKey}
         onBlur={commit}
         placeholder={placeholder}
+        className={inputCls()}
       />
     </div>
   )

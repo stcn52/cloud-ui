@@ -1,5 +1,30 @@
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
+
+const cascaderStyles = tv({
+  slots: {
+    base: [
+      'flex bg-bg-elev border border-line rounded-md shadow-md overflow-hidden',
+    ],
+    col: 'max-h-[240px] overflow-y-auto border-r border-line last:border-r-0 p-1',
+    opt: [
+      'flex items-center gap-2 w-full text-left',
+      'px-2.5 py-1.5 rounded-xs text-sm',
+      'text-text bg-transparent border-0 font-[inherit] cursor-default',
+      'hover:bg-accent-weak hover:text-accent-ink',
+    ],
+    optLabel: 'flex-1',
+    chevron: 'ml-auto font-mono text-[10.5px] text-text-dim',
+    check: 'ml-auto text-accent',
+  },
+  variants: {
+    active: {
+      true:  { opt: 'bg-accent-weak text-accent-ink' },
+      false: {},
+    },
+  },
+  defaultVariants: { active: false },
+})
 
 export interface CascaderOption {
   value: string
@@ -9,27 +34,18 @@ export interface CascaderOption {
 
 export interface CascaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'onSelect'> {
   options: CascaderOption[]
-  /** Full path of values; final item is the selected leaf. */
   value?: string[]
   defaultValue?: string[]
   onChange?: (path: string[]) => void
-  /** Called only when a leaf is picked. */
   onSelect?: (path: string[]) => void
   columnWidth?: number
 }
 
-const ChevronRight = (
-  <span className="sub" aria-hidden="true">
-    ›
-  </span>
-)
-
+const ChevronRight = <span aria-hidden="true">›</span>
 const CheckMark = (
-  <span className="check" aria-hidden="true">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  </span>
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
 )
 
 export function Cascader({
@@ -45,7 +61,6 @@ export function Cascader({
   const [uncontrolled, setUncontrolled] = useState<string[]>(defaultValue)
   const value = valueProp ?? uncontrolled
 
-  // Build visible columns based on the current path
   const columns: { options: CascaderOption[]; activeValue: string | undefined }[] = []
   let cursor: CascaderOption[] | undefined = options
   for (let depth = 0; cursor; depth++) {
@@ -65,23 +80,28 @@ export function Cascader({
     if (isLeaf) onSelect?.(nextPath)
   }
 
+  const { base, col, optLabel, chevron, check } = cascaderStyles()
   return (
-    <div className={cx('cascader', className)} {...rest}>
-      {columns.map((col, depth) => (
-        <div key={depth} className="cascader-col" style={{ width: columnWidth }}>
-          {col.options.map((opt) => {
-            const isActive = col.activeValue === opt.value
-            const isLeaf = !opt.children || opt.children.length === 0
+    <div className={base({ class: className })} {...rest}>
+      {columns.map((column, depth) => (
+        <div key={depth} className={col()} style={{ width: columnWidth }}>
+          {column.options.map((o) => {
+            const isActive = column.activeValue === o.value
+            const isLeaf = !o.children || o.children.length === 0
             const isSelectedLeaf = isActive && isLeaf
             return (
               <button
-                key={opt.value}
+                key={o.value}
                 type="button"
-                className={cx('opt', isSelectedLeaf ? 'selected' : isActive && 'active')}
-                onClick={() => pickAt(depth, opt)}
+                className={cascaderStyles({ active: isActive }).opt()}
+                onClick={() => pickAt(depth, o)}
               >
-                <span style={{ flex: 1 }}>{opt.label}</span>
-                {isSelectedLeaf ? CheckMark : !isLeaf ? ChevronRight : null}
+                <span className={optLabel()}>{o.label}</span>
+                {isSelectedLeaf ? (
+                  <span className={check()}>{CheckMark}</span>
+                ) : !isLeaf ? (
+                  <span className={chevron()}>{ChevronRight}</span>
+                ) : null}
               </button>
             )
           })}

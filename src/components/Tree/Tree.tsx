@@ -1,5 +1,37 @@
 import { useState, type HTMLAttributes, type ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv } from 'tailwind-variants'
+
+const treeStyles = tv({
+  slots: {
+    root: 'text-sm',
+    node: [
+      'flex items-center gap-1.5 px-2 py-1 rounded-xs',
+      'cursor-default text-text select-none',
+      'hover:bg-bg-sunk',
+    ],
+    caret: [
+      'w-3 h-3 inline-flex items-center justify-center',
+      'text-text-dim transition-transform duration-[.12s]',
+    ],
+    icon: 'w-3.5 h-3.5 text-text-muted shrink-0 [&>svg]:w-full [&>svg]:h-full',
+    meta: 'ml-auto font-mono text-[10.5px] text-text-dim',
+    children: 'ml-3.5 border-l border-dashed border-line pl-1',
+  },
+  variants: {
+    selected: {
+      true:  { node: 'bg-accent-weak text-accent-ink hover:bg-accent-weak' },
+      false: {},
+    },
+    open: {
+      true:  { caret: 'rotate-90' },
+      false: {},
+    },
+    leaf: {
+      true:  { caret: 'opacity-0' },
+      false: {},
+    },
+  },
+})
 
 export interface TreeNode {
   id: string
@@ -11,17 +43,15 @@ export interface TreeNode {
 
 export interface TreeProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onSelect'> {
   data: TreeNode[]
-  /** Controlled expanded node ids. Uncontrolled if omitted. */
   expanded?: string[]
   defaultExpanded?: string[]
   onExpandedChange?: (ids: string[]) => void
-  /** Controlled selected node id. Uncontrolled if omitted. */
   selected?: string | null
   defaultSelected?: string | null
   onSelect?: (id: string, node: TreeNode) => void
 }
 
-const Caret = (
+const CaretSvg = (
   <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor">
     <polygon points="8 5 19 12 8 19" />
   </svg>
@@ -44,10 +74,12 @@ function NodeRow({
   const open = hasChildren && expandedSet.has(node.id)
   const isSelected = node.id === selectedId
 
+  const s = treeStyles({ selected: isSelected, open, leaf: !hasChildren })
+
   return (
     <>
       <div
-        className={cx('node', open && 'open', isSelected && 'selected')}
+        className={s.node()}
         role="treeitem"
         aria-expanded={hasChildren ? open : undefined}
         aria-selected={isSelected}
@@ -71,13 +103,13 @@ function NodeRow({
           }
         }}
       >
-        <span className={cx('caret', !hasChildren && 'leaf')}>{hasChildren && Caret}</span>
-        {node.icon && <span className="ico">{node.icon}</span>}
+        <span className={s.caret()}>{hasChildren && CaretSvg}</span>
+        {node.icon && <span className={s.icon()}>{node.icon}</span>}
         <span>{node.label}</span>
-        {node.meta !== undefined && <span className="meta">{node.meta}</span>}
+        {node.meta !== undefined && <span className={s.meta()}>{node.meta}</span>}
       </div>
       {hasChildren && open && (
-        <div className="children" role="group">
+        <div className={s.children()} role="group">
           {node.children!.map((child) => (
             <NodeRow
               key={child.id}
@@ -125,8 +157,9 @@ export function Tree({
     onSelect?.(node.id, node)
   }
 
+  const { root } = treeStyles()
   return (
-    <div className={cx('tree', className)} role="tree" {...rest}>
+    <div className={root({ class: className })} role="tree" {...rest}>
       {data.map((n) => (
         <NodeRow
           key={n.id}
