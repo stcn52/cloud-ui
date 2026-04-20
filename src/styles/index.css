@@ -70,46 +70,6 @@
   --shadow-md: 0 2px 6px rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.5);
 }
 
-/* ---------- Legacy aliases — kept until components.css is fully migrated ---------- */
-:root {
-  --bg:          var(--color-bg);
-  --bg-elev:     var(--color-bg-elev);
-  --bg-sunk:     var(--color-bg-sunk);
-  --panel:       var(--color-panel);
-  --line:        var(--color-line);
-  --line-strong: var(--color-line-strong);
-  --text:        var(--color-text);
-  --text-muted:  var(--color-text-muted);
-  --text-dim:    var(--color-text-dim);
-  --accent:      var(--color-accent);
-  --accent-weak: var(--color-accent-weak);
-  --accent-ink:  var(--color-accent-ink);
-  --ok:          var(--color-ok);
-  --warn:        var(--color-warn);
-  --err:         var(--color-err);
-  --info:        var(--color-info);
-
-  --fs-xxs: var(--text-xxs);
-  --fs-xs:  var(--text-xs);
-  --fs-sm:  var(--text-sm);
-  --fs-md:  var(--text-md);
-  --fs-lg:  var(--text-lg);
-  --fs-xl:  var(--text-xl);
-  --fs-2xl: var(--text-2xl);
-
-  --r-xs: var(--radius-xs);
-  --r-sm: var(--radius-sm);
-  --r-md: var(--radius-md);
-  --r-lg: var(--radius-lg);
-  --r-xl: var(--radius-xl);
-
-  --h-row: 34px;
-  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
-  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
-
-  --focus-ring: var(--shadow-focus);
-}
-
 /* ---------- Base reset ---------- */
 @layer base {
   html, body { margin: 0; padding: 0; }
@@ -124,5 +84,5 @@
   a { color: inherit; text-decoration: none; }
 }
 
-/* ---------- Legacy component styles (being migrated; removed in final batch) ---------- */
-@import "./components.css" layer(components);
+/* ---------- Global keyframes, kbd, scrollbars, micro-utilities ---------- */
+@import "./extras.css";

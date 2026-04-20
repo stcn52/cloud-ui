@@ -1,6 +1,69 @@
 /* Playground-only: the docs shell (sidebar, demo frames, theme toggle).
    These styles are NOT shipped as part of @stcn52/cloud-ui. */
 
+/* Legacy variable aliases — playground pages written before the Tailwind
+   migration still reference --bg, --fs-sm, --accent, etc. Kept here so the
+   library's public CSS stays lean. Will be removed when playground is replaced
+   by Storybook. */
+:root {
+  --bg:          var(--color-bg);
+  --bg-elev:     var(--color-bg-elev);
+  --bg-sunk:     var(--color-bg-sunk);
+  --panel:       var(--color-panel);
+  --line:        var(--color-line);
+  --line-strong: var(--color-line-strong);
+  --text:        var(--color-text);
+  --text-muted:  var(--color-text-muted);
+  --text-dim:    var(--color-text-dim);
+  --accent:      var(--color-accent);
+  --accent-weak: var(--color-accent-weak);
+  --accent-ink:  var(--color-accent-ink);
+  --ok:          var(--color-ok);
+  --warn:        var(--color-warn);
+  --err:         var(--color-err);
+  --info:        var(--color-info);
+  --fs-xxs: var(--text-xxs);
+  --fs-xs:  var(--text-xs);
+  --fs-sm:  var(--text-sm);
+  --fs-md:  var(--text-md);
+  --fs-lg:  var(--text-lg);
+  --fs-xl:  var(--text-xl);
+  --fs-2xl: var(--text-2xl);
+  --r-xs: var(--radius-xs);
+  --r-sm: var(--radius-sm);
+  --r-md: var(--radius-md);
+  --r-lg: var(--radius-lg);
+  --r-xl: var(--radius-xl);
+  --h-row: 34px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --focus-ring: var(--shadow-focus);
+}
+
+/* Small utility classes used across playground pages. */
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.spread { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+tr.row, tr.col, tr.spread { display: table-row; }
+
+.field-label, .kpi-label {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+.demo-foot {
+  padding: 10px 14px;
+  border-top: 1px solid var(--color-line);
+  background: var(--color-bg-sunk);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
 .lib {
   display: grid;
   grid-template-columns: 220px 1fr;
