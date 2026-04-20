@@ -53,6 +53,36 @@
   --shadow-focus: 0 0 0 3px color-mix(in oklch, var(--color-accent) 25%, transparent);
 }
 
+/* ---------- Density (compact / normal / comfortable) overrides ---------- */
+/* `data-size` on any ancestor rescales --spacing (which drives h-*, w-*, p-*,
+   gap-*, etc.) and the text-size tokens. Components pick this up automatically
+   via Tailwind utilities that use `calc(var(--spacing) * n)` and `var(--text-*)`. */
+
+[data-size="compact"] {
+  /* Default Tailwind --spacing is 0.25rem (4px); -10% pulls everything tighter. */
+  --spacing: 0.225rem;
+
+  --text-xxs: 10px;
+  --text-xs:  11px;
+  --text-sm:  12px;
+  --text-md:  12.5px;
+  --text-lg:  14px;
+  --text-xl:  18px;
+  --text-2xl: 24px;
+}
+
+[data-size="comfortable"] {
+  --spacing: 0.28rem;
+
+  --text-xxs: 11.5px;
+  --text-xs:  12.5px;
+  --text-sm:  13.5px;
+  --text-md:  14px;
+  --text-lg:  16px;
+  --text-xl:  22px;
+  --text-2xl: 32px;
+}
+
 /* ---------- Dark-mode overrides ---------- */
 [data-theme="dark"] {
   --color-bg:          oklch(0.18 0.015 250);
