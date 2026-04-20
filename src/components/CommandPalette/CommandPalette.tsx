@@ -6,9 +6,42 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
+import { tv } from 'tailwind-variants'
 import { Portal } from '../_internal/Portal'
+import { backdropClass } from '../Dialog/Dialog'
+import { Kbd } from '../Kbd/Kbd'
 import { useBodyScrollLock } from '../../utils/useBodyScrollLock'
-import { cx } from '../../utils/cx'
+
+const paletteStyles = tv({
+  slots: {
+    base: [
+      'fixed left-1/2 top-[72px] -translate-x-1/2',
+      'w-[520px] max-w-[calc(100vw-32px)]',
+      'bg-bg-elev border border-line rounded-lg shadow-lg',
+      'z-[51] overflow-hidden',
+    ],
+    inp: 'px-4 py-3 border-b border-line flex items-center gap-2.5',
+    inpInput: [
+      'border-0 outline-0 bg-transparent',
+      'text-lg w-full text-text font-[inherit]',
+    ],
+    list: 'p-1.5 max-h-[260px] overflow-auto',
+    groupLabel: [
+      'text-[10px] uppercase tracking-[0.05em]',
+      'text-text-dim px-2.5 pt-2 pb-1',
+    ],
+    item: [
+      'flex items-center gap-2.5 px-2.5 py-[7px] rounded-xs',
+      'text-sm text-text w-full text-left',
+      'bg-transparent border-0 font-[inherit] cursor-pointer',
+      '[&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:stroke-current [&_svg]:fill-none [&_svg]:stroke-[1.5] [&_svg]:text-text-muted',
+    ],
+    itemOn: 'bg-accent-weak',
+    itemLabel: 'flex-1',
+    itemShortcut: 'ml-auto font-mono text-[10px] text-text-dim',
+    empty: 'px-5 py-6 text-center text-text-muted text-sm',
+  },
+})
 
 export interface CommandItem {
   id: string
@@ -27,6 +60,8 @@ export interface CommandPaletteProps {
   className?: string
   /** Filter function. Defaults to case-insensitive substring match on label. */
   filter?: (item: CommandItem, query: string) => boolean
+  /** Text shown when nothing matches. default "No results" */
+  emptyLabel?: ReactNode
 }
 
 const defaultFilter = (item: CommandItem, q: string) =>
@@ -37,6 +72,7 @@ export function CommandPalette({
   onClose,
   items,
   placeholder = 'Search…',
+  emptyLabel = 'No results',
   className,
   filter = defaultFilter,
 }: CommandPaletteProps) {
@@ -101,13 +137,14 @@ export function CommandPalette({
 
   if (!open) return null
 
+  const s = paletteStyles()
   let runningIdx = 0
   return (
     <Portal>
-      <div className="overlay-backdrop" onClick={onClose} aria-hidden="true" />
-      <div className={cx('cmd-palette', className)} role="dialog" aria-modal="true">
-        <div className="inp">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="1.5">
+      <div className={backdropClass} onClick={onClose} aria-hidden="true" />
+      <div className={s.base({ class: className })} role="dialog" aria-modal="true">
+        <div className={s.inp()}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-dim)" strokeWidth="1.5">
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4-4" />
           </svg>
@@ -117,27 +154,27 @@ export function CommandPalette({
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder={placeholder}
+            className={s.inpInput()}
           />
-          <kbd>esc</kbd>
+          <Kbd>esc</Kbd>
         </div>
-        <div className="list" role="listbox">
+        <div className={s.list()} role="listbox">
           {filtered.length === 0 ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--fs-sm)' }}>
-              No results
-            </div>
+            <div className={s.empty()}>{emptyLabel}</div>
           ) : (
             groups.map(([group, groupItems]) => (
               <div key={group || '_'}>
-                {group && <div className="grp-l">{group}</div>}
+                {group && <div className={s.groupLabel()}>{group}</div>}
                 {groupItems.map((it) => {
                   const idx = runningIdx++
+                  const isActive = idx === activeIdx
                   return (
                     <button
                       key={it.id}
                       type="button"
                       role="option"
-                      aria-selected={idx === activeIdx}
-                      className={cx('it', idx === activeIdx && 'on')}
+                      aria-selected={isActive}
+                      className={isActive ? `${s.item()} ${s.itemOn()}` : s.item()}
                       onMouseEnter={() => setActiveIdx(idx)}
                       onClick={() => {
                         it.onSelect?.()
@@ -145,8 +182,8 @@ export function CommandPalette({
                       }}
                     >
                       {it.icon}
-                      <span style={{ flex: 1 }}>{it.label}</span>
-                      {it.shortcut !== undefined && <span className="kb">{it.shortcut}</span>}
+                      <span className={s.itemLabel()}>{it.label}</span>
+                      {it.shortcut !== undefined && <span className={s.itemShortcut()}>{it.shortcut}</span>}
                     </button>
                   )
                 })}

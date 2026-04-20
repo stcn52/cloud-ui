@@ -1,7 +1,30 @@
 import type { HTMLAttributes, ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { tv, type VariantProps } from 'tailwind-variants'
 
-export type ToastTone = 'neutral' | 'ok' | 'err'
+export const toastStyles = tv({
+  slots: {
+    base: [
+      'flex items-center gap-2.5',
+      'bg-[oklch(0.22_0.018_250)] text-white',
+      'px-3 py-2.5 rounded-md shadow-lg',
+      'text-sm max-w-[360px]',
+    ],
+    icon: 'w-3.5 h-3.5 shrink-0',
+    body: 'flex-1',
+    closeBtn: 'text-inherit opacity-70 px-1.5 py-0.5 text-[11px]',
+  },
+  variants: {
+    tone: {
+      neutral: {},
+      ok:  { icon: 'text-ok' },
+      err: { icon: 'text-err' },
+    },
+  },
+  defaultVariants: { tone: 'neutral' },
+})
+
+type ToastVariants = VariantProps<typeof toastStyles>
+export type ToastTone = NonNullable<ToastVariants['tone']>
 
 export interface ToastProps extends HTMLAttributes<HTMLDivElement> {
   tone?: ToastTone
@@ -9,12 +32,6 @@ export interface ToastProps extends HTMLAttributes<HTMLDivElement> {
   actions?: ReactNode
   onClose?: () => void
   children?: ReactNode
-}
-
-const toneClass: Record<ToastTone, string> = {
-  neutral: '',
-  ok: 'ok',
-  err: 'err',
 }
 
 export function Toast({
@@ -26,13 +43,14 @@ export function Toast({
   children,
   ...rest
 }: ToastProps) {
+  const { base, icon: iconCls, body, closeBtn } = toastStyles({ tone })
   return (
-    <div className={cx('toast-item', toneClass[tone], className)} role="status" {...rest}>
-      {icon}
-      <span style={{ flex: 1 }}>{children}</span>
+    <div className={base({ class: className })} role="status" {...rest}>
+      {icon && <span className={iconCls()}>{icon}</span>}
+      <span className={body()}>{children}</span>
       {actions}
       {onClose && (
-        <button type="button" onClick={onClose} aria-label="Close">
+        <button type="button" onClick={onClose} aria-label="Close" className={closeBtn()}>
           ×
         </button>
       )}
@@ -40,40 +58,35 @@ export function Toast({
   )
 }
 
-export type ToastStackPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+export const toastStackStyles = tv({
+  base: 'fixed flex flex-col gap-2 z-[60]',
+  variants: {
+    position: {
+      'top-left':     'top-4 left-4',
+      'top-right':    'top-4 right-4',
+      'bottom-left':  'bottom-4 left-4',
+      'bottom-right': 'bottom-4 right-4',
+    },
+  },
+  defaultVariants: { position: 'bottom-right' },
+})
+
+type ToastStackVariants = VariantProps<typeof toastStackStyles>
+export type ToastStackPosition = NonNullable<ToastStackVariants['position']>
 
 export interface ToastStackProps extends HTMLAttributes<HTMLDivElement> {
   position?: ToastStackPosition
   children?: ReactNode
 }
 
-const stackPos: Record<ToastStackPosition, React.CSSProperties> = {
-  'top-left': { top: 16, left: 16, flexDirection: 'column' },
-  'top-right': { top: 16, right: 16, flexDirection: 'column' },
-  'bottom-left': { bottom: 16, left: 16, flexDirection: 'column' },
-  'bottom-right': { bottom: 16, right: 16, flexDirection: 'column' },
-}
-
 export function ToastStack({
   position = 'bottom-right',
   className,
-  style,
   children,
   ...rest
 }: ToastStackProps) {
   return (
-    <div
-      className={cx('toast-stack', className)}
-      style={{
-        position: 'fixed',
-        display: 'flex',
-        gap: 8,
-        zIndex: 60,
-        ...stackPos[position],
-        ...style,
-      }}
-      {...rest}
-    >
+    <div className={toastStackStyles({ position, class: className })} {...rest}>
       {children}
     </div>
   )

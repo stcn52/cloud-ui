@@ -11,8 +11,15 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react'
+import { tv } from 'tailwind-variants'
 import { Portal } from '../_internal/Portal'
-import { cx } from '../../utils/cx'
+
+export const popoverSurfaceStyles = tv({
+  base: [
+    'bg-bg-elev border border-line rounded-md shadow-md',
+    'p-1.5 text-sm z-[52] min-w-[200px]',
+  ],
+})
 
 export type PopoverPlacement =
   | 'bottom-start'
@@ -37,7 +44,7 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'cont
   closeOnOutside?: boolean
   /** Close on ESC. default true */
   closeOnEscape?: boolean
-  /** Apply default `.popover` surface styles. Set false if content supplies its own (e.g. `.menu`). default true */
+  /** Apply default popover surface styles. Set false if content supplies its own. default true */
   surface?: boolean
 }
 
@@ -61,7 +68,6 @@ function computePosition(
   else if (align === 'end') left = triggerRect.right - panelRect.width
   else left = triggerRect.left + triggerRect.width / 2 - panelRect.width / 2
 
-  // clamp to viewport
   left = Math.max(8, Math.min(left, vw - panelRect.width - 8))
   top = Math.max(8, Math.min(top, vh - panelRect.height - 8))
 
@@ -151,7 +157,7 @@ export function Popover({
         <Portal>
           <div
             ref={panelRef}
-            className={cx(surface && 'popover', className)}
+            className={surface ? popoverSurfaceStyles({ class: className }) : className}
             style={{ ...styleProp, ...style }}
             role="menu"
             {...rest}
@@ -163,6 +169,26 @@ export function Popover({
     </>
   )
 }
+
+export const popoverItemStyles = tv({
+  slots: {
+    base: [
+      'flex items-center gap-2 px-2 py-1.5 rounded-xs w-full text-left',
+      'text-text bg-transparent border-0 font-[inherit] cursor-pointer',
+      'hover:bg-bg-sunk focus-visible:bg-bg-sunk focus-visible:outline-none',
+    ],
+    icon: '[&_svg]:w-3.5 [&_svg]:h-3.5 [&_svg]:stroke-current [&_svg]:fill-none [&_svg]:stroke-[1.5]',
+    body: 'flex-1 min-w-0',
+    shortcut: 'ml-auto font-mono text-[10px] text-text-dim',
+  },
+  variants: {
+    danger: {
+      true: { base: 'text-err hover:bg-[color-mix(in_oklch,var(--color-err)_10%,transparent)]' },
+      false: {},
+    },
+  },
+  defaultVariants: { danger: false },
+})
 
 export interface PopoverItemProps extends HTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode
@@ -179,15 +205,16 @@ export function PopoverItem({
   children,
   ...rest
 }: PopoverItemProps) {
+  const { base, icon: iconCls, body, shortcut: shortcutCls } = popoverItemStyles({ danger })
   return (
-    <button type="button" role="menuitem" className={cx('row-item', danger && 'danger', className)} {...rest}>
-      {icon}
-      <span style={{ flex: 1 }}>{children}</span>
-      {shortcut !== undefined && <span className="kbd-tail">{shortcut}</span>}
+    <button type="button" role="menuitem" className={base({ class: className })} {...rest}>
+      {icon && <span className={iconCls()}>{icon}</span>}
+      <span className={body()}>{children}</span>
+      {shortcut !== undefined && <span className={shortcutCls()}>{shortcut}</span>}
     </button>
   )
 }
 
 export function PopoverSeparator() {
-  return <div className="sep-h" role="separator" />
+  return <div className="h-px bg-line my-1" role="separator" />
 }
