@@ -50,6 +50,7 @@ export * from './components/Dialog'
 export * from './components/Drawer'
 export * from './components/Popover'
 export * from './components/CommandPalette'
+export * from './components/ContextMenu'
 
 // 06 · Advanced controls
 export * from './components/Dropdown'

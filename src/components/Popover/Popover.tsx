@@ -194,6 +194,8 @@ export interface PopoverItemProps extends HTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode
   shortcut?: ReactNode
   danger?: boolean
+  /** If set, hovering this item opens a right-side submenu containing `submenu`. */
+  submenu?: ReactNode
   children?: ReactNode
 }
 
@@ -201,17 +203,94 @@ export function PopoverItem({
   icon,
   shortcut,
   danger,
+  submenu,
   className,
   children,
+  onMouseEnter,
+  onMouseLeave,
   ...rest
 }: PopoverItemProps) {
   const { base, icon: iconCls, body, shortcut: shortcutCls } = popoverItemStyles({ danger })
+  const [open, setOpen] = useState(false)
+  const hostRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const closeTimer = useRef<number | null>(null)
+  const [style, setStyle] = useState<CSSProperties>({ position: 'fixed', visibility: 'hidden' })
+
+  useLayoutEffect(() => {
+    if (!open) return
+    const host = hostRef.current
+    const pnl = panelRef.current
+    if (!host || !pnl) return
+    const hostRect = host.getBoundingClientRect()
+    const panelRect = pnl.getBoundingClientRect()
+    let left = hostRect.right + 2
+    let top = hostRect.top
+    if (left + panelRect.width > window.innerWidth - 8) {
+      left = hostRect.left - panelRect.width - 2
+    }
+    if (top + panelRect.height > window.innerHeight - 8) {
+      top = Math.max(8, window.innerHeight - panelRect.height - 8)
+    }
+    setStyle({ position: 'fixed', top, left })
+  }, [open])
+
+  const scheduleClose = () => {
+    if (closeTimer.current != null) window.clearTimeout(closeTimer.current)
+    closeTimer.current = window.setTimeout(() => setOpen(false), 200)
+  }
+  const cancelClose = () => {
+    if (closeTimer.current != null) {
+      window.clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
+  }
+
   return (
-    <button type="button" role="menuitem" className={base({ class: className })} {...rest}>
-      {icon && <span className={iconCls()}>{icon}</span>}
-      <span className={body()}>{children}</span>
-      {shortcut !== undefined && <span className={shortcutCls()}>{shortcut}</span>}
-    </button>
+    <>
+      <button
+        ref={hostRef}
+        type="button"
+        role="menuitem"
+        aria-haspopup={submenu ? 'menu' : undefined}
+        aria-expanded={submenu ? open : undefined}
+        className={base({ class: className })}
+        onMouseEnter={(e) => {
+          onMouseEnter?.(e)
+          if (submenu) {
+            cancelClose()
+            setOpen(true)
+          }
+        }}
+        onMouseLeave={(e) => {
+          onMouseLeave?.(e)
+          if (submenu) scheduleClose()
+        }}
+        {...rest}
+      >
+        {icon && <span className={iconCls()}>{icon}</span>}
+        <span className={body()}>{children}</span>
+        {submenu ? (
+          <span className="ml-auto text-text-dim font-mono text-sm leading-none">›</span>
+        ) : shortcut !== undefined ? (
+          <span className={shortcutCls()}>{shortcut}</span>
+        ) : null}
+      </button>
+      {submenu && open && (
+        <Portal>
+          <div
+            ref={panelRef}
+            role="menu"
+            className={popoverSurfaceStyles()}
+            style={style}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+          >
+            {submenu}
+          </div>
+        </Portal>
+      )}
+    </>
   )
 }
 
