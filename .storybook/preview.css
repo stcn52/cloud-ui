@@ -1,4 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
+/* Storybook scans stories in addition to the library. The library's own
+   index.css uses @source to exclude stories from the shipped CSS bundle;
+   here we broaden the scan back to cover story demos. */
+@source "../src/**/*.stories.tsx";
+@source "../src/stories/**/*.tsx";
+
 /* Storybook preview-iframe chrome */
 body { padding: 16px; }

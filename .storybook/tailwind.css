@@ -1,0 +1,9 @@
+/* Storybook-only CSS entry. Scans everything in src/ (library + stories) so
+   story-only utilities render in the preview without polluting the shipped
+   library bundle. */
+
+@import "tailwindcss";
+
+@source "../src/**/*.{ts,tsx}";
+
+@import "../src/styles/_theme.css";

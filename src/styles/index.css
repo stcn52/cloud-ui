@@ -1,118 +1,14 @@
+/* Library CSS entry — ships as @stcn52/cloud-ui/styles.css.
+   Tailwind only scans library source; stories are explicitly excluded so
+   their demo-only utilities never leak into the shipped bundle. */
+
 @import "tailwindcss";
 
-/* ---------- Design tokens for Tailwind v4 ----------
- * `@theme` generates:
- *   - CSS variables (e.g. --color-bg-elev) at :root
- *   - Utility classes (bg-bg-elev, text-text-muted, etc.)
- * Dark mode and semantic aliases (--accent, --line, etc.) are added below.
- */
-@theme {
-  --color-bg:          oklch(0.995 0.004 240);
-  --color-bg-elev:     oklch(1 0 0);
-  --color-bg-sunk:     oklch(0.975 0.006 240);
-  --color-panel:       oklch(0.985 0.005 240);
-  --color-line:        oklch(0.92 0.008 240);
-  --color-line-strong: oklch(0.86 0.01 240);
-  --color-text:        oklch(0.22 0.02 250);
-  --color-text-muted:  oklch(0.52 0.015 250);
-  --color-text-dim:    oklch(0.68 0.012 250);
+@source "../components/**/*.{ts,tsx}";
+@source "../context/**/*.{ts,tsx}";
+@source "../locale/**/*.{ts,tsx}";
+@source "../index.ts";
+@source not "../**/*.stories.tsx";
+@source not "../stories/**/*";
 
-  --color-accent:      oklch(0.62 0.14 230);
-  --color-accent-weak: oklch(0.95 0.04 230);
-  --color-accent-ink:  oklch(0.36 0.10 230);
-
-  --color-ok:   oklch(0.66 0.13 155);
-  --color-warn: oklch(0.76 0.14 75);
-  --color-err:  oklch(0.62 0.18 22);
-  --color-info: oklch(0.62 0.14 230);
-
-  --font-ui:   "Inter", system-ui, -apple-system, Helvetica, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-
-  --text-xxs:  10.5px;
-  --text-xs:   11.5px;
-  --text-sm:   12.5px;
-  --text-md:   13px;
-  --text-base: 13px;
-  --text-lg:   15px;
-  --text-xl:   20px;
-  --text-2xl:  28px;
-
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-
-  --shadow-xs: 0 1px 0 rgba(15,23,42,0.03);
-  --shadow-sm: 0 1px 0 rgba(15,23,42,0.02), 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-md: 0 2px 4px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06);
-  --shadow-lg: 0 4px 8px rgba(15,23,42,0.05), 0 20px 48px rgba(15,23,42,0.10);
-
-  /* Focus ring as a named shadow — use `shadow-focus` */
-  --shadow-focus: 0 0 0 3px color-mix(in oklch, var(--color-accent) 25%, transparent);
-}
-
-/* ---------- Density (compact / normal / comfortable) overrides ---------- */
-/* `data-size` on any ancestor rescales --spacing (which drives h-*, w-*, p-*,
-   gap-*, etc.) and the text-size tokens. Components pick this up automatically
-   via Tailwind utilities that use `calc(var(--spacing) * n)` and `var(--text-*)`. */
-
-[data-size="compact"] {
-  /* Default Tailwind --spacing is 0.25rem (4px); -10% pulls everything tighter. */
-  --spacing: 0.225rem;
-
-  --text-xxs: 10px;
-  --text-xs:  11px;
-  --text-sm:  12px;
-  --text-md:  12.5px;
-  --text-lg:  14px;
-  --text-xl:  18px;
-  --text-2xl: 24px;
-}
-
-[data-size="comfortable"] {
-  --spacing: 0.28rem;
-
-  --text-xxs: 11.5px;
-  --text-xs:  12.5px;
-  --text-sm:  13.5px;
-  --text-md:  14px;
-  --text-lg:  16px;
-  --text-xl:  22px;
-  --text-2xl: 32px;
-}
-
-/* ---------- Dark-mode overrides ---------- */
-[data-theme="dark"] {
-  --color-bg:          oklch(0.18 0.015 250);
-  --color-bg-elev:     oklch(0.22 0.018 250);
-  --color-bg-sunk:     oklch(0.15 0.014 250);
-  --color-panel:       oklch(0.21 0.017 250);
-  --color-line:        oklch(0.30 0.02 250);
-  --color-line-strong: oklch(0.38 0.022 250);
-  --color-text:        oklch(0.96 0.005 250);
-  --color-text-muted:  oklch(0.72 0.015 250);
-  --color-text-dim:    oklch(0.56 0.014 250);
-  --color-accent-weak: oklch(0.30 0.06 230);
-  --color-accent-ink:  oklch(0.82 0.10 230);
-  --shadow-sm: 0 1px 0 rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.35);
-  --shadow-md: 0 2px 6px rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.5);
-}
-
-/* ---------- Base reset ---------- */
-@layer base {
-  html, body { margin: 0; padding: 0; }
-  body {
-    font-family: var(--font-ui);
-    font-size: var(--text-md);
-    color: var(--color-text);
-    background: var(--color-bg);
-    -webkit-font-smoothing: antialiased;
-    letter-spacing: -0.003em;
-  }
-  a { color: inherit; text-decoration: none; }
-}
-
-/* ---------- Global keyframes, kbd, scrollbars, micro-utilities ---------- */
-@import "./extras.css";
+@import "./_theme.css";

@@ -1,7 +1,7 @@
 import type { Preview, Decorator } from '@storybook/react-vite'
 import { withThemeByDataAttribute } from '@storybook/addon-themes'
 import { ConfigProvider, type Size, type Theme, en, zhCN } from '../src'
-import '../src/styles/index.css'
+import './tailwind.css'
 import './preview.css'
 
 const withConfigProvider: Decorator = (Story, context) => {
