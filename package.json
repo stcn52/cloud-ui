@@ -57,6 +57,14 @@
     "typescript",
     "tailwindcss"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stcn52/cloud-ui.git"
+  },
+  "homepage": "https://github.com/stcn52/cloud-ui#readme",
+  "bugs": {
+    "url": "https://github.com/stcn52/cloud-ui/issues"
+  },
   "license": "MIT",
   "dependencies": {
     "tailwind-merge": "^3.5.0",
