@@ -246,6 +246,12 @@ export function PopoverItem({
     }
   }
 
+  useEffect(() => {
+    return () => {
+      if (closeTimer.current != null) window.clearTimeout(closeTimer.current)
+    }
+  }, [])
+
   return (
     <>
       <button

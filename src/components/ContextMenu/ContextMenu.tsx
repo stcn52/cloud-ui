@@ -33,6 +33,10 @@ function clampToViewport(x: number, y: number, w: number, h: number) {
  * target; render `handle.render()` once — the surface gets reused for every
  * target that opens it, so a list of N rows doesn't duplicate the menu in the
  * DOM.
+ *
+ * `menu` is read on every render, so inline JSX works fine. For large menus
+ * that reference expensive callbacks, wrap in `useMemo` to avoid re-mounting
+ * the portal subtree.
  */
 export function useContextMenu(menu: ReactNode): ContextMenuHandle {
   const [open, setOpen] = useState(false)
@@ -60,6 +64,7 @@ export function useContextMenu(menu: ReactNode): ContextMenuHandle {
   useEffect(() => {
     if (!open) return
     const onDown = (e: MouseEvent) => {
+      if (e.button === 2) return
       if (panelRef.current?.contains(e.target as Node)) return
       setOpen(false)
     }

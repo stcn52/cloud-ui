@@ -63,7 +63,7 @@ export function Tab({
     <div
       className={base({ class: className })}
       role="tab"
-      tabIndex={0}
+      tabIndex={active ? 0 : -1}
       aria-selected={active}
       onClick={onClick}
       onKeyDown={(e) => {

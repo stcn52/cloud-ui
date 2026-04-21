@@ -3,6 +3,25 @@
 All notable changes will be documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.1] — 2026-04-21
+
+### Fixed
+
+- **`useContextMenu`** — right-click on a second target while the menu was
+  already open caused a close/re-open flash because the `mousedown` listener
+  fired on button 2. The listener now ignores right-button mousedowns.
+- **`PopoverItem` submenu** — the 200 ms close timer leaked when the item
+  unmounted mid-delay (e.g. parent popover closes). Added a cleanup effect
+  that clears the pending timeout on unmount.
+- **`Tab`** — all tabs had `tabIndex={0}`, so Tab-key navigation cycled
+  through every tab instead of focusing the active one. Non-active tabs now
+  use `tabIndex={-1}` per the WAI-ARIA tabs pattern.
+
+### Docs
+
+- `useContextMenu` JSDoc notes that inline JSX `menu` works but `useMemo` is
+  recommended for large menus to avoid re-mounting the portal subtree.
+
 ## [0.2.0] — 2026-04-21
 
 ### Added
