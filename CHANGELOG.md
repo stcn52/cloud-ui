@@ -3,6 +3,39 @@
 All notable changes will be documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] — 2026-04-21
+
+Toast gets the full sonner/react-hot-toast treatment: more tones, default
+icons, a left color bar, optional title/description, slide-in + fade-out
+animations, a hover-pausing progress bar, and an imperative API.
+
+### Added
+
+- **`warn` + `info` tones** on `Toast`, in addition to `neutral` / `ok` / `err`.
+- **Default icons** — non-neutral tones render a built-in glyph automatically.
+  Pass `icon={false}` to hide, `icon={<Custom />}` to override.
+- **Color bar + two-row layout** — a 3 px tone-coloured bar runs along the
+  left edge; `title` renders bold above the `children` description.
+- **`top-center` / `bottom-center` positions** on `ToastStack`.
+- **`Toaster` component + imperative `toast()` API** — mount one `<Toaster />`
+  near the app root, then call:
+  - `toast.success(msg, { title?, duration?, actions?, id?, icon?, onDismiss? })`
+  - `toast.error(…)`, `toast.warn(…)`, `toast.info(…)`, `toast(…)` (neutral)
+  - `toast.dismiss(id?)` — pass an id to close one, omit to close all
+  - Re-using an `id` replaces the existing toast (useful for progress updates).
+  - `duration` defaults to 4000 ms; pass `Infinity` for a sticky toast.
+- **Slide-in / fade-out animations** — enter animation direction matches the
+  `Toaster` position (right edge slides in from the right, etc.); leave is a
+  fade + scale-down.
+- **Hover-pause + progress bar** — the thin bar at the bottom depletes as the
+  toast ages; hovering pauses both the bar and the auto-dismiss timer,
+  resuming on mouse-leave.
+
+### Bundle size (gzip)
+
+- JS: ~35.7 kB (+2.1 kB vs 0.2.1 — `Toaster` + default icons)
+- CSS: ~9.0 kB (+0.5 kB — new keyframes, color-bar utilities)
+
 ## [0.2.1] — 2026-04-21
 
 ### Fixed

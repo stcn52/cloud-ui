@@ -1,2 +1,6 @@
 export { Toast, ToastStack } from './Toast'
 export type { ToastProps, ToastTone, ToastStackProps, ToastStackPosition } from './Toast'
+export { Toaster } from './Toaster'
+export type { ToasterProps } from './Toaster'
+export { toast } from './toaster'
+export type { ToastAPI, ToastOptions, ToastItem } from './toaster'
