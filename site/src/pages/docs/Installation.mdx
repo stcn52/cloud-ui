@@ -1,0 +1,63 @@
+import { CopyField, Banner, Pipeline, PipeStep } from '@stcn52/cloud-ui'
+
+# Installation
+
+Get up and running in three steps. Every component is a regular React import — no separate theme package, no runtime CSS-in-JS, no build plugin required.
+
+<Pipeline style={{ margin: '24px 0 32px' }}>
+  <PipeStep status="ok">Install</PipeStep>
+  <PipeStep status="ok">Import styles</PipeStep>
+  <PipeStep status="ok">Use components</PipeStep>
+</Pipeline>
+
+## 1. Install the package
+
+<CopyField value="pnpm add @stcn52/cloud-ui">pnpm add @stcn52/cloud-ui</CopyField>
+
+<Banner tone="info" title="Peer dependencies">
+  React 18 is the only peer requirement. You do **not** need to install `tailwindcss` — the library ships a compiled stylesheet.
+</Banner>
+
+## 2. Import the stylesheet
+
+Do this once at your app entry:
+
+```tsx
+// main.tsx
+import '@stcn52/cloud-ui/styles.css'
+```
+
+The stylesheet contains:
+
+- Every design token (light + dark)
+- Base reset + typography defaults
+- All utility classes the 37 components rely on
+
+## 3. Use components
+
+```tsx
+import { Button, Toaster, toast } from '@stcn52/cloud-ui'
+
+export function Demo() {
+  return (
+    <>
+      <Button intent="primary" onClick={() => toast.success('Deployed!')}>
+        Deploy
+      </Button>
+      <Toaster position="bottom-right" />
+    </>
+  )
+}
+```
+
+## Optional: wrap in ConfigProvider
+
+```tsx
+import { ConfigProvider } from '@stcn52/cloud-ui'
+
+<ConfigProvider theme="dark" size="compact">
+  <App />
+</ConfigProvider>
+```
+
+See [Theming](/docs/theming) for theme / density / locale details.

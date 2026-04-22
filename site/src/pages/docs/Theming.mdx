@@ -1,0 +1,73 @@
+import { Banner, Table } from '@stcn52/cloud-ui'
+
+# Theming
+
+Three axes of configuration: **theme**, **size** (density), and **locale**. All three flow through a single provider.
+
+## ConfigProvider
+
+```tsx
+import { ConfigProvider, zhCN } from '@stcn52/cloud-ui'
+
+<ConfigProvider theme="dark" size="compact" locale={zhCN}>
+  <YourApp />
+</ConfigProvider>
+```
+
+<Table style={{ margin: '16px 0 24px' }}>
+  <thead>
+    <tr><th>Prop</th><th>Type</th><th>Default</th><th>Effect</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>theme</code></td><td><code>'light' | 'dark'</code></td><td><code>light</code></td><td>Flips <code>data-theme</code>; palette swaps in oklch.</td></tr>
+    <tr><td><code>size</code></td><td><code>'compact' | 'normal' | 'comfortable'</code></td><td><code>normal</code></td><td>Flips <code>data-size</code>; rescales spacing + text sizes.</td></tr>
+    <tr><td><code>locale</code></td><td><code>Locale</code></td><td><code>en</code></td><td>Switches built-in strings (Pagination, Toast, CopyField, Banner, TagInput, DatePicker).</td></tr>
+    <tr><td><code>target</code></td><td><code>'wrapper' | 'body'</code></td><td><code>wrapper</code></td><td><code>body</code> writes to document.body (useful at app root).</td></tr>
+  </tbody>
+</Table>
+
+<Banner tone="info" title="Dogfood note">
+  This site is itself wrapped in a `<ConfigProvider target="body">` — the ☀/☾ and S/M/L toggles in the header just flip its props.
+</Banner>
+
+## Dark mode
+
+Single attribute flip — no double stylesheet, no component-level overrides.
+
+```tsx
+<ConfigProvider theme={isDark ? 'dark' : 'light'}>
+  <App />
+</ConfigProvider>
+```
+
+## Density
+
+Multiple densities can coexist on the page — each `ConfigProvider` writes its own wrapping `<div>` with `data-size`.
+
+```tsx
+<ConfigProvider size="compact">
+  <DensePanel />
+</ConfigProvider>
+```
+
+## Locale
+
+```tsx
+import { ConfigProvider, zhCN } from '@stcn52/cloud-ui'
+
+<ConfigProvider locale={zhCN}>...</ConfigProvider>
+```
+
+## Custom tokens
+
+Tokens live in `@theme` CSS-first. Override by declaring your own `@theme` *after* importing the library styles:
+
+```css
+@import "@stcn52/cloud-ui/styles.css";
+
+@theme {
+  --color-accent: oklch(0.68 0.18 160);
+  --color-accent-weak: oklch(0.95 0.06 160);
+  --color-accent-ink: oklch(0.36 0.14 160);
+}
+```
