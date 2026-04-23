@@ -1,6 +1,7 @@
 import { marked } from 'marked'
 import { Banner, Pill } from '@stcn52/cloud-ui'
 import changelogMarkdown from '../../../../CHANGELOG.md?raw'
+import { LIB_VERSION_TAG } from '../../lib/version'
 
 const html = marked.parse(changelogMarkdown as string, {
   async: false,
@@ -13,7 +14,7 @@ export default function ChangelogPage() {
     <article className="page">
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <h1 style={{ margin: 0 }}>Changelog</h1>
-        <Pill tone="info">v1.0.0</Pill>
+        <Pill tone="info">{LIB_VERSION_TAG}</Pill>
       </div>
 
       <Banner tone="neutral" title="Versioning policy" style={{ margin: '16px 0 24px' }}>

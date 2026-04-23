@@ -15,6 +15,7 @@ import {
   type Size,
 } from '@stcn52/cloud-ui'
 import { routes } from '../routes'
+import { LIB_VERSION_TAG } from '../lib/version'
 
 interface ShellProps {
   theme: Theme
@@ -104,7 +105,7 @@ export function Shell({ theme, onThemeChange, size, onSizeChange, children }: Sh
             />
             @stcn52/cloud-ui
           </NavLink>
-          <Pill tone="neutral">v1.0.0</Pill>
+          <Pill tone="neutral">{LIB_VERSION_TAG}</Pill>
 
           <nav style={{ display: 'flex', gap: 4, marginLeft: 16 }}>
             {topLinks.map((link) => {

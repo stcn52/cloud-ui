@@ -1,5 +1,6 @@
 import { Button, Pill, Kbd, Card, CopyField, Banner, Kpi, Toast } from '@stcn52/cloud-ui'
 import { useNavigate, Link } from 'react-router-dom'
+import { LIB_VERSION_TAG } from '../lib/version'
 
 const features = [
   {
@@ -34,7 +35,7 @@ export function Home() {
         }}
       >
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
-          <Pill tone="info">v0.3.0</Pill>
+          <Pill tone="info">{LIB_VERSION_TAG}</Pill>
           <Pill tone="neutral">37 components</Pill>
           <Pill tone="ok">MIT</Pill>
         </div>
