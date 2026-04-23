@@ -55,3 +55,37 @@ pre code {
 
 /* Reduce noise in MDX ordered/unordered lists inside page content */
 article.page li { margin-bottom: 4px; }
+
+/* Changelog rendered from raw markdown */
+.changelog h1 { display: none; } /* already rendered as hero heading above */
+.changelog h2 {
+  font-size: var(--text-lg);
+  margin: 32px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-line);
+  font-weight: 600;
+  scroll-margin-top: 72px;
+}
+.changelog h2:first-of-type { margin-top: 8px; }
+.changelog h3 {
+  font-size: var(--text-md);
+  margin: 20px 0 6px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+.changelog ul, .changelog ol { padding-left: 20px; }
+.changelog li { line-height: 1.6; }
+.changelog code {
+  font-size: 0.86em;
+  color: var(--color-accent-ink);
+}
+.changelog pre { margin: 12px 0; }
+.changelog pre code { color: var(--color-text); }
+/* diff-like rendering for migration snippets that use `-` / `+` at line start */
+.changelog pre code {
+  white-space: pre;
+}
+.changelog a { color: var(--color-accent); }
+.changelog strong { color: var(--color-text); font-weight: 600; }

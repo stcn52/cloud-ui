@@ -5,8 +5,8 @@ import mdx from '@mdx-js/rollup'
 export default defineConfig(({ mode }) => ({
   base: mode === 'production' ? '/cloud-ui/' : '/',
   plugins: [
-    { enforce: 'pre', ...mdx() },
-    react({ include: /\.(jsx|tsx|mdx|md)$/ }),
+    { enforce: 'pre', ...mdx({ include: /\.mdx$/ }) },
+    react({ include: /\.(jsx|tsx|mdx)$/ }),
   ],
   build: {
     outDir: 'dist',

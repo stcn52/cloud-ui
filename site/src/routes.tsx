@@ -12,6 +12,7 @@ export interface RouteDef {
 // Docs
 import Installation from './pages/docs/Installation.mdx'
 import Theming from './pages/docs/Theming.mdx'
+import Changelog from './pages/docs/Changelog'
 
 // Design
 import Color from './pages/design/Color'
@@ -73,6 +74,7 @@ export const routes: RouteDef[] = [
   // Docs
   { path: '/docs/installation', title: 'Installation', section: 'docs', Component: Installation },
   { path: '/docs/theming',      title: 'Theming',      section: 'docs', Component: Theming },
+  { path: '/docs/changelog',    title: 'Changelog',    section: 'docs', Component: Changelog },
 
   // Design
   { path: '/design/color',      title: 'Color',      section: 'design', Component: Color },
