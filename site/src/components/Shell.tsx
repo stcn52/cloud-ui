@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type * as React from 'react'
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
@@ -238,6 +239,41 @@ function DocSidebar() {
 
   const items = routes.filter((r) => r.section === section)
 
+  // Group components by category so the sidebar shows section separators.
+  const groups: Array<{ label: string | null; items: typeof items }> = []
+  if (section === 'components') {
+    const byCat = new Map<string, typeof items>()
+    const ungrouped: typeof items = []
+    for (const r of items) {
+      if (r.category) {
+        if (!byCat.has(r.category)) byCat.set(r.category, [])
+        byCat.get(r.category)!.push(r)
+      } else {
+        ungrouped.push(r)
+      }
+    }
+    if (ungrouped.length) groups.push({ label: null, items: ungrouped })
+    const categoryOrder = ['Foundations', 'Primitives', 'Data display', 'Navigation', 'Overlays', 'Advanced']
+    for (const cat of categoryOrder) {
+      const list = byCat.get(cat)
+      if (list?.length) groups.push({ label: cat, items: list })
+    }
+  } else {
+    groups.push({ label: null, items })
+  }
+
+  const navLinkStyle = ({ isActive }: { isActive: boolean }): React.CSSProperties => ({
+    display: 'block',
+    padding: '6px 10px',
+    borderRadius: 6,
+    fontSize: 13,
+    textDecoration: 'none',
+    color: isActive ? 'var(--color-accent-ink)' : 'var(--color-text-muted)',
+    background: isActive ? 'var(--color-accent-weak)' : 'transparent',
+    fontWeight: isActive ? 600 : 400,
+    transition: 'background 120ms',
+  })
+
   return (
     <aside>
       <div
@@ -253,25 +289,29 @@ function DocSidebar() {
         {sectionTitle}
       </div>
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {items.map((r) => (
-          <NavLink
-            key={r.path}
-            to={r.path}
-            end
-            style={({ isActive }: { isActive: boolean }) => ({
-              display: 'block',
-              padding: '6px 10px',
-              borderRadius: 6,
-              fontSize: 13,
-              textDecoration: 'none',
-              color: isActive ? 'var(--color-accent-ink)' : 'var(--color-text-muted)',
-              background: isActive ? 'var(--color-accent-weak)' : 'transparent',
-              fontWeight: isActive ? 600 : 400,
-              transition: 'background 120ms',
-            })}
-          >
-            {r.title}
-          </NavLink>
+        {groups.map((g, i) => (
+          <div key={g.label ?? '_root'} style={{ marginTop: i === 0 ? 0 : 14 }}>
+            {g.label && (
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-text-dim)',
+                  padding: '0 10px',
+                  marginBottom: 6,
+                }}
+              >
+                {g.label}
+              </div>
+            )}
+            {g.items.map((r) => (
+              <NavLink key={r.path} to={r.path} end style={navLinkStyle}>
+                {r.title}
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
     </aside>

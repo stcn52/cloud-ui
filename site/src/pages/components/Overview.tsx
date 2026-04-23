@@ -1,56 +1,75 @@
 import { Card, Pill } from '@stcn52/cloud-ui'
 import { Link } from 'react-router-dom'
 
-interface Entry { name: string; slug?: string; description?: string }
+interface Entry { name: string; slug: string; description?: string }
 interface Category { title: string; components: Entry[] }
 
 const categories: Category[] = [
   {
     title: '01 · Foundations',
-    components: [{ name: 'ConfigProvider', description: 'Theme, density, locale context' }],
+    components: [
+      { name: 'ConfigProvider', slug: 'config-provider', description: 'Theme, density, locale context' },
+    ],
   },
   {
     title: '02 · Primitives',
     components: [
-      { name: 'Avatar' },
-      { name: 'Button', slug: 'button' },
-      { name: 'Checkbox' },
-      { name: 'Input', slug: 'input' },
-      { name: 'Kbd' },
-      { name: 'Pill' },
-      { name: 'Radio' },
-      { name: 'Select' },
-      { name: 'Switch' },
-      { name: 'Textarea' },
+      { name: 'Avatar',   slug: 'avatar' },
+      { name: 'Button',   slug: 'button' },
+      { name: 'Checkbox', slug: 'checkbox' },
+      { name: 'Input',    slug: 'input' },
+      { name: 'Kbd',      slug: 'kbd' },
+      { name: 'Pill',     slug: 'pill' },
+      { name: 'Radio',    slug: 'radio' },
+      { name: 'Select',   slug: 'select' },
+      { name: 'Switch',   slug: 'switch' },
+      { name: 'Textarea', slug: 'textarea' },
     ],
   },
   {
     title: '03 · Data display',
     components: [
-      { name: 'Card' }, { name: 'KPI' }, { name: 'LogLine' }, { name: 'Pipeline' },
-      { name: 'Progress' }, { name: 'Skeleton' }, { name: 'Table' },
+      { name: 'Card',     slug: 'card' },
+      { name: 'KPI',      slug: 'kpi' },
+      { name: 'LogLine',  slug: 'log-line' },
+      { name: 'Pipeline', slug: 'pipeline' },
+      { name: 'Progress', slug: 'progress' },
+      { name: 'Skeleton', slug: 'skeleton' },
+      { name: 'Table',    slug: 'table' },
     ],
   },
   {
     title: '04 · Navigation',
     components: [
-      { name: 'Breadcrumbs' }, { name: 'Pagination' }, { name: 'Segmented' },
-      { name: 'Tabs' }, { name: 'CardTabs' },
+      { name: 'Breadcrumbs', slug: 'breadcrumbs' },
+      { name: 'Pagination',  slug: 'pagination' },
+      { name: 'Segmented',   slug: 'segmented' },
+      { name: 'Tabs',        slug: 'tabs' },
+      { name: 'CardTabs',    slug: 'card-tabs' },
     ],
   },
   {
     title: '05 · Overlays',
     components: [
-      { name: 'Banner' }, { name: 'CommandPalette' }, { name: 'Dialog' },
-      { name: 'Drawer' }, { name: 'Empty' }, { name: 'Popover' },
-      { name: 'Toast', slug: 'toast' }, { name: 'Tooltip' },
+      { name: 'Banner',         slug: 'banner' },
+      { name: 'CommandPalette', slug: 'command-palette' },
+      { name: 'Dialog',         slug: 'dialog' },
+      { name: 'Drawer',         slug: 'drawer' },
+      { name: 'Empty',          slug: 'empty' },
+      { name: 'Popover',        slug: 'popover' },
+      { name: 'Toast',          slug: 'toast' },
+      { name: 'Tooltip',        slug: 'tooltip' },
     ],
   },
   {
     title: '06 · Advanced',
     components: [
-      { name: 'Cascader' }, { name: 'CopyField' }, { name: 'DatePicker' },
-      { name: 'Dropdown' }, { name: 'TagInput' }, { name: 'Tree' },
+      { name: 'Cascader',   slug: 'cascader' },
+      { name: 'CopyField',  slug: 'copy-field' },
+      { name: 'DatePicker', slug: 'date-picker' },
+      { name: 'Dropdown',   slug: 'dropdown' },
+      { name: 'TagInput',   slug: 'tag-input' },
+      { name: 'Tree',       slug: 'tree' },
     ],
   },
 ]
@@ -61,12 +80,7 @@ export default function ComponentsOverview() {
   return (
     <article className="page">
       <h1>Components</h1>
-      <p>
-        All {total} components, organized into six categories. Items marked <em>docs pending</em>{' '}
-        are shipped and working — see the{' '}
-        <a href={`${import.meta.env.BASE_URL}storybook/`}>Storybook</a> for interactive demos until
-        their dedicated pages land.
-      </p>
+      <p>All {total} components, organized into six categories.</p>
 
       {categories.map((cat) => (
         <section key={cat.title} style={{ marginTop: 28 }}>
@@ -89,8 +103,8 @@ export default function ComponentsOverview() {
               gap: 10,
             }}
           >
-            {cat.components.map((c) => {
-              const inner = (
+            {cat.components.map((c) => (
+              <Link key={c.name} to={`/components/${c.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <Card
                   style={{
                     padding: '12px 14px',
@@ -98,24 +112,14 @@ export default function ComponentsOverview() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: 8,
-                    cursor: c.slug ? 'pointer' : 'default',
-                    opacity: c.slug ? 1 : 0.7,
+                    cursor: 'pointer',
                   }}
                 >
                   <div style={{ fontWeight: 500, fontSize: 13 }}>{c.name}</div>
-                  {c.slug
-                    ? <Pill tone="info">docs</Pill>
-                    : <Pill tone="neutral">pending</Pill>}
+                  <Pill tone="info">docs</Pill>
                 </Card>
-              )
-              return c.slug ? (
-                <Link key={c.name} to={`/components/${c.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  {inner}
-                </Link>
-              ) : (
-                <div key={c.name}>{inner}</div>
-              )
-            })}
+              </Link>
+            ))}
           </div>
         </section>
       ))}
