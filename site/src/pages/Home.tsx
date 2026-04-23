@@ -34,8 +34,15 @@ export function Home() {
           textAlign: 'center',
         }}
       >
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
-          <Pill tone="info">{LIB_VERSION_TAG}</Pill>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
+          <a
+            href="https://www.npmjs.com/package/@stcn52/cloud-ui"
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: 'none' }}
+          >
+            <Pill tone="info">{LIB_VERSION_TAG} · on npm</Pill>
+          </a>
           <Pill tone="neutral">37 components</Pill>
           <Pill tone="ok">MIT</Pill>
         </div>

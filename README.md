@@ -1,9 +1,18 @@
 # @stcn52/cloud-ui
 
-React + TypeScript component library built on Tailwind v4. 40 components
+[![npm](https://img.shields.io/npm/v/@stcn52/cloud-ui.svg?color=0b7fa8)](https://www.npmjs.com/package/@stcn52/cloud-ui)
+[![license](https://img.shields.io/npm/l/@stcn52/cloud-ui.svg?color=46a758)](./LICENSE)
+[![docs](https://img.shields.io/badge/docs-live-0b7fa8)](https://stcn52.github.io/cloud-ui/)
+[![storybook](https://img.shields.io/badge/storybook-live-ff4785)](https://stcn52.github.io/cloud-ui/storybook/)
+
+React + TypeScript component library built on Tailwind v4. 40+ components
 across six categories: primitives, data display, navigation, overlays,
 advanced controls, plus foundations. Calm, dense, operator-first visual
 language — cool neutrals with a single azure accent.
+
+- 📚 **Docs**: <https://stcn52.github.io/cloud-ui/>
+- 🎨 **Storybook**: <https://stcn52.github.io/cloud-ui/storybook/>
+- 📦 **npm**: <https://www.npmjs.com/package/@stcn52/cloud-ui>
 
 ## Install
 
