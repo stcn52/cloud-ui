@@ -104,7 +104,7 @@ export function Shell({ theme, onThemeChange, size, onSizeChange, children }: Sh
             />
             @stcn52/cloud-ui
           </NavLink>
-          <Pill tone="neutral">v0.3.0</Pill>
+          <Pill tone="neutral">v1.0.0</Pill>
 
           <nav style={{ display: 'flex', gap: 4, marginLeft: 16 }}>
             {topLinks.map((link) => {
