@@ -82,10 +82,46 @@ function ControlledDemo() {
         expanded={expanded}
         onExpandedChange={setExpanded}
         selected={selected}
-        onSelect={(id) => setSelected(id)}
+        onSelectedChange={(v) => setSelected(typeof v === 'string' || v === null ? v : null)}
       />
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-muted)' }}>
         selected = <Pill tone="info">{selected ?? 'null'}</Pill>
+      </div>
+    </div>
+  )
+}
+
+function MultiDemo() {
+  const [selected, setSelected] = useState<string[]>(['src/components/Input.tsx'])
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 360 }}>
+      <Tree
+        data={fileTree}
+        selectionMode="multiple"
+        defaultExpanded={['src', 'src/components']}
+        selected={selected}
+        onSelectedChange={(v) => setSelected(Array.isArray(v) ? v : [])}
+      />
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-muted)' }}>
+        selected = <Pill tone="info">[{selected.join(', ') || 'empty'}]</Pill>
+      </div>
+    </div>
+  )
+}
+
+function CheckboxDemo() {
+  const [selected, setSelected] = useState<string[]>([])
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 360 }}>
+      <Tree
+        data={fileTree}
+        selectionMode="checkbox"
+        defaultExpanded={['src', 'src/components']}
+        selected={selected}
+        onSelectedChange={(v) => setSelected(Array.isArray(v) ? v : [])}
+      />
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--color-text-muted)' }}>
+        leaves checked = <Pill tone="info">{selected.length}</Pill>
       </div>
     </div>
   )
@@ -96,9 +132,9 @@ export default function TreePage() {
     <article className="page">
       <h1>Tree</h1>
       <p>
-        A hierarchical list with click-to-expand branches, single selection, and keyboard
-        navigation (<kbd>Enter</kbd>/<kbd>Space</kbd> select, <kbd>←</kbd>/<kbd>→</kbd> collapse and
-        expand).
+        A hierarchical list with click-to-expand branches, three selection modes (single,
+        multiple, checkbox), and keyboard navigation (<kbd>Enter</kbd>/<kbd>Space</kbd> select,{' '}
+        <kbd>←</kbd>/<kbd>→</kbd> collapse and expand).
       </p>
 
       <Banner tone="neutral" title="When to use" style={{ margin: '16px 0' }}>
@@ -106,7 +142,11 @@ export default function TreePage() {
         picking across 2–4 known levels use <code>Cascader</code> instead — it has a flatter UI.
       </Banner>
 
-      <h2>File tree (uncontrolled)</h2>
+      <h2>Single (default)</h2>
+      <p>
+        The default mode — one id at a time. Clicking a row selects it (and toggles expansion for
+        branches). <code>selected</code> is <code>string | null</code>.
+      </p>
       <Demo
         code={`<Tree
   data={fileTree}
@@ -122,10 +162,10 @@ export default function TreePage() {
         />
       </Demo>
 
-      <h2>Controlled (both axes)</h2>
+      <h2>Controlled (single)</h2>
       <p>
-        Own either or both of <code>expanded</code> and <code>selected</code>. Listeners still fire
-        in both modes.
+        Own either or both of <code>expanded</code> and <code>selected</code>. Listeners still
+        fire in both modes.
       </p>
       <Demo
         code={`const [selected, setSelected] = useState<string | null>('src/components/Button.tsx')
@@ -136,10 +176,49 @@ const [expanded, setExpanded] = useState<string[]>(['src', 'src/components'])
   expanded={expanded}
   onExpandedChange={setExpanded}
   selected={selected}
-  onSelect={(id) => setSelected(id)}
+  onSelectedChange={(v) => setSelected(typeof v === 'string' || v === null ? v : null)}
 />`}
       >
         <ControlledDemo />
+      </Demo>
+
+      <h2>Multiple selection</h2>
+      <p>
+        <code>selectionMode="multiple"</code> lets the user toggle any row into a set. Click to
+        add/remove — <code>selected</code> is <code>string[]</code>.
+      </p>
+      <Demo
+        code={`const [selected, setSelected] = useState<string[]>([])
+
+<Tree
+  data={fileTree}
+  selectionMode="multiple"
+  defaultExpanded={['src', 'src/components']}
+  selected={selected}
+  onSelectedChange={(v) => setSelected(Array.isArray(v) ? v : [])}
+/>`}
+      >
+        <MultiDemo />
+      </Demo>
+
+      <h2>Checkbox mode (with indeterminate parents)</h2>
+      <p>
+        <code>selectionMode="checkbox"</code> renders a checkbox per row. Toggling a parent casc­ades
+        to every leaf descendant. Selection is stored as the set of <em>leaf</em> ids — parent
+        state (<code>checked</code> / <code>indeterminate</code>) is derived automatically.
+      </p>
+      <Demo
+        code={`const [selected, setSelected] = useState<string[]>([])
+
+<Tree
+  data={fileTree}
+  selectionMode="checkbox"
+  defaultExpanded={['src', 'src/components']}
+  selected={selected}
+  onSelectedChange={(v) => setSelected(Array.isArray(v) ? v : [])}
+/>`}
+      >
+        <CheckboxDemo />
       </Demo>
 
       <h2>Minimal (no icons, no meta)</h2>
@@ -167,12 +246,14 @@ const [expanded, setExpanded] = useState<string[]>(['src', 'src/components'])
         </thead>
         <tbody>
           <tr><td><code>data</code></td><td><code>TreeNode[]</code></td><td>—</td><td>Root nodes.</td></tr>
+          <tr><td><code>selectionMode</code></td><td><code>'single' | 'multiple' | 'checkbox'</code></td><td><code>'single'</code></td><td>How rows become selected. Determines the shape of <code>selected</code>.</td></tr>
           <tr><td><code>expanded</code></td><td><code>string[]</code></td><td>—</td><td>Controlled set of open node ids.</td></tr>
           <tr><td><code>defaultExpanded</code></td><td><code>string[]</code></td><td><code>[]</code></td><td>Uncontrolled initial set.</td></tr>
           <tr><td><code>onExpandedChange</code></td><td><code>(ids: string[]) =&gt; void</code></td><td>—</td><td>Fires on every branch toggle.</td></tr>
-          <tr><td><code>selected</code></td><td><code>string | null</code></td><td>—</td><td>Controlled selected id.</td></tr>
-          <tr><td><code>defaultSelected</code></td><td><code>string | null</code></td><td><code>null</code></td><td>Uncontrolled initial selection.</td></tr>
-          <tr><td><code>onSelect</code></td><td><code>(id: string, node: TreeNode) =&gt; void</code></td><td>—</td><td>Fires on click or <kbd>Enter</kbd>/<kbd>Space</kbd>.</td></tr>
+          <tr><td><code>selected</code></td><td><code>string | null | string[]</code></td><td>—</td><td>Controlled selection. <code>string | null</code> for single mode, <code>string[]</code> for multiple / checkbox.</td></tr>
+          <tr><td><code>defaultSelected</code></td><td><code>string | null | string[]</code></td><td>mode default</td><td>Uncontrolled initial selection.</td></tr>
+          <tr><td><code>onSelectedChange</code></td><td><code>(value: string | null | string[]) =&gt; void</code></td><td>—</td><td>Fires on every selection change. Shape depends on <code>selectionMode</code>.</td></tr>
+          <tr><td><code>onSelect</code></td><td><code>(id: string, node: TreeNode) =&gt; void</code></td><td>—</td><td>Legacy per-row callback; still fires for every mode.</td></tr>
         </tbody>
       </Table>
 
@@ -189,12 +270,6 @@ const [expanded, setExpanded] = useState<string[]>(['src', 'src/components'])
           <tr><td><code>children</code></td><td><code>TreeNode[]</code></td><td>Nested nodes. Empty or missing = leaf.</td></tr>
         </tbody>
       </Table>
-
-      <Banner tone="warn" title="Single selection only" style={{ margin: '16px 0' }}>
-        <code>Tree</code> exposes one selected id at a time. Multi-select (checkbox tree) isn't
-        built in — fork <code>renderTag</code>-style by handling selection yourself on top of{' '}
-        <code>onSelect</code>.
-      </Banner>
     </article>
   )
 }

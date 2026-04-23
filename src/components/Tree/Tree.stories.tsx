@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Tree, type TreeNode } from './index'
 
@@ -46,7 +47,16 @@ const data: TreeNode[] = [
           { id: 'ingest-worker', label: 'ingest-worker', icon: svcIcon, meta: 'v204' },
         ],
       },
-      { id: 'billing', label: 'billing', icon: projIcon, meta: '4 services', children: [] },
+      {
+        id: 'billing',
+        label: 'billing',
+        icon: projIcon,
+        meta: '2 services',
+        children: [
+          { id: 'billing-api', label: 'billing-api', icon: svcIcon, meta: 'v12' },
+          { id: 'billing-cron', label: 'billing-cron', icon: svcIcon, meta: 'v3' },
+        ],
+      },
       { id: 'analytics', label: 'analytics', icon: projIcon, meta: '6 services', children: [] },
     ],
   },
@@ -63,4 +73,68 @@ export const ResourceTree: Story = {
       <Tree {...args} />
     </div>
   ),
+}
+
+export const MultiSelect: Story = {
+  args: { data },
+  render: () => {
+    const [ids, setIds] = useState<string[]>(['auth-service'])
+    return (
+      <div style={{ width: 420 }}>
+        <Tree
+          data={data}
+          selectionMode="multiple"
+          defaultExpanded={['linden', 'api-platform']}
+          selected={ids}
+          onSelectedChange={(v) => setIds(Array.isArray(v) ? v : [])}
+        />
+        <div className="mono" style={{ marginTop: 10, fontSize: 12, color: 'var(--color-text-dim)' }}>
+          Selected: {ids.length ? ids.join(', ') : 'none'}
+        </div>
+      </div>
+    )
+  },
+}
+
+export const Checkbox: Story = {
+  args: { data },
+  render: () => {
+    const [ids, setIds] = useState<string[]>([])
+    return (
+      <div style={{ width: 420 }}>
+        <Tree
+          data={data}
+          selectionMode="checkbox"
+          defaultExpanded={['linden', 'api-platform', 'billing']}
+          selected={ids}
+          onSelectedChange={(v) => setIds(Array.isArray(v) ? v : [])}
+        />
+        <div className="mono" style={{ marginTop: 10, fontSize: 12, color: 'var(--color-text-dim)' }}>
+          Checked leaves: {ids.length ? ids.join(', ') : 'none'}
+        </div>
+      </div>
+    )
+  },
+}
+
+export const IndeterminateParent: Story = {
+  args: { data },
+  render: () => {
+    // Seed with only *some* of api-platform's leaves checked to show indeterminate state on the parent.
+    const [ids, setIds] = useState<string[]>(['auth-service'])
+    return (
+      <div style={{ width: 420 }}>
+        <Tree
+          data={data}
+          selectionMode="checkbox"
+          defaultExpanded={['linden', 'api-platform']}
+          selected={ids}
+          onSelectedChange={(v) => setIds(Array.isArray(v) ? v : [])}
+        />
+        <div className="mono" style={{ marginTop: 10, fontSize: 12, color: 'var(--color-text-dim)' }}>
+          api-platform shows as indeterminate because only auth-service is checked.
+        </div>
+      </div>
+    )
+  },
 }

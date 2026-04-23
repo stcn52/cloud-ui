@@ -16,7 +16,8 @@ export default function LogLinePage() {
       <h1>LogLine</h1>
       <p>
         A single monospace log row with a fixed 3-column grid: timestamp · level · message. Stack
-        them inside a scroll container to get a viewer.
+        them inside a scroll container to get a viewer. <code>level</code> is optional and
+        defaults to <code>'info'</code>.
       </p>
 
       <Banner tone="neutral" title="When to use" style={{ margin: '16px 0' }}>
@@ -37,6 +38,20 @@ export default function LogLinePage() {
           <LogLine level="ok"   timestamp="14:22:03" message="deploy: api-gateway@v142 complete" />
           <LogLine level="warn" timestamp="14:22:02" message="rate_limit: 80% bucket consumed" />
           <LogLine level="err"  timestamp="14:22:03" message="upstream timeout: db.primary" />
+        </div>
+      </Demo>
+
+      <h2>Default level</h2>
+      <p>
+        Omit <code>level</code> and you get <code>'info'</code>.
+      </p>
+      <Demo
+        code={`<LogLine timestamp="14:22:01" message="GET /v1/users/me 200 · 42ms" />
+<LogLine timestamp="14:22:02" message="cache miss — upstream fetched" />`}
+      >
+        <div style={{ width: '100%', background: 'var(--color-bg-sunk)', padding: '6px 0' }}>
+          <LogLine timestamp="14:22:01" message="GET /v1/users/me 200 · 42ms" />
+          <LogLine timestamp="14:22:02" message="cache miss — upstream fetched" />
         </div>
       </Demo>
 
@@ -86,7 +101,7 @@ export default function LogLinePage() {
           <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>level</code></td><td><code>'info' | 'ok' | 'warn' | 'err'</code></td><td>—</td><td>Required. Color-codes the level label.</td></tr>
+          <tr><td><code>level</code></td><td><code>'info' | 'ok' | 'warn' | 'err'</code></td><td><code>'info'</code></td><td>Color-codes the level label.</td></tr>
           <tr><td><code>timestamp</code></td><td><code>ReactNode</code></td><td>—</td><td>First column. Free-form — string, <code>&lt;time&gt;</code>, etc.</td></tr>
           <tr><td><code>message</code></td><td><code>ReactNode</code></td><td>—</td><td>Third column. Falls back to <code>children</code> when omitted.</td></tr>
           <tr><td><code>children</code></td><td><code>ReactNode</code></td><td>—</td><td>Used as the message when <code>message</code> is not provided.</td></tr>

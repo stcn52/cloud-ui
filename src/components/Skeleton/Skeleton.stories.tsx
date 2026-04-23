@@ -26,3 +26,36 @@ export const Placeholders: Story = {
     </div>
   ),
 }
+
+export const Text: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 480, fontSize: 14 }}>
+      <Skeleton variant="text" />
+      <Skeleton variant="text" width="85%" />
+      <Skeleton variant="text" width="60%" />
+      <p style={{ marginTop: 12, lineHeight: 1.5 }}>
+        Inline mid-sentence <Skeleton variant="text" width={80} /> continues here.
+      </p>
+    </div>
+  ),
+}
+
+export const Circle: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+      <Skeleton variant="circle" width={24} height={24} />
+      <Skeleton variant="circle" width={32} height={32} />
+      <Skeleton variant="circle" width={48} height={48} />
+    </div>
+  ),
+}
+
+export const Block: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <Skeleton variant="block" width={240} height={80} />
+      <Skeleton variant="block" width="100%" height={16} />
+      <Skeleton variant="block" width="60%" height={12} />
+    </div>
+  ),
+}

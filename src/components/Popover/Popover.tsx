@@ -1,5 +1,6 @@
 import {
   cloneElement,
+  Fragment,
   isValidElement,
   useCallback,
   useEffect,
@@ -30,8 +31,11 @@ export type PopoverPlacement =
   | 'top'
 
 export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content'> {
-  /** Trigger element; receives onClick + ref. */
-  trigger: ReactElement
+  /**
+   * Trigger element; receives onClick + ref. Strings, numbers, and fragments
+   * are auto-wrapped in a `<span>` so consumers can pass primitive content.
+   */
+  trigger: ReactNode
   /** Popover content. */
   content: ReactNode
   placement?: PopoverPlacement
@@ -132,20 +136,38 @@ export function Popover({
     }
   }, [open, closeOnOutside, closeOnEscape, setOpen])
 
-  if (!isValidElement(trigger)) {
-    throw new Error('Popover: `trigger` must be a single valid React element')
+  // Smart wrapping: if trigger is a string, number, fragment, array, or any
+  // non-ref-accepting primitive, wrap it in a <span> so we can attach ref+onClick.
+  let triggerElement: ReactElement
+  if (
+    trigger === null ||
+    trigger === undefined ||
+    typeof trigger === 'string' ||
+    typeof trigger === 'number' ||
+    typeof trigger === 'boolean' ||
+    Array.isArray(trigger) ||
+    (isValidElement(trigger) && trigger.type === Fragment)
+  ) {
+    triggerElement = <span>{trigger as ReactNode}</span>
+  } else if (isValidElement(trigger)) {
+    triggerElement = trigger
+  } else {
+    throw new Error(
+      'Popover: `trigger` must be a single valid React element — wrap your trigger in a single element or pass a fragment',
+    )
   }
-  const triggerWithProps = cloneElement(trigger, {
+
+  const triggerWithProps = cloneElement(triggerElement, {
     ref: (node: HTMLElement) => {
       triggerRef.current = node
-      const orig = (trigger as ReactElement & { ref?: unknown }).ref
+      const orig = (triggerElement as ReactElement & { ref?: unknown }).ref
       if (typeof orig === 'function') (orig as (n: HTMLElement) => void)(node)
       else if (orig && typeof orig === 'object' && 'current' in orig) {
         (orig as React.MutableRefObject<HTMLElement | null>).current = node
       }
     },
     onClick: (e: React.MouseEvent) => {
-      ;(trigger.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e)
+      ;(triggerElement.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e)
       setOpen(!open)
     },
   } as Partial<HTMLAttributes<HTMLElement>> & { ref?: unknown })

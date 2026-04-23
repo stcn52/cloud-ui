@@ -6,19 +6,15 @@ export default function TooltipPage() {
     <article className="page">
       <h1>Tooltip</h1>
       <p>
-        A small hint label that appears on hover or keyboard focus of the wrapped element.
-        CSS-only transition — no JavaScript, no portal.
+        A small hint label that appears on hover or keyboard focus of the wrapped element. The
+        tooltip is portaled, so it escapes any <code>overflow: hidden</code> ancestor, and it flips
+        to the opposite side when the preferred placement doesn't fit the viewport.
       </p>
 
       <Banner tone="neutral" title="When to use" style={{ margin: '16px 0' }}>
         A short label for an icon-only control or a truncated value. Not for long explanations —
-        put those inline or in a <code>Popover</code>. Don't hide critical information in a tooltip.
-      </Banner>
-
-      <Banner tone="info" title="One placement" style={{ margin: '16px 0' }}>
-        This <code>Tooltip</code> renders above the trigger and centered horizontally. It has no{' '}
-        <code>placement</code> prop. If you need a side-anchored label, use <code>Popover</code>{' '}
-        with a hover trigger of your own.
+        put those inline or in a <code>Popover</code>. Don't hide critical information in a
+        tooltip.
       </Banner>
 
       <h2>Basic</h2>
@@ -30,6 +26,53 @@ export default function TooltipPage() {
         <Tooltip tip="Deploy the current branch">
           <Button intent="primary">Deploy</Button>
         </Tooltip>
+      </Demo>
+
+      <h2>Placements</h2>
+      <p>
+        Pass <code>placement</code> to choose a preferred side. The tooltip auto-flips to the
+        opposite side when it would overflow the viewport.
+      </p>
+      <Demo
+        code={`<Tooltip placement="top"    tip="Top tip"><Button intent="outline">Top</Button></Tooltip>
+<Tooltip placement="right"  tip="Right tip"><Button intent="outline">Right</Button></Tooltip>
+<Tooltip placement="bottom" tip="Bottom tip"><Button intent="outline">Bottom</Button></Tooltip>
+<Tooltip placement="left"   tip="Left tip"><Button intent="outline">Left</Button></Tooltip>`}
+      >
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', padding: '24px 8px' }}>
+          <Tooltip placement="top" tip="Top tip">
+            <Button intent="outline">Top</Button>
+          </Tooltip>
+          <Tooltip placement="right" tip="Right tip">
+            <Button intent="outline">Right</Button>
+          </Tooltip>
+          <Tooltip placement="bottom" tip="Bottom tip">
+            <Button intent="outline">Bottom</Button>
+          </Tooltip>
+          <Tooltip placement="left" tip="Left tip">
+            <Button intent="outline">Left</Button>
+          </Tooltip>
+        </div>
+      </Demo>
+
+      <h2>Collision detection</h2>
+      <p>
+        The trigger below sits right up against the top of its container. The preferred{' '}
+        <code>top</code> placement won't fit, so the tooltip flips to <code>bottom</code>{' '}
+        automatically.
+      </p>
+      <Demo
+        code={`<div style={{ paddingTop: 0 }}>
+  <Tooltip placement="top" tip="Flipped because top doesn't fit">
+    <Button intent="outline">Hover me</Button>
+  </Tooltip>
+</div>`}
+      >
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: 0 }}>
+          <Tooltip placement="top" tip="Flipped because top doesn't fit">
+            <Button intent="outline">Hover me</Button>
+          </Tooltip>
+        </div>
       </Demo>
 
       <h2>On an icon-only button</h2>
@@ -73,6 +116,8 @@ export default function TooltipPage() {
         </thead>
         <tbody>
           <tr><td><code>tip</code></td><td><code>ReactNode</code></td><td>—</td><td>The label text shown on hover / focus.</td></tr>
+          <tr><td><code>placement</code></td><td><code>'top' | 'bottom' | 'left' | 'right'</code></td><td><code>'top'</code></td><td>Preferred side. Flips to the opposite side on overflow.</td></tr>
+          <tr><td><code>offset</code></td><td><code>number</code></td><td><code>6</code></td><td>Pixels between the trigger and the tooltip.</td></tr>
           <tr><td><code>open</code></td><td><code>boolean</code></td><td>—</td><td>Force-visible. Useful for tests or demos.</td></tr>
           <tr><td><code>children</code></td><td><code>ReactNode</code></td><td>—</td><td>The element the tooltip describes.</td></tr>
         </tbody>

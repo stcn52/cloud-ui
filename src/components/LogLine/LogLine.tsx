@@ -26,14 +26,15 @@ type LogLineVariants = VariantProps<typeof logLineStyles>
 export type LogLevel = NonNullable<LogLineVariants['level']>
 
 export interface LogLineProps extends HTMLAttributes<HTMLDivElement> {
-  level: LogLevel
+  /** Severity. default `'info'` */
+  level?: LogLevel
   timestamp?: ReactNode
   message?: ReactNode
   children?: ReactNode
 }
 
 export function LogLine({
-  level,
+  level = 'info',
   timestamp,
   message,
   className,

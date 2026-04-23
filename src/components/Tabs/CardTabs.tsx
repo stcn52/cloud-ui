@@ -1,29 +1,51 @@
-import type { HTMLAttributes, MouseEvent, ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  type HTMLAttributes,
+  type MouseEvent,
+  type ReactNode,
+} from 'react'
 import { tv } from 'tailwind-variants'
+
+interface CardTabsContextValue {
+  value: string
+  onChange: (value: string) => void
+}
+
+const CardTabsContext = createContext<CardTabsContextValue | null>(null)
+
+function useCardTabsContext(component: string): CardTabsContextValue {
+  const ctx = useContext(CardTabsContext)
+  if (!ctx) {
+    throw new Error(`<${component}> must be rendered inside a <CardTabs value={...} onChange={...}>`)
+  }
+  return ctx
+}
 
 /**
  * Chrome-style tabs: rounded top corners, active tab blends into the content
  * surface below (no underline). Use for file/document browsers where each tab
- * owns a full panel. Meant to be paired with a bottom border drawn by the
- * container so the active tab visually "sits on" the content.
+ * owns a full panel.
  */
 export const cardTabsStyles = tv({
-  base: [
-    // Row of tabs — add a bottom border so inactive tabs look like they sit
-    // above it and the active tab interrupts it.
-    'flex items-end gap-0.5',
-  ],
+  base: ['flex items-end gap-0.5'],
 })
 
-export interface CardTabsProps extends HTMLAttributes<HTMLDivElement> {
+export interface CardTabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+  /** Currently active tab id. */
+  value: string
+  /** Fired with the new tab id. */
+  onChange: (value: string) => void
   children?: ReactNode
 }
 
-export function CardTabs({ className, children, ...rest }: CardTabsProps) {
+export function CardTabs({ value, onChange, className, children, ...rest }: CardTabsProps) {
   return (
-    <div className={cardTabsStyles({ class: className })} role="tablist" {...rest}>
-      {children}
-    </div>
+    <CardTabsContext.Provider value={{ value, onChange }}>
+      <div className={cardTabsStyles({ class: className })} role="tablist" {...rest}>
+        {children}
+      </div>
+    </CardTabsContext.Provider>
   )
 }
 
@@ -43,9 +65,7 @@ export const cardTabStyles = tv({
   },
   variants: {
     active: {
-      true: {
-        base: 'bg-bg-elev text-text border-line',
-      },
+      true: { base: 'bg-bg-elev text-text border-line' },
       false: {
         base: [
           'bg-bg-sunk text-text-muted border-transparent',
@@ -57,8 +77,8 @@ export const cardTabStyles = tv({
   defaultVariants: { active: false },
 })
 
-export interface CardTabProps extends HTMLAttributes<HTMLDivElement> {
-  active?: boolean
+export interface CardTabProps extends Omit<HTMLAttributes<HTMLDivElement>, 'id'> {
+  id: string
   closable?: boolean
   onClose?: (e: MouseEvent<HTMLButtonElement>) => void
   icon?: ReactNode
@@ -66,27 +86,30 @@ export interface CardTabProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function CardTab({
-  active,
+  id,
   closable,
   onClose,
   icon,
   className,
   children,
-  onClick,
   ...rest
 }: CardTabProps) {
+  const { value, onChange } = useCardTabsContext('CardTab')
+  const active = value === id
   const { base, close } = cardTabStyles({ active })
+
   return (
     <div
       role="tab"
-      tabIndex={0}
+      tabIndex={active ? 0 : -1}
       aria-selected={active}
+      data-tab-id={id}
       className={base({ class: className })}
-      onClick={onClick}
+      onClick={() => onChange(id)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          onClick?.(e as unknown as React.MouseEvent<HTMLDivElement>)
+          onChange(id)
         }
       }}
       {...rest}

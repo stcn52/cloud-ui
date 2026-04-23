@@ -41,6 +41,24 @@ services:
         />
       </Demo>
 
+      <h2>Invalid</h2>
+      <p>
+        Pass <code>invalid</code> to switch the border and focus ring to the error color. Pair it
+        with a helper message outside the field.
+      </p>
+      <Demo
+        code={`<Textarea invalid defaultValue="…invalid YAML…" rows={3} />`}
+      >
+        <Textarea
+          invalid
+          defaultValue={`services:
+  api:
+    image: :v143`}
+          rows={3}
+          style={{ width: 360, fontFamily: 'var(--font-mono)' }}
+        />
+      </Demo>
+
       <h2>Disabled</h2>
       <Demo
         code={`<Textarea disabled value="This value is read-only." />`}
@@ -71,6 +89,7 @@ services:
           <tr><td><code>onChange</code></td><td><code>(e: ChangeEvent) =&gt; void</code></td><td>—</td><td>Fires on every keystroke.</td></tr>
           <tr><td><code>rows</code></td><td><code>number</code></td><td>—</td><td>Initial visible row count. Min height is still enforced by the component.</td></tr>
           <tr><td><code>placeholder</code></td><td><code>string</code></td><td>—</td><td>Hint text when empty.</td></tr>
+          <tr><td><code>invalid</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Error border + focus ring.</td></tr>
           <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Standard disabled state.</td></tr>
           <tr><td><code>...rest</code></td><td><code>TextareaHTMLAttributes</code></td><td>—</td><td>All native <code>&lt;textarea&gt;</code> props (<code>name</code>, <code>maxLength</code>, <code>readOnly</code>, etc.).</td></tr>
         </tbody>

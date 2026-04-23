@@ -6,6 +6,10 @@ const meta = {
   title: '02 · Primitives/Switch',
   component: Switch,
   tags: ['autodocs'],
+  argTypes: {
+    invalid: { control: 'boolean' },
+    disabled: { control: 'boolean' },
+  },
 } satisfies Meta<typeof Switch>
 
 export default meta
@@ -22,4 +26,8 @@ export const Settings: Story = {
       <CheckRow label="Audit log (Enterprise)"><Switch disabled /></CheckRow>
     </div>
   ),
+}
+
+export const Invalid: Story = {
+  args: { invalid: true, defaultChecked: true },
 }

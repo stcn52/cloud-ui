@@ -38,9 +38,9 @@ export const Inspector: Story = {
             </Button>
           </DrawerHead>
           <DrawerBody>
-            <Tabs style={{ marginBottom: 12 }}>
+            <Tabs value={tab} onChange={(v) => setTab(v as typeof tab)} style={{ marginBottom: 12 }}>
               {(['Overview', 'Env', 'History'] as const).map((t) => (
-                <Tab key={t} active={t === tab} onClick={() => setTab(t)}>{t}</Tab>
+                <Tab key={t} id={t}>{t}</Tab>
               ))}
             </Tabs>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>

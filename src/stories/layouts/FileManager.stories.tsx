@@ -1,7 +1,7 @@
 import { useRef, useState, type ReactNode } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import {
-  Breadcrumb,
+  BreadcrumbItem,
   Breadcrumbs,
   Button,
   CardTab,
@@ -341,14 +341,13 @@ function FileManager() {
     <div className="min-h-[780px] bg-bg text-text text-sm">
       {/* Tab bar — chrome style */}
       <div className="bg-bg-sunk pt-2 px-3">
-        <CardTabs>
+        <CardTabs value={activeTab} onChange={setActiveTab}>
           {tabs.map((t) => (
             <CardTab
               key={t.id}
-              active={activeTab === t.id}
+              id={t.id}
               closable
               icon={FolderIcon}
-              onClick={() => setActiveTab(t.id)}
               onClose={() => closeTab(t.id)}
             >
               {t.label}
@@ -374,17 +373,17 @@ function FileManager() {
             { label: 'wwwroot', path: '/www/wwwroot' },
             { label: 'gf.btkaixin.icu', path: '/www/wwwroot/gf.btkaixin.icu' },
           ].map((seg) => (
-            <Breadcrumb key={seg.path}>
+            <BreadcrumbItem key={seg.path}>
               <Tooltip tip={seg.path}>
                 <a className="text-text-muted hover:text-accent-ink cursor-pointer">{seg.label}</a>
               </Tooltip>
-            </Breadcrumb>
+            </BreadcrumbItem>
           ))}
-          <Breadcrumb leaf>
+          <BreadcrumbItem leaf>
             <Tooltip tip="/www/wwwroot/gf.btkaixin.icu/install">
               <span>install</span>
             </Tooltip>
-          </Breadcrumb>
+          </BreadcrumbItem>
         </Breadcrumbs>
         <Button iconOnly size="sm" intent="ghost">{I_REFRESH}</Button>
         <div className="ml-auto flex items-center gap-2">
@@ -568,23 +567,29 @@ function FileManager() {
       <div className="flex items-center gap-2 px-3 py-2 border-t border-line bg-bg-elev">
         <Checkbox checked={allSelected} onChange={toggleAll} />
         <div style={{ width: 160 }}>
-          <Select defaultValue="-">
-            <option value="-">请选择批量操作</option>
-            <option>删除</option>
-            <option>压缩</option>
-            <option>复制</option>
-            <option>剪切</option>
-          </Select>
+          <Select
+            defaultValue="-"
+            options={[
+              { value: '-', label: '请选择批量操作' },
+              { value: '删除', label: '删除' },
+              { value: '压缩', label: '压缩' },
+              { value: '复制', label: '复制' },
+              { value: '剪切', label: '剪切' },
+            ]}
+          />
         </div>
         <Button size="sm" intent="primary">批量操作</Button>
         <div className="ml-auto flex items-center gap-2 text-xs">
-          <Pagination page={page} total={5} onChange={setPage} />
+          <Pagination current={page} total={50} pageSize={10} onChange={setPage} />
           <div style={{ width: 90 }}>
-            <Select defaultValue="10">
-              <option value="10">10 条/页</option>
-              <option value="50">50 条/页</option>
-              <option value="500">500 条/页</option>
-            </Select>
+            <Select
+              defaultValue="10"
+              options={[
+                { value: '10', label: '10 条/页' },
+                { value: '50', label: '50 条/页' },
+                { value: '500', label: '500 条/页' },
+              ]}
+            />
           </div>
           <span className="text-text-muted">共 46 条</span>
           <span className="text-text-muted">前往</span>
@@ -611,9 +616,9 @@ function PropsDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
     <Dialog open={open} onClose={onClose} style={{ width: 560 }}>
       <DialogHead title={<>[ gfw301.zip ] - 文件属性</>} />
       <div className="px-4">
-        <Tabs>
+        <Tabs value={tab} onChange={(v) => setTab(v as typeof tab)}>
           {(['常规', '详细信息', '历史版本', '权限'] as const).map((t) => (
-            <Tab key={t} active={t === tab} onClick={() => setTab(t)}>{t}</Tab>
+            <Tab key={t} id={t}>{t}</Tab>
           ))}
         </Tabs>
       </div>
@@ -668,16 +673,22 @@ function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void })
       <DialogBody>
         <div className="flex items-center gap-2 mb-4">
           <div style={{ width: 110 }}>
-            <Select defaultValue="常规">
-              <option>常规搜索</option>
-              <option>正则搜索</option>
-            </Select>
+            <Select
+              defaultValue="常规"
+              options={[
+                { value: '常规', label: '常规搜索' },
+                { value: '正则', label: '正则搜索' },
+              ]}
+            />
           </div>
           <div style={{ width: 90 }}>
-            <Select defaultValue="文件">
-              <option>文件</option>
-              <option>文件夹</option>
-            </Select>
+            <Select
+              defaultValue="文件"
+              options={[
+                { value: '文件', label: '文件' },
+                { value: '文件夹', label: '文件夹' },
+              ]}
+            />
           </div>
           <Input
             placeholder="请输入搜索内容"

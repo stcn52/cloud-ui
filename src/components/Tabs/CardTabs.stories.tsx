@@ -6,6 +6,7 @@ const meta = {
   title: '04 · Navigation/CardTabs',
   component: CardTabs,
   tags: ['autodocs'],
+  args: { value: 'b', onChange: () => {} },
   parameters: {
     docs: {
       description: {
@@ -30,16 +31,10 @@ export const Basic: Story = {
     const [active, setActive] = useState('b')
     return (
       <div>
-        <CardTabs>
-          <CardTab active={active === 'a'} onClick={() => setActive('a')}>
-            Overview
-          </CardTab>
-          <CardTab active={active === 'b'} onClick={() => setActive('b')}>
-            Deployments
-          </CardTab>
-          <CardTab active={active === 'c'} onClick={() => setActive('c')}>
-            Logs
-          </CardTab>
+        <CardTabs value={active} onChange={setActive}>
+          <CardTab id="a">Overview</CardTab>
+          <CardTab id="b">Deployments</CardTab>
+          <CardTab id="c">Logs</CardTab>
         </CardTabs>
         <div className="border border-line border-t-0 bg-bg-elev p-4 rounded-b-md">
           Panel for <span className="mono">{active}</span>
@@ -65,14 +60,13 @@ export const FileBrowser: Story = {
       })
     return (
       <div className="bg-bg-sunk pt-2 px-3">
-        <CardTabs>
+        <CardTabs value={active} onChange={setActive}>
           {tabs.map((t) => (
             <CardTab
               key={t.id}
-              active={active === t.id}
+              id={t.id}
               closable
               icon={folderIcon}
-              onClick={() => setActive(t.id)}
               onClose={() => close(t.id)}
             >
               {t.label}

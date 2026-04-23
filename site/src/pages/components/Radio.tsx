@@ -48,6 +48,27 @@ export default function RadioPage() {
         </label>
       </Demo>
 
+      <h2>Invalid</h2>
+      <p>
+        Pass <code>invalid</code> to switch the ring color to the error tone — useful when the
+        group is required but nothing is chosen yet.
+      </p>
+      <Demo
+        code={`<label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+  <Radio name="tier-invalid" invalid /> free
+</label>
+<label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+  <Radio name="tier-invalid" invalid /> pro
+</label>`}
+      >
+        <label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+          <Radio name="tier-invalid" invalid /> free
+        </label>
+        <label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+          <Radio name="tier-invalid" invalid /> pro
+        </label>
+      </Demo>
+
       <h2>Disabled</h2>
       <Demo
         code={`<Radio disabled />
@@ -67,6 +88,7 @@ export default function RadioPage() {
           <tr><td><code>value</code></td><td><code>string</code></td><td>—</td><td>Value submitted when this radio is checked.</td></tr>
           <tr><td><code>checked / defaultChecked</code></td><td><code>boolean</code></td><td>—</td><td>Controlled or uncontrolled checked state.</td></tr>
           <tr><td><code>onChange</code></td><td><code>(e: ChangeEvent) =&gt; void</code></td><td>—</td><td>Fires when selected.</td></tr>
+          <tr><td><code>invalid</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Error border + focus ring.</td></tr>
           <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Standard disabled state.</td></tr>
           <tr><td><code>...rest</code></td><td><code>InputHTMLAttributes</code></td><td>—</td><td>All native radio props.</td></tr>
         </tbody>

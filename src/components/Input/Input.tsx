@@ -16,7 +16,7 @@ export const inputStyles = tv({
       lg: 'h-9 px-2.5 text-md',
     },
     invalid: {
-      true: 'border-err shadow-[0_0_0_3px_color-mix(in_oklch,var(--color-err)_20%,transparent)]',
+      true: 'border-err hover:border-err focus-visible:shadow-[0_0_0_3px_color-mix(in_oklch,var(--color-err)_25%,transparent)]',
       false: '',
     },
     mono: { true: 'font-mono', false: '' },

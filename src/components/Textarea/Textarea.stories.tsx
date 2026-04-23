@@ -7,6 +7,10 @@ const meta = {
   component: Textarea,
   tags: ['autodocs'],
   args: { placeholder: 'Migration runbook…' },
+  argTypes: {
+    invalid: { control: 'boolean' },
+    disabled: { control: 'boolean' },
+  },
 } satisfies Meta<typeof Textarea>
 
 export default meta
@@ -20,4 +24,8 @@ export const InField: Story = {
       <Textarea placeholder="Migration runbook…" rows={4} />
     </Field>
   ),
+}
+
+export const Invalid: Story = {
+  args: { invalid: true, defaultValue: 'Too short' },
 }

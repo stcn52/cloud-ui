@@ -1,5 +1,11 @@
 # Dogfood report
 
+**Status: ALL RESOLVED in 1.0.0.** See [CHANGELOG.md](./CHANGELOG.md) for the
+full 1.0.0 notes. Original report preserved below for posterity — it was the
+driver for every change in the 1.0 cut.
+
+---
+
 Findings from writing `stcn52.github.io/cloud-ui` — a full docs site built
 entirely with `@stcn52/cloud-ui` itself. Top-level + sidebar + every page
 renders through our own components. The site consumes the library the same

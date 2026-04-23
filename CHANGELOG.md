@@ -3,6 +3,99 @@
 All notable changes will be documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.0] — 2026-04-23
+
+First stable major. Acts on every friction point found while dogfooding the
+library to build its own docs site (see [DOGFOOD.md](./DOGFOOD.md)). Six
+breaking renames + fourteen additive improvements + two brand-new components.
+
+### Breaking
+
+- **`PipeStep` → `PipelineStep`.** Also `PipeStepProps → PipelineStepProps`,
+  `PipeStatus → PipelineStepStatus`, `pipeStepStyles → pipelineStepStyles`.
+  No alias kept — update imports.
+- **`Breadcrumb` → `BreadcrumbItem`** + auto-leaf on the last child.
+  `Breadcrumbs` still takes a `separator`. Explicit `leaf` prop still honored.
+- **`Tabs` / `CardTabs` are now forced-controlled.** `value` + `onChange` on
+  the parent are required. `Tab` / `CardTab` take `id` (not `active` / `onClick`).
+  Internal `useContext`; rendering a tab without a parent throws.
+- **`Pagination` naming/semantics.** `page` → `current`; `total` now means
+  total **rows** (was total pages); `pageSize` (default 10) drives
+  `totalPages = Math.ceil(total / pageSize)`. Migrating: `<Pagination page={p}
+  total={20} />` → `<Pagination current={p} total={200} pageSize={10} />`.
+- **`Select` rewritten.** No longer a native `<select>`. Now a combobox with
+  `options: SelectOption[]`, `placeholder`, `onChange(value)`, optional
+  `searchable`, `disabled`, `invalid`, `size`. Uses a portaled panel with
+  keyboard navigation. Native `<option>` children no longer accepted.
+- **`Dropdown.DropdownItem.submenu`** now accepts a ReactNode — hovering opens
+  a real nested panel to the right (same mechanism as `PopoverItem.submenu`).
+  `submenu={true}` still renders just the chevron affordance.
+
+### Added (additive — no breaks)
+
+- **`<Button as={…}>`** — polymorphic. `<Button as="a" href="…">` renders an
+  `<a>` with button styles; `<Button as={Link} to="/x">` works with React
+  Router. When rendered as a non-button, `disabled` is written as
+  `aria-disabled` to stay valid HTML.
+- **`invalid`** prop on `Input`, `Radio`, `Switch`, `Textarea` — err-colored
+  border + focus ring. Unchecked Switch gets err-tinted track.
+- **New `<RadioGroup>`** — `name` + `value` + `onChange` + `options` array or
+  declarative `<Radio>` children. `orientation='vertical'|'horizontal'`,
+  `invalid`, `disabled`.
+- **`Checkbox.indeterminate`** now uses a ref callback (was useEffect). DOM
+  property updates instantly without a post-render effect.
+- **`Segmented`** gains `size='sm'|'md'` and proper generic inference from
+  `options as const` — `V` narrows to a union of literal values.
+- **`Tooltip`** gains `placement='top'|'bottom'|'left'|'right'` (default
+  `top`) with collision detection (flip to opposite) + portaled positioning
+  (escapes clipping). Arrow pointer repositions per side.
+- **`Kpi.unit`** — optional small/dim slot alongside value for units
+  (`<Kpi label="JS" value={36} unit="kB" />`).
+- **`Skeleton.variant`** — `'text'` (full-width, 0.8em tall), `'circle'`
+  (radius 999px), `'block'` (default). Also new `width` / `height` props.
+- **`LogLine.level` default `'info'`** (was required).
+- **`Banner.autoUnmount`** — when `true`, the × button self-unmounts the
+  banner via internal state. `onDismiss` still fires if provided.
+- **`Popover.trigger` widened to ReactNode.** Strings, numbers, booleans,
+  fragments, and arrays auto-wrap in a `<span>` so primitive content works.
+- **`CopyField`** extracts a plain-text string from children (recursively)
+  when `value` is omitted — `<CopyField>pnpm add x</CopyField>` now copies.
+- **`Tree.selectionMode='single'|'multiple'|'checkbox'`.** Multi-select via
+  click; checkbox mode shows per-node checkboxes with cascading parent
+  state (stores leaf ids only; parent check/indeterminate derived). New
+  `onSelectedChange` callback with mode-aware value shape.
+- **New `<DatePickerInput>`** — Input-styled trigger + Popover + DatePicker.
+  `value: Date | null`, `format` tokens (`yyyy`/`MM`/`dd`), `clearable`,
+  `invalid`, `size='sm'|'md'|'lg'`. `formatDate(d, format)` re-exported.
+
+### Site
+
+- Docs site migrated to all new APIs. 34 component pages plus the new
+  RadioGroup and DatePickerInput pages all reflect 1.0 signatures and demos.
+  [stcn52.github.io/cloud-ui](https://stcn52.github.io/cloud-ui/)
+
+### Bundle size (gzip)
+
+- Library JS: ~32 kB (was 27 kB — mostly the new Select + DatePickerInput)
+- Library CSS: 9.1 kB (unchanged)
+
+### Migration guide
+
+```diff
+- import { PipeStep, Breadcrumb } from '@stcn52/cloud-ui'
++ import { PipelineStep, BreadcrumbItem } from '@stcn52/cloud-ui'
+
+- <Tab active={t === current} onClick={() => setCurrent(t)}>{t}</Tab>
++ <Tab id={t}>{t}</Tab>
+  // and wrap in <Tabs value={current} onChange={setCurrent}>
+
+- <Pagination page={p} total={20} onChange={setPage} />
++ <Pagination current={p} total={200} pageSize={10} onChange={setPage} />
+
+- <Select><option>A</option><option>B</option></Select>
++ <Select options={[{value:'A',label:'A'},{value:'B',label:'B'}]} onChange={...} />
+```
+
 ## [0.3.0] — 2026-04-21
 
 Toast gets the full sonner/react-hot-toast treatment: more tones, default

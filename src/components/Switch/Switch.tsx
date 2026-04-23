@@ -14,13 +14,33 @@ export const switchStyles = tv({
     'after:transition-transform after:duration-150',
     'checked:after:translate-x-3',
   ],
+  variants: {
+    invalid: {
+      true: [
+        'bg-[color-mix(in_oklch,var(--color-err)_35%,var(--color-line-strong))]',
+        'focus-visible:shadow-[0_0_0_3px_color-mix(in_oklch,var(--color-err)_25%,transparent)]',
+        'checked:bg-err',
+      ],
+      false: '',
+    },
+  },
+  defaultVariants: { invalid: false },
 })
 
-export type SwitchProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>
+export interface SwitchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  invalid?: boolean
+}
 
 export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
-  { className, ...rest },
+  { className, invalid, ...rest },
   ref,
 ) {
-  return <input ref={ref} type="checkbox" className={switchStyles({ class: className })} {...rest} />
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      className={switchStyles({ invalid, class: className })}
+      {...rest}
+    />
+  )
 })

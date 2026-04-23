@@ -20,6 +20,12 @@ type Story = StoryObj<typeof meta>
 
 export const Playground: Story = {}
 
+export const DefaultLevel: Story = {
+  render: () => (
+    <LogLine timestamp="14:22:01" message="Defaults to info when level is omitted" />
+  ),
+}
+
 interface Entry { ts: string; level: 'info' | 'warn' | 'err' | 'ok'; msg: string }
 const logs: Entry[] = [
   { ts: '14:22:01', level: 'info', msg: 'GET /v1/users/me 200 · 42ms · usr_8f2a' },

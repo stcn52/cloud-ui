@@ -8,7 +8,8 @@ export default function BannerPage() {
       <h1>Banner</h1>
       <p>
         Inline status message for a region of the UI. Five tones, an optional title, a dismiss
-        button, and a slot for inline actions.
+        button, and a slot for inline actions. Dismissal can be either controlled (you unmount it)
+        or self-unmounting via <code>autoUnmount</code>.
       </p>
 
       <Banner tone="neutral" title="When to use" style={{ margin: '16px 0' }}>
@@ -44,12 +45,34 @@ export default function BannerPage() {
         </div>
       </Demo>
 
-      <h2>Dismissible</h2>
+      <h2>Dismissible (controlled)</h2>
       <p>
-        Pass an <code>onDismiss</code> handler to render the close button. The banner is controlled
-        — you decide when to unmount it.
+        Pass an <code>onDismiss</code> handler to render the close button. The banner stays
+        mounted — you decide when to unmount it.
       </p>
       <DismissDemo />
+
+      <h2>Auto-unmount</h2>
+      <p>
+        Pass <code>autoUnmount</code> and the banner removes itself from the DOM when the user
+        clicks ×. Use it when you don't care about the closed state — e.g. a one-off update
+        prompt. <code>onDismiss</code> still fires if provided.
+      </p>
+      <Demo
+        code={`<Banner
+  tone="info"
+  title="Release notes"
+  autoUnmount
+>
+  v1.8.0 adds Tooltip collision detection. Click × to dismiss.
+</Banner>`}
+      >
+        <div style={{ width: '100%', maxWidth: 480 }}>
+          <Banner tone="info" title="Release notes" autoUnmount>
+            v1.8.0 adds Tooltip collision detection. Click × to dismiss.
+          </Banner>
+        </div>
+      </Demo>
 
       <h2>With actions</h2>
       <Demo
@@ -84,6 +107,7 @@ export default function BannerPage() {
           <tr><td><code>icon</code></td><td><code>ReactNode</code></td><td>—</td><td>Leading icon slot.</td></tr>
           <tr><td><code>actions</code></td><td><code>ReactNode</code></td><td>—</td><td>Trailing action slot (rendered before the dismiss button).</td></tr>
           <tr><td><code>onDismiss</code></td><td><code>() =&gt; void</code></td><td>—</td><td>When provided, shows a × button that calls this.</td></tr>
+          <tr><td><code>autoUnmount</code></td><td><code>boolean</code></td><td><code>false</code></td><td>When true, the × button also unmounts the banner via internal state — no consumer wiring needed.</td></tr>
         </tbody>
       </Table>
     </article>

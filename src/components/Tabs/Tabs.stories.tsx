@@ -7,6 +7,7 @@ const meta = {
   title: '04 · Navigation/Tabs',
   component: Tabs,
   tags: ['autodocs'],
+  args: { value: 'Overview', onChange: () => {} },
 } satisfies Meta<typeof Tabs>
 
 export default meta
@@ -19,9 +20,9 @@ export const Basic: Story = {
     const [active, setActive] = useState<(typeof tabs)[number]>('Overview')
     return (
       <div style={{ padding: 12 }}>
-        <Tabs>
+        <Tabs value={active} onChange={(v) => setActive(v as (typeof tabs)[number])}>
           {tabs.map((t) => (
-            <Tab key={t} active={t === active} onClick={() => setActive(t)}>
+            <Tab key={t} id={t}>
               {t}
               {t === 'Deployments' && (
                 <Pill mono style={{ marginLeft: 4, height: 14, fontSize: 9 }}>142</Pill>

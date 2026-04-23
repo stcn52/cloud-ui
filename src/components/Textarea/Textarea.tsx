@@ -10,13 +10,28 @@ export const textareaStyles = tv({
     'focus:outline-none focus:border-accent focus:shadow-[var(--shadow-focus)]',
     'disabled:bg-bg-sunk disabled:text-text-muted disabled:cursor-not-allowed',
   ],
+  variants: {
+    invalid: {
+      true: 'border-err hover:border-err focus-visible:shadow-[0_0_0_3px_color-mix(in_oklch,var(--color-err)_25%,transparent)]',
+      false: '',
+    },
+  },
+  defaultVariants: { invalid: false },
 })
 
-export type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>
+export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  invalid?: boolean
+}
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { className, ...rest },
+  { className, invalid, ...rest },
   ref,
 ) {
-  return <textarea ref={ref} className={textareaStyles({ class: className })} {...rest} />
+  return (
+    <textarea
+      ref={ref}
+      className={textareaStyles({ invalid, class: className })}
+      {...rest}
+    />
+  )
 })

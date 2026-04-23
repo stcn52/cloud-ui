@@ -8,19 +8,13 @@ interface DemoProps {
   lang?: string
 }
 
-// DOGFOOD-PAIN: Tabs/Tab are uncontrolled — consumer drives `active` + click.
-// Fine for a 2-tab Preview/Code switcher, annoying for anything bigger.
 export function Demo({ code, children }: DemoProps) {
   const [tab, setTab] = useState<'preview' | 'code'>('preview')
   return (
     <Card style={{ padding: 0, overflow: 'hidden', margin: '16px 0' }}>
-      <Tabs style={{ paddingLeft: 12 }}>
-        <Tab active={tab === 'preview'} onClick={() => setTab('preview')}>
-          Preview
-        </Tab>
-        <Tab active={tab === 'code'} onClick={() => setTab('code')}>
-          Code
-        </Tab>
+      <Tabs value={tab} onChange={(v) => setTab(v as 'preview' | 'code')} style={{ paddingLeft: 12 }}>
+        <Tab id="preview">Preview</Tab>
+        <Tab id="code">Code</Tab>
       </Tabs>
       {tab === 'preview' ? (
         <div

@@ -11,10 +11,15 @@ const paginationStyles = tv({
 })
 
 export interface PaginationProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
-  page: number
+  /** 1-based current page. */
+  current: number
+  /** Total rows (not pages). `totalPages = Math.ceil(total / pageSize)`. */
   total: number
+  /** Rows per page. default 10 */
+  pageSize?: number
+  /** Called with the new page number. */
   onChange?: (page: number) => void
-  /** max numeric buttons (excluding prev/next/ellipsis). default 5 */
+  /** Max numeric buttons (excluding prev/next/ellipsis). default 5 */
   siblingCount?: number
   /** Label for prev button. Defaults to locale. */
   prevLabel?: React.ReactNode
@@ -28,22 +33,23 @@ function range(a: number, b: number) {
   return out
 }
 
-function buildItems(page: number, total: number, siblings: number): (number | '…')[] {
-  if (total <= siblings + 2) return range(1, total)
+function buildItems(page: number, totalPages: number, siblings: number): (number | '…')[] {
+  if (totalPages <= siblings + 2) return range(1, totalPages)
   const leftSib = Math.max(2, page - Math.floor(siblings / 2))
-  const rightSib = Math.min(total - 1, leftSib + siblings - 1)
+  const rightSib = Math.min(totalPages - 1, leftSib + siblings - 1)
   const adjustedLeft = Math.max(2, rightSib - siblings + 1)
   const items: (number | '…')[] = [1]
   if (adjustedLeft > 2) items.push('…')
   items.push(...range(adjustedLeft, rightSib))
-  if (rightSib < total - 1) items.push('…')
-  items.push(total)
+  if (rightSib < totalPages - 1) items.push('…')
+  items.push(totalPages)
   return items
 }
 
 export function Pagination({
-  page,
+  current,
   total,
+  pageSize = 10,
   onChange,
   siblingCount = 5,
   prevLabel,
@@ -54,19 +60,20 @@ export function Pagination({
   const locale = useLocale()
   const resolvedPrev = prevLabel ?? locale.pagination.prev
   const resolvedNext = nextLabel ?? locale.pagination.next
-  const items = buildItems(page, total, siblingCount)
-  const prev = () => page > 1 && onChange?.(page - 1)
-  const next = () => page < total && onChange?.(page + 1)
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const items = buildItems(current, totalPages, siblingCount)
+  const prev = () => current > 1 && onChange?.(current - 1)
+  const next = () => current < totalPages && onChange?.(current + 1)
 
   return (
     <div className={paginationStyles({ class: className })} {...rest}>
-      <Button size="sm" intent="ghost" onClick={prev} disabled={page <= 1}>
+      <Button size="sm" intent="ghost" onClick={prev} disabled={current <= 1}>
         {resolvedPrev}
       </Button>
       {items.map((it, i) =>
         it === '…' ? (
           <span key={`ellipsis-${i}`}>…</span>
-        ) : it === page ? (
+        ) : it === current ? (
           <Button key={it} size="sm" intent="subtle" onClick={() => onChange?.(it)}>
             {it}
           </Button>
@@ -76,7 +83,7 @@ export function Pagination({
           </Button>
         ),
       )}
-      <Button size="sm" intent="ghost" onClick={next} disabled={page >= total}>
+      <Button size="sm" intent="ghost" onClick={next} disabled={current >= totalPages}>
         {resolvedNext}
       </Button>
     </div>

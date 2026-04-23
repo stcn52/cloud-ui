@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import {
-  Breadcrumb,
+  BreadcrumbItem,
   Breadcrumbs,
   Button,
   Card,
@@ -34,8 +34,8 @@ export const ServiceDetail: Story = {
       >
         <div className="px-4 py-3 border-b border-line flex items-center gap-2">
           <Breadcrumbs>
-            <Breadcrumb>Services</Breadcrumb>
-            <Breadcrumb leaf>api-gateway</Breadcrumb>
+            <BreadcrumbItem>Services</BreadcrumbItem>
+            <BreadcrumbItem leaf>api-gateway</BreadcrumbItem>
           </Breadcrumbs>
           <div style={{ flex: 1 }} />
           <Pill tone="ok" dot>Healthy</Pill>
@@ -46,9 +46,9 @@ export const ServiceDetail: Story = {
           <h1 className="text-xl font-semibold tracking-tight">api-gateway</h1>
           <div className="text-text-muted text-sm mt-1">v142 · us-east-1 · 12 instances · last deploy 4h ago</div>
           <div className="mt-3">
-            <Tabs>
+            <Tabs value={tab} onChange={(v) => setTab(v as typeof tab)}>
               {(['Overview', 'Deployments', 'Env vars', 'Logs'] as const).map((t) => (
-                <Tab key={t} active={t === tab} onClick={() => setTab(t)}>{t}</Tab>
+                <Tab key={t} id={t}>{t}</Tab>
               ))}
             </Tabs>
           </div>

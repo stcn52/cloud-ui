@@ -1,4 +1,4 @@
-import { useRef, useState, type HTMLAttributes, type ReactNode } from 'react'
+import { Children, useRef, useState, type HTMLAttributes, type ReactNode } from 'react'
 import { tv } from 'tailwind-variants'
 import { Button } from '../Button/Button'
 import { useLocale } from '../../context/ConfigProvider'
@@ -38,6 +38,34 @@ export interface CopyFieldProps extends HTMLAttributes<HTMLSpanElement> {
   copyLabel?: string
 }
 
+/**
+ * Best-effort extraction of plain text from ReactNode children so the
+ * clipboard fallback works for common shapes:
+ * - string → itself
+ * - number → String(number)
+ * - array → join of recursive extraction
+ * - element with string/number child → recurse into child
+ * Anything else → ''
+ */
+function extractText(node: ReactNode): string {
+  if (node === null || node === undefined || typeof node === 'boolean') return ''
+  if (typeof node === 'string') return node
+  if (typeof node === 'number') return String(node)
+  if (Array.isArray(node)) {
+    return node.map(extractText).join('')
+  }
+  // ReactElement — try to recurse into its children prop.
+  if (typeof node === 'object' && 'props' in (node as object)) {
+    const childProps = (node as { props?: { children?: ReactNode } }).props
+    if (childProps && 'children' in childProps) {
+      return Children.toArray(childProps.children)
+        .map(extractText)
+        .join('')
+    }
+  }
+  return ''
+}
+
 const CopyIcon = (
   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
     <rect x="8" y="8" width="12" height="12" rx="2" />
@@ -67,7 +95,7 @@ export function CopyField({
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<number | null>(null)
 
-  const textToCopy = value ?? (typeof children === 'string' ? children : '')
+  const textToCopy = value ?? extractText(children)
 
   const handleCopy = async () => {
     if (!textToCopy) return

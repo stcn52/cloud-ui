@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { DatePicker, type DateRange, Table, Banner, Pill } from '@stcn52/cloud-ui'
 import { Demo } from '../../components/Demo'
+import { Link } from 'react-router-dom'
 
 function fmt(d: Date) {
   return d.toISOString().slice(0, 10)
@@ -50,6 +51,13 @@ export default function DatePickerPage() {
         A compact calendar surface for picking a single day or a contiguous date range. Keyboard
         accessible, locale-aware, and controlled or uncontrolled.
       </p>
+
+      <Banner tone="info" title="Looking for an input + calendar?" style={{ margin: '16px 0' }}>
+        <code>DatePicker</code> is a bare calendar surface — no input field, no popover. For the
+        typical form field UX (text input with a calendar popover + parser) use{' '}
+        <Link to="/components/DatePickerInput"><code>DatePickerInput</code></Link> instead. It
+        wraps <code>DatePicker</code> inside a <code>Popover</code> anchored to a text field.
+      </Banner>
 
       <Banner tone="neutral" title="When to use" style={{ margin: '16px 0' }}>
         Filtering a time-scoped query (billing month, log range) or entering a specific date. For
@@ -133,8 +141,8 @@ export default function DatePickerPage() {
 
       <Banner tone="warn" title="Known quirks" style={{ margin: '16px 0' }}>
         There is no built-in <code>min</code> / <code>max</code>, no input field, and no format
-        prop — the component renders a bare calendar surface. Wrap it in a <code>Popover</code> to
-        get a trigger + input pattern.
+        prop — the component renders a bare calendar surface. For input UX, reach for{' '}
+        <Link to="/components/DatePickerInput"><code>DatePickerInput</code></Link>.
       </Banner>
     </article>
   )

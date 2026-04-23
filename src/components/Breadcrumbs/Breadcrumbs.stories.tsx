@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Breadcrumb, Breadcrumbs } from './index'
+import { BreadcrumbItem, Breadcrumbs } from './index'
 
 const meta = {
   title: '04 · Navigation/Breadcrumbs',
@@ -13,10 +13,10 @@ type Story = StoryObj<typeof meta>
 export const Full: Story = {
   render: () => (
     <Breadcrumbs>
-      <Breadcrumb>Workspaces</Breadcrumb>
-      <Breadcrumb>Linden Labs</Breadcrumb>
-      <Breadcrumb>Services</Breadcrumb>
-      <Breadcrumb leaf>api-gateway</Breadcrumb>
+      <BreadcrumbItem>Workspaces</BreadcrumbItem>
+      <BreadcrumbItem>Linden Labs</BreadcrumbItem>
+      <BreadcrumbItem>Services</BreadcrumbItem>
+      <BreadcrumbItem leaf>api-gateway</BreadcrumbItem>
     </Breadcrumbs>
   ),
 }
@@ -24,8 +24,8 @@ export const Full: Story = {
 export const Shallow: Story = {
   render: () => (
     <Breadcrumbs>
-      <Breadcrumb>Linden</Breadcrumb>
-      <Breadcrumb leaf>Overview</Breadcrumb>
+      <BreadcrumbItem>Linden</BreadcrumbItem>
+      <BreadcrumbItem leaf>Overview</BreadcrumbItem>
     </Breadcrumbs>
   ),
 }

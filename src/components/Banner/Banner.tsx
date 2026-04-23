@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from 'react'
+import { useState, type HTMLAttributes, type ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 import { useLocale } from '../../context/ConfigProvider'
 
@@ -34,6 +34,12 @@ export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title
   title?: ReactNode
   onDismiss?: () => void
   actions?: ReactNode
+  /**
+   * When true and onDismiss is called, the banner unmounts itself via internal
+   * state. When false (default), onDismiss fires and the consumer controls
+   * visibility.
+   */
+  autoUnmount?: boolean
   children?: ReactNode
 }
 
@@ -43,12 +49,24 @@ export function Banner({
   title,
   onDismiss,
   actions,
+  autoUnmount = false,
   className,
   children,
   ...rest
 }: BannerProps) {
   const locale = useLocale()
+  const [dismissed, setDismissed] = useState(false)
   const { base, icon: iconCls, body, title: titleCls, dismiss } = bannerStyles({ tone })
+
+  if (dismissed) return null
+
+  const handleDismiss = () => {
+    onDismiss?.()
+    if (autoUnmount) setDismissed(true)
+  }
+
+  const showDismissButton = onDismiss !== undefined || autoUnmount
+
   return (
     <div className={base({ class: className })} role="status" {...rest}>
       {icon && <span className={iconCls()}>{icon}</span>}
@@ -57,12 +75,12 @@ export function Banner({
         {children}
       </div>
       {actions}
-      {onDismiss && (
+      {showDismissButton && (
         <button
           type="button"
           className={dismiss()}
           aria-label={locale.banner.dismiss}
-          onClick={onDismiss}
+          onClick={handleDismiss}
         >
           ×
         </button>

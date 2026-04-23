@@ -1,4 +1,4 @@
-import { Children, Fragment, type HTMLAttributes, type ReactElement, type ReactNode } from 'react'
+import { Children, Fragment, cloneElement, isValidElement, type HTMLAttributes, type ReactElement, type ReactNode } from 'react'
 import { tv } from 'tailwind-variants'
 
 function ChevronSep() {
@@ -18,7 +18,7 @@ function ChevronSep() {
   )
 }
 
-const breadcrumbStyles = tv({
+const breadcrumbItemStyles = tv({
   base: '',
   variants: {
     leaf: {
@@ -29,14 +29,15 @@ const breadcrumbStyles = tv({
   defaultVariants: { leaf: false },
 })
 
-export interface BreadcrumbProps extends HTMLAttributes<HTMLSpanElement> {
+export interface BreadcrumbItemProps extends HTMLAttributes<HTMLSpanElement> {
+  /** Force leaf styling. When omitted, the last child of `<Breadcrumbs>` auto-becomes leaf. */
   leaf?: boolean
   children?: ReactNode
 }
 
-export function Breadcrumb({ leaf, className, children, ...rest }: BreadcrumbProps) {
+export function BreadcrumbItem({ leaf, className, children, ...rest }: BreadcrumbItemProps) {
   return (
-    <span className={breadcrumbStyles({ leaf, class: className })} {...rest}>
+    <span className={breadcrumbItemStyles({ leaf, class: className })} {...rest}>
       {children}
     </span>
   )
@@ -57,15 +58,23 @@ export function Breadcrumbs({
   children,
   ...rest
 }: BreadcrumbsProps) {
-  const items = Children.toArray(children).filter(Boolean) as ReactElement[]
+  const items = Children.toArray(children).filter(Boolean) as ReactElement<BreadcrumbItemProps>[]
+  const lastIdx = items.length - 1
   return (
     <div className={breadcrumbsStyles({ class: className })} {...rest}>
-      {items.map((el, i) => (
-        <Fragment key={i}>
-          {i > 0 && separator}
-          {el}
-        </Fragment>
-      ))}
+      {items.map((el, i) => {
+        // auto-leaf: last item becomes leaf if not explicitly set
+        const needsLeaf = i === lastIdx && el.props.leaf === undefined
+        const resolved = needsLeaf && isValidElement(el)
+          ? cloneElement(el as ReactElement<BreadcrumbItemProps>, { leaf: true })
+          : el
+        return (
+          <Fragment key={i}>
+            {i > 0 && separator}
+            {resolved}
+          </Fragment>
+        )
+      })}
     </div>
   )
 }

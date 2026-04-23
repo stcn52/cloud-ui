@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, type InputHTMLAttributes } from 'react'
+import { forwardRef, useCallback, type InputHTMLAttributes } from 'react'
 import { tv } from 'tailwind-variants'
 
 export const checkboxStyles = tv({
@@ -29,19 +29,18 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
   { indeterminate = false, className, ...rest },
   forwardedRef,
 ) {
-  const innerRef = useRef<HTMLInputElement | null>(null)
-
-  useEffect(() => {
-    if (innerRef.current) innerRef.current.indeterminate = indeterminate
-  }, [indeterminate])
+  const refCallback = useCallback(
+    (node: HTMLInputElement | null) => {
+      if (node) node.indeterminate = indeterminate
+      if (typeof forwardedRef === 'function') forwardedRef(node)
+      else if (forwardedRef) forwardedRef.current = node
+    },
+    [indeterminate, forwardedRef],
+  )
 
   return (
     <input
-      ref={(node) => {
-        innerRef.current = node
-        if (typeof forwardedRef === 'function') forwardedRef(node)
-        else if (forwardedRef) forwardedRef.current = node
-      }}
+      ref={refCallback}
       type="checkbox"
       className={checkboxStyles({ class: className })}
       {...rest}

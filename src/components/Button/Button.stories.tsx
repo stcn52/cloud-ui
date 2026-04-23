@@ -73,3 +73,19 @@ export const Group: Story = {
     </ButtonGroup>
   ),
 }
+
+export const AsAnchor: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+      <Button as="a" href="https://example.com" target="_blank" rel="noreferrer" intent="primary">
+        External link
+      </Button>
+      <Button as="a" href="#" intent="ghost">
+        Ghost link
+      </Button>
+      <Button as="a" href="#" intent="outline">
+        Outline link
+      </Button>
+    </div>
+  ),
+}

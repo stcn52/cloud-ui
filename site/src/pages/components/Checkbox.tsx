@@ -45,7 +45,8 @@ export default function CheckboxPage() {
       <h2>Indeterminate</h2>
       <p>
         Use for "select all" headers that reflect a partial selection. Visual only — the{' '}
-        <code>checked</code> value is independent.
+        <code>checked</code> value is independent. The <code>indeterminate</code> prop is now
+        synced via a ref callback, so changes apply immediately without an effect pass.
       </p>
       <Demo
         code={`<Checkbox indeterminate />`}
@@ -69,7 +70,7 @@ export default function CheckboxPage() {
         </thead>
         <tbody>
           <tr><td><code>checked / defaultChecked</code></td><td><code>boolean</code></td><td>—</td><td>Controlled or uncontrolled checked state.</td></tr>
-          <tr><td><code>indeterminate</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Shows the dash treatment. Imperatively set on the DOM input.</td></tr>
+          <tr><td><code>indeterminate</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Shows the dash treatment. Ref-synced onto the DOM input.</td></tr>
           <tr><td><code>onChange</code></td><td><code>(e: ChangeEvent) =&gt; void</code></td><td>—</td><td>Fires on toggle.</td></tr>
           <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Standard disabled state.</td></tr>
           <tr><td><code>...rest</code></td><td><code>InputHTMLAttributes</code></td><td>—</td><td>All native checkbox props (<code>name</code>, <code>value</code>, <code>required</code>, etc.).</td></tr>

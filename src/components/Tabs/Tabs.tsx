@@ -1,19 +1,46 @@
-import type { HTMLAttributes, MouseEvent, ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  type HTMLAttributes,
+  type MouseEvent,
+  type ReactNode,
+} from 'react'
 import { tv } from 'tailwind-variants'
+
+interface TabsContextValue {
+  value: string
+  onChange: (value: string) => void
+}
+
+const TabsContext = createContext<TabsContextValue | null>(null)
+
+function useTabsContext(component: string): TabsContextValue {
+  const ctx = useContext(TabsContext)
+  if (!ctx) {
+    throw new Error(`<${component}> must be rendered inside a <Tabs value={...} onChange={...}>`)
+  }
+  return ctx
+}
 
 const tabsStyles = tv({
   base: 'flex gap-1 border-b border-line',
 })
 
-export interface TabsProps extends HTMLAttributes<HTMLDivElement> {
+export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+  /** Currently active tab id. */
+  value: string
+  /** Fired with the new tab id when the user clicks or keyboard-activates a tab. */
+  onChange: (value: string) => void
   children?: ReactNode
 }
 
-export function Tabs({ className, children, ...rest }: TabsProps) {
+export function Tabs({ value, onChange, className, children, ...rest }: TabsProps) {
   return (
-    <div className={tabsStyles({ class: className })} role="tablist" {...rest}>
-      {children}
-    </div>
+    <TabsContext.Provider value={{ value, onChange }}>
+      <div className={tabsStyles({ class: className })} role="tablist" {...rest}>
+        {children}
+      </div>
+    </TabsContext.Provider>
   )
 }
 
@@ -40,36 +67,40 @@ export const tabStyles = tv({
   defaultVariants: { active: false },
 })
 
-export interface TabProps extends HTMLAttributes<HTMLDivElement> {
-  active?: boolean
+export interface TabProps extends Omit<HTMLAttributes<HTMLDivElement>, 'id'> {
+  /** The id matched against the parent Tabs `value`. */
+  id: string
   /** Show a trailing `×` button. */
   closable?: boolean
-  /** Fired when the `×` is clicked. `onClick` still fires when the body is clicked. */
+  /** Fired when the `×` is clicked. */
   onClose?: (e: MouseEvent<HTMLButtonElement>) => void
   children?: ReactNode
 }
 
 export function Tab({
-  active,
+  id,
   closable,
   onClose,
   className,
   children,
-  onClick,
   ...rest
 }: TabProps) {
+  const { value, onChange } = useTabsContext('Tab')
+  const active = value === id
   const { base, close } = tabStyles({ active })
+
   return (
     <div
       className={base({ class: className })}
       role="tab"
       tabIndex={active ? 0 : -1}
       aria-selected={active}
-      onClick={onClick}
+      data-tab-id={id}
+      onClick={() => onChange(id)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          onClick?.(e as unknown as React.MouseEvent<HTMLDivElement>)
+          onChange(id)
         }
       }}
       {...rest}
@@ -94,3 +125,5 @@ export function Tab({
     </div>
   )
 }
+
+export { TabsContext }

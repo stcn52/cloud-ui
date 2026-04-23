@@ -13,6 +13,17 @@ type Story = StoryObj<typeof meta>
 
 export const Playground: Story = {}
 
+export const ChildrenFallback: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <CopyField>pnpm add @stcn52/cloud-ui</CopyField>
+      <CopyField>
+        <code>docker run -p 8080:8080 myimage:latest</code>
+      </CopyField>
+    </div>
+  ),
+}
+
 export const MultipleFields: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

@@ -25,6 +25,16 @@ export const Single: Story = {
   ),
 }
 
+export const WithUnit: Story = {
+  render: () => (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+      <Kpi label="JS (gzip)" value={36} unit="kB" />
+      <Kpi label="p95 latency" value={184} unit="ms" foot={<Delta direction="down">−12ms</Delta>} />
+      <Kpi label="Error rate" value="0.34" unit="%" />
+    </div>
+  ),
+}
+
 export const FourUp: Story = {
   render: () => (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>

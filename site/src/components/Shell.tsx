@@ -8,7 +8,7 @@ import {
   Kbd,
   Pill,
   Breadcrumbs,
-  Breadcrumb,
+  BreadcrumbItem,
   CommandPalette,
   type CommandItem as CmdItem,
   type Theme,
@@ -327,13 +327,13 @@ function TopBreadcrumbs() {
 
   return (
     <Breadcrumbs style={{ marginBottom: 20 }}>
-      <Breadcrumb>
+      <BreadcrumbItem>
         <NavLink to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
           Home
         </NavLink>
-      </Breadcrumb>
-      <Breadcrumb>{sectionLabel}</Breadcrumb>
-      {pageRoute && <Breadcrumb leaf>{pageRoute.title}</Breadcrumb>}
+      </BreadcrumbItem>
+      <BreadcrumbItem>{sectionLabel}</BreadcrumbItem>
+      {pageRoute && <BreadcrumbItem leaf>{pageRoute.title}</BreadcrumbItem>}
     </Breadcrumbs>
   )
 }

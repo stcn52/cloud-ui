@@ -8,6 +8,9 @@ const meta = {
   component: Tooltip,
   tags: ['autodocs'],
   args: { tip: 'Download logs' },
+  argTypes: {
+    placement: { control: 'select', options: ['top', 'bottom', 'left', 'right'] },
+  },
 } satisfies Meta<typeof Tooltip>
 
 export default meta
@@ -39,6 +42,63 @@ export const OnIconButtons: Story = {
       <Tooltip tip="Click to copy · 2m ago">
         <Pill mono>sha:bb08af1</Pill>
       </Tooltip>
+    </div>
+  ),
+}
+
+export const Top: Story = {
+  args: { tip: 'Top tooltip', placement: 'top', open: true, children: <Button>Top</Button> },
+}
+
+export const Bottom: Story = {
+  args: { tip: 'Bottom tooltip', placement: 'bottom', open: true, children: <Button>Bottom</Button> },
+}
+
+export const Left: Story = {
+  args: { tip: 'Left tooltip', placement: 'left', open: true, children: <Button>Left</Button> },
+}
+
+export const Right: Story = {
+  args: { tip: 'Right tooltip', placement: 'right', open: true, children: <Button>Right</Button> },
+}
+
+export const Placements: Story = {
+  render: () => (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 56,
+        padding: 80,
+      }}
+    >
+      <Tooltip tip="Top placement" placement="top">
+        <Button>Top</Button>
+      </Tooltip>
+      <Tooltip tip="Bottom placement" placement="bottom">
+        <Button>Bottom</Button>
+      </Tooltip>
+      <Tooltip tip="Left placement" placement="left">
+        <Button>Left</Button>
+      </Tooltip>
+      <Tooltip tip="Right placement" placement="right">
+        <Button>Right</Button>
+      </Tooltip>
+    </div>
+  ),
+}
+
+export const Collision: Story = {
+  render: () => (
+    <div style={{ minHeight: 120 }}>
+      <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 12 }}>
+        This tooltip prefers <code>top</code>, but there is no room above — it flips to <code>bottom</code>.
+      </p>
+      <div style={{ paddingTop: 0 }}>
+        <Tooltip tip="I flipped to bottom because there is no room above" placement="top" open>
+          <Button>Near top of viewport</Button>
+        </Tooltip>
+      </div>
     </div>
   ),
 }

@@ -4,7 +4,6 @@ import {
   DropdownItem,
   DropdownGroup,
   DropdownSeparator,
-  DropdownSearch,
   Button,
   Table,
   Banner,
@@ -37,26 +36,46 @@ const TrashIcon = (
     <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
   </svg>
 )
+const ShareIcon = (
+  <svg viewBox="0 0 24 24">
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+  </svg>
+)
+
+function GroupsDemo() {
+  const [sort, setSort] = useState<'asc' | 'desc' | 'created'>('created')
+  return (
+    <Dropdown trigger={<Button intent="outline">Sort by ▾</Button>}>
+      <DropdownGroup label="Alphabetical">
+        <DropdownItem checked={sort === 'asc'} onClick={() => setSort('asc')}>A → Z</DropdownItem>
+        <DropdownItem checked={sort === 'desc'} onClick={() => setSort('desc')}>Z → A</DropdownItem>
+      </DropdownGroup>
+      <DropdownSeparator />
+      <DropdownGroup label="Time">
+        <DropdownItem checked={sort === 'created'} onClick={() => setSort('created')}>Newest</DropdownItem>
+      </DropdownGroup>
+    </Dropdown>
+  )
+}
 
 export default function DropdownPage() {
-  const [checked, setChecked] = useState<'asc' | 'desc' | 'created'>('created')
-  const [search, setSearch] = useState('')
-  const regions = ['us-east-1', 'us-west-2', 'eu-west-1', 'eu-central-1', 'ap-southeast-1']
-  const filtered = regions.filter((r) => r.toLowerCase().includes(search.toLowerCase()))
-
   return (
     <article className="page">
       <h1>Dropdown</h1>
       <p>
         A menu anchored to a trigger button. Built on <code>Popover</code>, adds standard menu item
-        styling (icon + label + shortcut or submenu affordance), group headings, separators, and an
-        optional in-menu search box.
+        styling (icon + label + shortcut), group headings, separators, and — new in 1.0 — real
+        nested submenus that open on hover via a portaled panel.
       </p>
 
       <Banner tone="neutral" title="When to use" style={{ margin: '16px 0' }}>
         Row/entity actions, overflow "…" menus, grouped filters, and keyboard-friendly pickers. For
-        a full-page command launcher use <code>CommandPalette</code>. For a free-form popover surface
-        use <code>Popover</code> directly.
+        a full-page command launcher use <code>CommandPalette</code>. For a free-form popover
+        surface use <code>Popover</code> directly.
       </Banner>
 
       <h2>Basic menu</h2>
@@ -97,41 +116,73 @@ export default function DropdownPage() {
   </DropdownGroup>
 </Dropdown>`}
       >
-        <Dropdown trigger={<Button intent="outline">Sort by ▾</Button>}>
-          <DropdownGroup label="Alphabetical">
-            <DropdownItem checked={checked === 'asc'} onClick={() => setChecked('asc')}>A → Z</DropdownItem>
-            <DropdownItem checked={checked === 'desc'} onClick={() => setChecked('desc')}>Z → A</DropdownItem>
-          </DropdownGroup>
-          <DropdownSeparator />
-          <DropdownGroup label="Time">
-            <DropdownItem checked={checked === 'created'} onClick={() => setChecked('created')}>Newest</DropdownItem>
-          </DropdownGroup>
-        </Dropdown>
+        <GroupsDemo />
       </Demo>
 
-      <h2>Searchable menu</h2>
+      <h2>Nested submenu</h2>
       <p>
-        Drop a <code>DropdownSearch</code> above the items and filter the list yourself. Great for
-        picking from a list of regions, tags, or teammates.
+        Pass a <code>ReactNode</code> to <code>submenu</code> and hovering the item will open a
+        portaled panel to the right with that content — auto-flipped to the left when it would
+        overflow the viewport. Close is debounced so moving the cursor through the gap doesn't
+        collapse the panel.
       </p>
       <Demo
-        code={`const [search, setSearch] = useState('')
-const filtered = regions.filter(r => r.includes(search))
-
-<Dropdown trigger={<Button intent="outline">Region ▾</Button>}>
-  <DropdownSearch value={search} onChange={setSearch} placeholder="Filter regions…" />
-  {filtered.map(r => <DropdownItem key={r}>{r}</DropdownItem>)}
+        code={`<Dropdown trigger={<Button intent="outline">File ▾</Button>}>
+  <DropdownItem icon={<EditIcon />}>Rename</DropdownItem>
+  <DropdownItem
+    icon={<ShareIcon />}
+    submenu={
+      <>
+        <DropdownItem>Copy link</DropdownItem>
+        <DropdownItem>Email…</DropdownItem>
+        <DropdownItem>Slack…</DropdownItem>
+      </>
+    }
+  >
+    Share
+  </DropdownItem>
+  <DropdownItem
+    icon={<CopyIcon />}
+    submenu={
+      <>
+        <DropdownItem>Copy</DropdownItem>
+        <DropdownItem>Move</DropdownItem>
+      </>
+    }
+  >
+    Organize
+  </DropdownItem>
+  <DropdownSeparator />
+  <DropdownItem icon={<TrashIcon />} danger>Delete</DropdownItem>
 </Dropdown>`}
       >
-        <Dropdown trigger={<Button intent="outline">Region ▾</Button>}>
-          <DropdownSearch value={search} onChange={setSearch} placeholder="Filter regions…" />
-          {filtered.length === 0 ? (
-            <div style={{ padding: '8px 10px', fontSize: 12, color: 'var(--color-text-dim)' }}>
-              No matches
-            </div>
-          ) : (
-            filtered.map((r) => <DropdownItem key={r}>{r}</DropdownItem>)
-          )}
+        <Dropdown trigger={<Button intent="outline">File ▾</Button>}>
+          <DropdownItem icon={EditIcon}>Rename</DropdownItem>
+          <DropdownItem
+            icon={ShareIcon}
+            submenu={
+              <>
+                <DropdownItem>Copy link</DropdownItem>
+                <DropdownItem>Email…</DropdownItem>
+                <DropdownItem>Slack…</DropdownItem>
+              </>
+            }
+          >
+            Share
+          </DropdownItem>
+          <DropdownItem
+            icon={CopyIcon}
+            submenu={
+              <>
+                <DropdownItem>Copy</DropdownItem>
+                <DropdownItem>Move</DropdownItem>
+              </>
+            }
+          >
+            Organize
+          </DropdownItem>
+          <DropdownSeparator />
+          <DropdownItem icon={TrashIcon} danger>Delete</DropdownItem>
         </Dropdown>
       </Demo>
 
@@ -184,7 +235,7 @@ const filtered = regions.filter(r => r.includes(search))
           <tr><td><code>active</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persistent highlight (current page, current filter).</td></tr>
           <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Muted + non-interactive.</td></tr>
           <tr><td><code>danger</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Red text for destructive actions (Delete, Revoke, …).</td></tr>
-          <tr><td><code>submenu</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Shows a trailing ›. Purely visual — wire up the submenu yourself.</td></tr>
+          <tr><td><code>submenu</code></td><td><code>ReactNode | boolean</code></td><td>—</td><td>A <code>ReactNode</code> opens a real nested panel on hover. <code>true</code> just shows the › chevron — wire your own submenu.</td></tr>
           <tr><td><code>onClick</code></td><td><code>(e: MouseEvent) =&gt; void</code></td><td>—</td><td>Standard click handler.</td></tr>
         </tbody>
       </Table>

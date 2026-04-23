@@ -73,6 +73,32 @@ export default function PopoverPage() {
         />
       </Demo>
 
+      <h2>Non-element triggers are auto-wrapped</h2>
+      <p>
+        <code>trigger</code> is <code>ReactNode</code> — strings, numbers, fragments, and arrays
+        are automatically wrapped in a <code>&lt;span&gt;</code> so the popover can attach its
+        click handler and ref. You can pass any valid element (a button, a link, custom
+        component) for full control.
+      </p>
+      <Demo
+        code={`<Popover trigger="Open menu" content={<div style={{ padding: 12 }}>👋</div>} />
+<Popover trigger={<>Hello <b>world</b></>} content={<div style={{ padding: 12 }}>fragment</div>} />
+<Popover trigger={<a href="#">link trigger</a>} content={<div style={{ padding: 12 }}>anchor</div>} />`}
+      >
+        <Popover
+          trigger="Open menu"
+          content={<div style={{ padding: 12 }}>👋 wrapped in a span</div>}
+        />
+        <Popover
+          trigger={<>Hello <b>world</b></>}
+          content={<div style={{ padding: 12 }}>fragment trigger</div>}
+        />
+        <Popover
+          trigger={<a href="#">link trigger</a>}
+          content={<div style={{ padding: 12 }}>anchor</div>}
+        />
+      </Demo>
+
       <h2>Submenu</h2>
       <p>
         Pass <code>submenu</code> on a <code>PopoverItem</code> to open a nested menu on hover. The
@@ -181,7 +207,7 @@ export default function PopoverPage() {
           <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>trigger</code></td><td><code>ReactElement</code></td><td>—</td><td>Single element. Popover clones it and adds click + ref.</td></tr>
+          <tr><td><code>trigger</code></td><td><code>ReactNode</code></td><td>—</td><td>Any node. Strings / fragments / arrays are auto-wrapped in <code>&lt;span&gt;</code>; valid elements are cloned with click + ref.</td></tr>
           <tr><td><code>content</code></td><td><code>ReactNode</code></td><td>—</td><td>What to render inside the floating panel.</td></tr>
           <tr><td><code>placement</code></td><td><code>'bottom-start' | 'bottom' | 'bottom-end' | 'top-start' | 'top' | 'top-end'</code></td><td><code>'bottom-start'</code></td><td>Anchor alignment.</td></tr>
           <tr><td><code>offset</code></td><td><code>number</code></td><td><code>6</code></td><td>Pixels between trigger and panel.</td></tr>

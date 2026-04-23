@@ -44,6 +44,10 @@ export const States: Story = {
   ),
 }
 
+export const Invalid: Story = {
+  args: { invalid: true, defaultValue: 'bad value' },
+}
+
 const searchIcon = (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
     <circle cx="11" cy="11" r="7" />

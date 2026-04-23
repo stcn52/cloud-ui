@@ -1,4 +1,13 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import {
+  forwardRef,
+  type ButtonHTMLAttributes,
+  type ComponentPropsWithoutRef,
+  type ElementType,
+  type ForwardedRef,
+  type ReactElement,
+  type ReactNode,
+  type Ref,
+} from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 export const buttonStyles = tv({
@@ -65,39 +74,70 @@ type ButtonVariants = VariantProps<typeof buttonStyles>
 export type ButtonIntent = NonNullable<ButtonVariants['intent']>
 export type ButtonSize = NonNullable<ButtonVariants['size']>
 
-export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+type ButtonOwnProps = {
   intent?: ButtonIntent
   size?: ButtonSize
   loading?: boolean
   iconOnly?: boolean
   children?: ReactNode
+  className?: string
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+export type ButtonProps<C extends ElementType = 'button'> = ButtonOwnProps & {
+  as?: C
+} & Omit<ComponentPropsWithoutRef<C>, keyof ButtonOwnProps | 'as'>
+
+// Preserve original default export as button-element props for backwards compat:
+// `ButtonProps` (without generic) still resolves to the button variant.
+export type ButtonPropsBase = ButtonOwnProps &
+  Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof ButtonOwnProps>
+
+type PolymorphicButton = <C extends ElementType = 'button'>(
+  props: ButtonProps<C> & { ref?: Ref<Element> },
+) => ReactElement | null
+
+function ButtonInner<C extends ElementType = 'button'>(
   {
+    as,
     intent = 'default',
     size = 'md',
     loading = false,
     iconOnly = false,
     className,
     disabled,
-    type = 'button',
     children,
     ...rest
-  },
-  ref,
+  }: ButtonProps<C>,
+  ref: ForwardedRef<Element>,
 ) {
+  const Component = (as ?? 'button') as ElementType
   const { base, loadingSpinner } = buttonStyles({ intent, size, iconOnly, loading })
+
+  // Only add type="button" default and `disabled` when rendering a native <button>.
+  const extra: Record<string, unknown> = {}
+  if (Component === 'button') {
+    const restTyped = rest as { type?: ButtonHTMLAttributes<HTMLButtonElement>['type'] }
+    extra.type = restTyped.type ?? 'button'
+    extra.disabled = disabled || loading
+  } else if (disabled) {
+    // For non-button elements, convey disabled state semantically.
+    extra['aria-disabled'] = true
+  }
+
   return (
-    <button
+    <Component
       ref={ref}
-      type={type}
-      disabled={disabled || loading}
       className={base({ class: className })}
+      {...extra}
       {...rest}
     >
       {children}
       {loading && <span aria-hidden="true" className={loadingSpinner()} />}
-    </button>
+    </Component>
   )
-})
+}
+
+export const Button = forwardRef(ButtonInner) as PolymorphicButton & {
+  displayName?: string
+}
+;(Button as { displayName?: string }).displayName = 'Button'

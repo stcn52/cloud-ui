@@ -45,6 +45,19 @@ const icons = {
 
 export const Playground: Story = { args: { icon: icons.info, onDismiss: () => {} } }
 
+export const AutoUnmount: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 520 }}>
+      <Banner tone="info" icon={icons.info} title="Self-dismissing banner" onDismiss={() => {}} autoUnmount>
+        Click the × to unmount this banner. No consumer state needed.
+      </Banner>
+      <Banner tone="warn" icon={icons.warn} title="Also self-dismissing" autoUnmount>
+        autoUnmount also works without an onDismiss handler.
+      </Banner>
+    </div>
+  ),
+}
+
 export const AllTones: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 600 }}>

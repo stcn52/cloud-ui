@@ -70,11 +70,14 @@ export const Wizard: Story = {
 
         <div className="mt-6 space-y-4 max-w-md">
           <Field label="Region">
-            <Select defaultValue="us-east-1">
-              <option value="us-east-1">us-east-1 — N. Virginia</option>
-              <option value="us-west-2">us-west-2 — Oregon</option>
-              <option value="eu-west-1">eu-west-1 — Ireland</option>
-            </Select>
+            <Select
+              defaultValue="us-east-1"
+              options={[
+                { value: 'us-east-1', label: 'us-east-1 — N. Virginia' },
+                { value: 'us-west-2', label: 'us-west-2 — Oregon' },
+                { value: 'eu-west-1', label: 'eu-west-1 — Ireland' },
+              ]}
+            />
           </Field>
           <Field label="Environment label" hint="Optional.">
             <Input placeholder="e.g. prod" />

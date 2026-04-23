@@ -11,6 +11,11 @@ const kpiStyles = tv({
     value: [
       'text-[26px] font-semibold tracking-[-0.02em] mt-1.5',
       '[font-variant-numeric:tabular-nums] font-mono',
+      'flex items-baseline gap-1',
+    ],
+    unit: [
+      'text-sm font-normal tracking-normal',
+      'text-text-muted',
     ],
     foot: 'flex items-center gap-2 mt-2.5 text-xs text-text-muted',
   },
@@ -18,17 +23,24 @@ const kpiStyles = tv({
 
 export interface KpiProps extends HTMLAttributes<HTMLDivElement> {
   label?: ReactNode
-  value?: ReactNode
+  value?: string | number | ReactNode
+  /** Small, dim unit rendered alongside `value` (e.g., "kB", "ms", "%"). */
+  unit?: ReactNode
   foot?: ReactNode
   children?: ReactNode
 }
 
-export function Kpi({ label, value, foot, className, children, ...rest }: KpiProps) {
-  const { base, label: labelCls, value: valueCls, foot: footCls } = kpiStyles()
+export function Kpi({ label, value, unit, foot, className, children, ...rest }: KpiProps) {
+  const { base, label: labelCls, value: valueCls, unit: unitCls, foot: footCls } = kpiStyles()
   return (
     <div className={base({ class: className })} {...rest}>
       {label !== undefined && <div className={labelCls()}>{label}</div>}
-      {value !== undefined && <div className={valueCls()}>{value}</div>}
+      {value !== undefined && (
+        <div className={valueCls()}>
+          <span>{value as ReactNode}</span>
+          {unit !== undefined && <span className={unitCls()}>{unit}</span>}
+        </div>
+      )}
       {foot !== undefined && <div className={footCls()}>{foot}</div>}
       {children}
     </div>

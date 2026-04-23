@@ -1,2 +1,2 @@
-export { Pipeline, PipeStep } from './Pipeline'
-export type { PipelineProps, PipeStepProps, PipeStatus } from './Pipeline'
+export { Pipeline, PipelineStep } from './Pipeline'
+export type { PipelineProps, PipelineStepProps, PipelineStepStatus } from './Pipeline'

@@ -43,6 +43,21 @@ export default function SwitchPage() {
         </label>
       </Demo>
 
+      <h2>Invalid</h2>
+      <p>
+        Pass <code>invalid</code> to tint the track in the error color — useful for toggles that
+        conflict with another setting.
+      </p>
+      <Demo
+        code={`<label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+  <Switch invalid defaultChecked /> Allow plaintext auth
+</label>`}
+      >
+        <label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+          <Switch invalid defaultChecked /> Allow plaintext auth
+        </label>
+      </Demo>
+
       <h2>Disabled</h2>
       <Demo
         code={`<Switch disabled />
@@ -60,6 +75,7 @@ export default function SwitchPage() {
         <tbody>
           <tr><td><code>checked / defaultChecked</code></td><td><code>boolean</code></td><td>—</td><td>Controlled or uncontrolled on/off state.</td></tr>
           <tr><td><code>onChange</code></td><td><code>(e: ChangeEvent) =&gt; void</code></td><td>—</td><td>Fires on toggle.</td></tr>
+          <tr><td><code>invalid</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Error track color + focus ring.</td></tr>
           <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Standard disabled state.</td></tr>
           <tr><td><code>...rest</code></td><td><code>InputHTMLAttributes</code></td><td>—</td><td>All native checkbox props (<code>name</code>, <code>value</code>, etc.).</td></tr>
         </tbody>

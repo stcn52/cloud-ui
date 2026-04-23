@@ -28,7 +28,7 @@ function Demo() {
         <Button>Cancel</Button>
         <Pill tone="ok" dot>Healthy</Pill>
       </div>
-      <Pagination page={2} total={10} onChange={() => {}} />
+      <Pagination current={2} total={100} pageSize={10} onChange={() => {}} />
     </div>
   )
 }

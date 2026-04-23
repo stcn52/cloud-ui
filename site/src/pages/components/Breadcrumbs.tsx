@@ -1,4 +1,4 @@
-import { Breadcrumbs, Breadcrumb, Table, Banner } from '@stcn52/cloud-ui'
+import { Breadcrumbs, BreadcrumbItem, Table, Banner } from '@stcn52/cloud-ui'
 import { Demo } from '../../components/Demo'
 
 export default function BreadcrumbsPage() {
@@ -7,7 +7,8 @@ export default function BreadcrumbsPage() {
       <h1>Breadcrumbs</h1>
       <p>
         A horizontal trail of navigation anchors showing where the current page sits in a hierarchy.
-        The last crumb is marked with <code>leaf</code> so it reads as the current location.
+        The last <code>BreadcrumbItem</code> is auto-promoted to <code>leaf</code> styling — no flag
+        needed.
       </p>
 
       <Banner tone="neutral" title="When to use" style={{ margin: '16px 0' }}>
@@ -16,17 +17,21 @@ export default function BreadcrumbsPage() {
       </Banner>
 
       <h2>Standard trail</h2>
+      <p>
+        Notice the last item has no <code>leaf</code> prop — it still renders bolder because
+        the parent auto-detects the final child.
+      </p>
       <Demo
         code={`<Breadcrumbs>
-  <Breadcrumb>Projects</Breadcrumb>
-  <Breadcrumb>api-gateway</Breadcrumb>
-  <Breadcrumb leaf>us-east-1</Breadcrumb>
+  <BreadcrumbItem>Projects</BreadcrumbItem>
+  <BreadcrumbItem>api-gateway</BreadcrumbItem>
+  <BreadcrumbItem>us-east-1</BreadcrumbItem>
 </Breadcrumbs>`}
       >
         <Breadcrumbs>
-          <Breadcrumb>Projects</Breadcrumb>
-          <Breadcrumb>api-gateway</Breadcrumb>
-          <Breadcrumb leaf>us-east-1</Breadcrumb>
+          <BreadcrumbItem>Projects</BreadcrumbItem>
+          <BreadcrumbItem>api-gateway</BreadcrumbItem>
+          <BreadcrumbItem>us-east-1</BreadcrumbItem>
         </Breadcrumbs>
       </Demo>
 
@@ -36,34 +41,35 @@ export default function BreadcrumbsPage() {
       </p>
       <Demo
         code={`<Breadcrumbs separator="/">
-  <Breadcrumb>org</Breadcrumb>
-  <Breadcrumb>repo</Breadcrumb>
-  <Breadcrumb leaf>main</Breadcrumb>
+  <BreadcrumbItem>org</BreadcrumbItem>
+  <BreadcrumbItem>repo</BreadcrumbItem>
+  <BreadcrumbItem>main</BreadcrumbItem>
 </Breadcrumbs>`}
       >
         <Breadcrumbs separator="/">
-          <Breadcrumb>org</Breadcrumb>
-          <Breadcrumb>repo</Breadcrumb>
-          <Breadcrumb leaf>main</Breadcrumb>
+          <BreadcrumbItem>org</BreadcrumbItem>
+          <BreadcrumbItem>repo</BreadcrumbItem>
+          <BreadcrumbItem>main</BreadcrumbItem>
         </Breadcrumbs>
       </Demo>
 
-      <h2>Clickable crumbs</h2>
+      <h2>Explicit leaf override</h2>
       <p>
-        <code>Breadcrumb</code> is a plain <code>&lt;span&gt;</code> — wrap its children in
-        an <code>&lt;a&gt;</code> or your router&apos;s link component to make it navigable.
+        Pass <code>leaf={'{false}'}</code> on the last item to opt out of the auto-promotion, or
+        <code>leaf</code> on a middle item to force the leaf style. Useful for intermediate headings
+        you want visually emphasized.
       </p>
       <Demo
         code={`<Breadcrumbs>
-  <Breadcrumb><a href="/projects">Projects</a></Breadcrumb>
-  <Breadcrumb><a href="/projects/api-gateway">api-gateway</a></Breadcrumb>
-  <Breadcrumb leaf>Settings</Breadcrumb>
+  <BreadcrumbItem><a href="/projects">Projects</a></BreadcrumbItem>
+  <BreadcrumbItem leaf>api-gateway</BreadcrumbItem>
+  <BreadcrumbItem leaf={false}>Settings</BreadcrumbItem>
 </Breadcrumbs>`}
       >
         <Breadcrumbs>
-          <Breadcrumb><a href="#">Projects</a></Breadcrumb>
-          <Breadcrumb><a href="#">api-gateway</a></Breadcrumb>
-          <Breadcrumb leaf>Settings</Breadcrumb>
+          <BreadcrumbItem><a href="#">Projects</a></BreadcrumbItem>
+          <BreadcrumbItem leaf>api-gateway</BreadcrumbItem>
+          <BreadcrumbItem leaf={false}>Settings</BreadcrumbItem>
         </Breadcrumbs>
       </Demo>
 
@@ -74,17 +80,17 @@ export default function BreadcrumbsPage() {
         </thead>
         <tbody>
           <tr><td><code>separator</code></td><td><code>ReactNode</code></td><td>chevron icon</td><td>Rendered between every pair of children.</td></tr>
-          <tr><td><code>children</code></td><td><code>ReactNode</code></td><td>—</td><td>A list of <code>&lt;Breadcrumb&gt;</code> elements.</td></tr>
+          <tr><td><code>children</code></td><td><code>ReactNode</code></td><td>—</td><td>A list of <code>&lt;BreadcrumbItem&gt;</code> elements.</td></tr>
         </tbody>
       </Table>
 
-      <h2>Breadcrumb API</h2>
+      <h2>BreadcrumbItem API</h2>
       <Table>
         <thead>
           <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>leaf</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Mark the current (last) crumb — applies bolder, higher-contrast text.</td></tr>
+          <tr><td><code>leaf</code></td><td><code>boolean</code></td><td>auto</td><td>Force bolder, higher-contrast text. When omitted, the last child of <code>Breadcrumbs</code> is auto-promoted.</td></tr>
           <tr><td><code>children</code></td><td><code>ReactNode</code></td><td>—</td><td>Label content; usually a string or a link.</td></tr>
         </tbody>
       </Table>

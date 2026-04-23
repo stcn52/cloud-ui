@@ -1,6 +1,7 @@
-import type { HTMLAttributes, ReactElement, ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties, type HTMLAttributes, type ReactElement, type ReactNode } from 'react'
 import { tv } from 'tailwind-variants'
 import { Popover, type PopoverPlacement } from '../Popover/Popover'
+import { Portal } from '../_internal/Portal'
 
 export const dropdownMenuStyles = tv({
   base: [
@@ -79,7 +80,12 @@ export interface DropdownItemProps extends HTMLAttributes<HTMLButtonElement> {
   shortcut?: ReactNode
   active?: boolean
   disabled?: boolean
-  submenu?: boolean
+  /**
+   * When set to a ReactNode, hovering this item opens a nested right-side
+   * panel containing that content (typically more `DropdownItem`s). When
+   * `true`, only the chevron is rendered — wire up your own submenu.
+   */
+  submenu?: ReactNode | boolean
   danger?: boolean
   checked?: boolean
   children?: ReactNode
@@ -101,6 +107,8 @@ export function DropdownItem({
   checked,
   className,
   children,
+  onMouseEnter,
+  onMouseLeave,
   ...rest
 }: DropdownItemProps) {
   const { base, body, check, shortcut: shortcutCls, submenuIcon } = dropdownItemStyles({
@@ -108,24 +116,92 @@ export function DropdownItem({
     disabled,
     danger,
   })
+  const hasNestedSubmenu = submenu !== undefined && submenu !== false && submenu !== true
+  const hostRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const closeTimer = useRef<number | null>(null)
+  const [open, setOpen] = useState(false)
+  const [style, setStyle] = useState<CSSProperties>({ position: 'fixed', visibility: 'hidden' })
+
+  useLayoutEffect(() => {
+    if (!open || !hasNestedSubmenu) return
+    const host = hostRef.current
+    const pnl = panelRef.current
+    if (!host || !pnl) return
+    const hostRect = host.getBoundingClientRect()
+    const panelRect = pnl.getBoundingClientRect()
+    let left = hostRect.right + 2
+    let top = hostRect.top
+    if (left + panelRect.width > window.innerWidth - 8) {
+      left = hostRect.left - panelRect.width - 2
+    }
+    if (top + panelRect.height > window.innerHeight - 8) {
+      top = Math.max(8, window.innerHeight - panelRect.height - 8)
+    }
+    setStyle({ position: 'fixed', top, left })
+  }, [open, hasNestedSubmenu])
+
+  const scheduleClose = () => {
+    if (closeTimer.current != null) window.clearTimeout(closeTimer.current)
+    closeTimer.current = window.setTimeout(() => setOpen(false), 200)
+  }
+  const cancelClose = () => {
+    if (closeTimer.current != null) {
+      window.clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
+  }
+
+  const showChevron = submenu === true || hasNestedSubmenu
+
   return (
-    <button
-      type="button"
-      role="menuitem"
-      disabled={disabled}
-      className={base({ class: className })}
-      {...rest}
-    >
-      {icon}
-      <span className={body()}>{children}</span>
-      {checked ? (
-        <span className={check()}>{CheckIcon}</span>
-      ) : submenu ? (
-        <span className={submenuIcon()}>›</span>
-      ) : shortcut !== undefined ? (
-        <span className={shortcutCls()}>{shortcut}</span>
-      ) : null}
-    </button>
+    <>
+      <button
+        ref={hostRef}
+        type="button"
+        role="menuitem"
+        aria-haspopup={hasNestedSubmenu ? 'menu' : undefined}
+        aria-expanded={hasNestedSubmenu ? open : undefined}
+        disabled={disabled}
+        className={base({ class: className })}
+        onMouseEnter={(e) => {
+          onMouseEnter?.(e)
+          if (hasNestedSubmenu && !disabled) {
+            cancelClose()
+            setOpen(true)
+          }
+        }}
+        onMouseLeave={(e) => {
+          onMouseLeave?.(e)
+          if (hasNestedSubmenu) scheduleClose()
+        }}
+        {...rest}
+      >
+        {icon}
+        <span className={body()}>{children}</span>
+        {checked ? (
+          <span className={check()}>{CheckIcon}</span>
+        ) : showChevron ? (
+          <span className={submenuIcon()}>›</span>
+        ) : shortcut !== undefined ? (
+          <span className={shortcutCls()}>{shortcut}</span>
+        ) : null}
+      </button>
+      {hasNestedSubmenu && open && (
+        <Portal>
+          <div
+            ref={panelRef}
+            role="menu"
+            className={dropdownMenuStyles()}
+            style={style}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+          >
+            {submenu as ReactNode}
+          </div>
+        </Portal>
+      )}
+    </>
   )
 }
 

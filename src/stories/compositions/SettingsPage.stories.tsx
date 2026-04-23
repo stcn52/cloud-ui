@@ -76,11 +76,14 @@ export const OrganizationSettings: Story = {
         </Row>
         <Row label="Default region" description="New services provision here unless overridden.">
           <Field>
-            <Select>
-              <option>us-east-1</option>
-              <option>us-west-2</option>
-              <option>eu-west-1</option>
-            </Select>
+            <Select
+              options={[
+                { value: 'us-east-1', label: 'us-east-1' },
+                { value: 'us-west-2', label: 'us-west-2' },
+                { value: 'eu-west-1', label: 'eu-west-1' },
+              ]}
+              defaultValue="us-east-1"
+            />
           </Field>
         </Row>
         <Row label="Require 2FA" description="All members must enroll in two-factor auth.">

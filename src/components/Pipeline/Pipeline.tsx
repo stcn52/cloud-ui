@@ -1,7 +1,7 @@
 import { Children, Fragment, type HTMLAttributes, type ReactElement, type ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-export const pipeStepStyles = tv({
+export const pipelineStepStyles = tv({
   slots: {
     base: [
       'inline-flex items-center gap-1.5',
@@ -24,16 +24,16 @@ export const pipeStepStyles = tv({
   defaultVariants: { status: 'pending' },
 })
 
-type PipeStepVariants = VariantProps<typeof pipeStepStyles>
-export type PipeStatus = NonNullable<PipeStepVariants['status']>
+type PipelineStepVariants = VariantProps<typeof pipelineStepStyles>
+export type PipelineStepStatus = NonNullable<PipelineStepVariants['status']>
 
-export interface PipeStepProps extends HTMLAttributes<HTMLSpanElement> {
-  status?: PipeStatus
+export interface PipelineStepProps extends HTMLAttributes<HTMLSpanElement> {
+  status?: PipelineStepStatus
   children?: ReactNode
 }
 
-export function PipeStep({ status = 'pending', className, children, ...rest }: PipeStepProps) {
-  const { base, dotc, spin } = pipeStepStyles({ status })
+export function PipelineStep({ status = 'pending', className, children, ...rest }: PipelineStepProps) {
+  const { base, dotc, spin } = pipelineStepStyles({ status })
   return (
     <span className={base({ class: className })} {...rest}>
       {status === 'running' ? <span className={spin()} /> : <span className={dotc()} />}
@@ -73,7 +73,7 @@ export function Pipeline({
   children,
   ...rest
 }: PipelineProps) {
-  const steps = Children.toArray(children).filter(Boolean) as ReactElement<PipeStepProps>[]
+  const steps = Children.toArray(children).filter(Boolean) as ReactElement<PipelineStepProps>[]
   let sawPending = false
 
   return (

@@ -34,6 +34,7 @@ import CheckboxPage from './pages/components/Checkbox'
 import KbdPage from './pages/components/Kbd'
 import PillPage from './pages/components/Pill'
 import RadioPage from './pages/components/Radio'
+import RadioGroupPage from './pages/components/RadioGroup'
 import SelectPage from './pages/components/Select'
 import SwitchPage from './pages/components/Switch'
 import TextareaPage from './pages/components/Textarea'
@@ -63,6 +64,7 @@ import TooltipPage from './pages/components/Tooltip'
 import CascaderPage from './pages/components/Cascader'
 import CopyFieldPage from './pages/components/CopyField'
 import DatePickerPage from './pages/components/DatePicker'
+import DatePickerInputPage from './pages/components/DatePickerInput'
 import DropdownPage from './pages/components/Dropdown'
 import TagInputPage from './pages/components/TagInput'
 import TreePage from './pages/components/Tree'
@@ -91,7 +93,8 @@ export const routes: RouteDef[] = [
   { path: '/components/input',    title: 'Input',    section: 'components', category: 'Primitives', Component: InputPage },
   { path: '/components/kbd',      title: 'Kbd',      section: 'components', category: 'Primitives', Component: KbdPage },
   { path: '/components/pill',     title: 'Pill',     section: 'components', category: 'Primitives', Component: PillPage },
-  { path: '/components/radio',    title: 'Radio',    section: 'components', category: 'Primitives', Component: RadioPage },
+  { path: '/components/radio',        title: 'Radio',      section: 'components', category: 'Primitives', Component: RadioPage },
+  { path: '/components/radio-group',  title: 'RadioGroup', section: 'components', category: 'Primitives', Component: RadioGroupPage },
   { path: '/components/select',   title: 'Select',   section: 'components', category: 'Primitives', Component: SelectPage },
   { path: '/components/switch',   title: 'Switch',   section: 'components', category: 'Primitives', Component: SwitchPage },
   { path: '/components/textarea', title: 'Textarea', section: 'components', category: 'Primitives', Component: TextareaPage },
@@ -125,7 +128,8 @@ export const routes: RouteDef[] = [
   // 06 · Advanced
   { path: '/components/cascader',    title: 'Cascader',   section: 'components', category: 'Advanced', Component: CascaderPage },
   { path: '/components/copy-field',  title: 'CopyField',  section: 'components', category: 'Advanced', Component: CopyFieldPage },
-  { path: '/components/date-picker', title: 'DatePicker', section: 'components', category: 'Advanced', Component: DatePickerPage },
+  { path: '/components/date-picker',        title: 'DatePicker',      section: 'components', category: 'Advanced', Component: DatePickerPage },
+  { path: '/components/date-picker-input',  title: 'DatePickerInput', section: 'components', category: 'Advanced', Component: DatePickerInputPage },
   { path: '/components/dropdown',    title: 'Dropdown',   section: 'components', category: 'Advanced', Component: DropdownPage },
   { path: '/components/tag-input',   title: 'TagInput',   section: 'components', category: 'Advanced', Component: TagInputPage },
   { path: '/components/tree',        title: 'Tree',       section: 'components', category: 'Advanced', Component: TreePage },

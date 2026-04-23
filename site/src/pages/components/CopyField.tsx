@@ -47,10 +47,21 @@ export default function CopyFieldPage() {
         id. For large blocks of text prefer a pre-formatted code block with its own copy button.
       </Banner>
 
-      <h2>Default</h2>
+      <h2>Children as the source of truth</h2>
       <p>
-        When <code>value</code> is omitted the text inside <code>children</code> is both shown and
-        copied.
+        If <code>value</code> is omitted, the displayed <code>children</code> are extracted to
+        plain text (recursively) and copied on click. Handy for one-liners like install commands.
+      </p>
+      <Demo
+        code={`<CopyField>pnpm add @stcn52/cloud-ui</CopyField>`}
+      >
+        <CopyField>pnpm add @stcn52/cloud-ui</CopyField>
+      </Demo>
+
+      <h2>Explicit value</h2>
+      <p>
+        Pass <code>value</code> when you want it to match <code>children</code> exactly — good for
+        long resource ids and URLs.
       </p>
       <Demo
         code={`<CopyField value="pnpm add @stcn52/cloud-ui">
@@ -122,7 +133,7 @@ export default function CopyFieldPage() {
           <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>value</code></td><td><code>string</code></td><td>—</td><td>Text written to the clipboard. Falls back to <code>children</code> if that is a plain string.</td></tr>
+          <tr><td><code>value</code></td><td><code>string</code></td><td>—</td><td>Text written to the clipboard. Falls back to the plain-text extraction of <code>children</code>.</td></tr>
           <tr><td><code>children</code></td><td><code>ReactNode</code></td><td>—</td><td>Visible value. May differ from <code>value</code> for masking/truncation.</td></tr>
           <tr><td><code>feedbackDuration</code></td><td><code>number</code></td><td><code>1400</code></td><td>Milliseconds the "Copied" confirmation stays visible.</td></tr>
           <tr><td><code>extras</code></td><td><code>ReactNode</code></td><td>—</td><td>Extra trailing controls (reveal, regenerate, …). Rendered before the copy button.</td></tr>
