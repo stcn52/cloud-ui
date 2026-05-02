@@ -11,7 +11,7 @@ const meta = {
   argTypes: {
     intent: {
       control: 'select',
-      options: ['default', 'primary', 'subtle', 'ghost', 'outline', 'danger'],
+      options: ['default', 'primary', 'subtle', 'ghost', 'outline', 'danger', 'success', 'warning', 'link'],
     },
     size: {
       control: 'select',
@@ -34,11 +34,28 @@ export const Intents: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
       <Button intent="primary">Deploy to prod</Button>
-      <Button>Cancel</Button>
       <Button intent="subtle">Promote</Button>
-      <Button intent="ghost">Skip for now</Button>
+      <Button>Cancel</Button>
       <Button intent="outline">Outline</Button>
+      <Button intent="ghost">Skip for now</Button>
+      <Button intent="link">Learn more →</Button>
+      <Button intent="success">Approve</Button>
+      <Button intent="warning">Override</Button>
       <Button intent="danger">Delete project</Button>
+    </div>
+  ),
+}
+
+export const FullWidth: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 320 }}>
+      <Button intent="primary" size="lg" fullWidth>Continue with email</Button>
+      <Button size="lg" fullWidth>Continue with Google</Button>
+      <Button intent="ghost" size="lg" fullWidth>Use single sign-on</Button>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <Button fullWidth>Cancel</Button>
+        <Button intent="primary" fullWidth>Save changes</Button>
+      </div>
     </div>
   ),
 }

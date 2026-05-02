@@ -31,9 +31,12 @@ export const buttonStyles = tv({
       default: {},
       primary: { base: 'bg-accent text-white border-accent hover:bg-accent hover:brightness-[1.06]' },
       danger:  { base: 'bg-err text-white border-err hover:bg-err hover:brightness-[1.06]' },
+      success: { base: 'bg-ok text-white border-ok hover:bg-ok hover:brightness-[1.06]' },
+      warning: { base: 'bg-warn text-white border-warn hover:bg-warn hover:brightness-[1.06]' },
       ghost:   { base: 'bg-transparent border-transparent shadow-none text-text-muted hover:bg-bg-sunk hover:text-text' },
       subtle:  { base: 'bg-accent-weak text-accent-ink border-transparent hover:bg-accent-weak hover:brightness-[0.98]' },
       outline: { base: 'bg-transparent' },
+      link:    { base: 'bg-transparent border-transparent shadow-none text-accent-ink underline decoration-transparent underline-offset-[3px] hover:decoration-current hover:bg-transparent' },
     },
     size: {
       xs: { base: 'h-5 px-1.5 rounded-xs text-[10.5px]' },
@@ -43,6 +46,10 @@ export const buttonStyles = tv({
     },
     iconOnly: {
       true:  { base: 'justify-center px-0' },
+      false: {},
+    },
+    fullWidth: {
+      true:  { base: 'w-full justify-center' },
       false: {},
     },
     loading: {
@@ -57,15 +64,19 @@ export const buttonStyles = tv({
     { iconOnly: true, size: 'lg', class: { base: 'w-9' } },
     { intent: 'primary', loading: true, class: { loadingSpinner: 'text-white' } },
     { intent: 'danger',  loading: true, class: { loadingSpinner: 'text-white' } },
+    { intent: 'success', loading: true, class: { loadingSpinner: 'text-white' } },
+    { intent: 'warning', loading: true, class: { loadingSpinner: 'text-white' } },
     { intent: 'default', loading: true, class: { loadingSpinner: 'text-accent' } },
     { intent: 'ghost',   loading: true, class: { loadingSpinner: 'text-accent' } },
     { intent: 'subtle',  loading: true, class: { loadingSpinner: 'text-accent' } },
     { intent: 'outline', loading: true, class: { loadingSpinner: 'text-accent' } },
+    { intent: 'link',    loading: true, class: { loadingSpinner: 'text-accent' } },
   ],
   defaultVariants: {
     intent: 'default',
     size: 'md',
     iconOnly: false,
+    fullWidth: false,
     loading: false,
   },
 })
@@ -79,6 +90,7 @@ type ButtonOwnProps = {
   size?: ButtonSize
   loading?: boolean
   iconOnly?: boolean
+  fullWidth?: boolean
   children?: ReactNode
   className?: string
 }
@@ -103,6 +115,7 @@ function ButtonInner<C extends ElementType = 'button'>(
     size = 'md',
     loading = false,
     iconOnly = false,
+    fullWidth = false,
     className,
     disabled,
     children,
@@ -111,7 +124,7 @@ function ButtonInner<C extends ElementType = 'button'>(
   ref: ForwardedRef<Element>,
 ) {
   const Component = (as ?? 'button') as ElementType
-  const { base, loadingSpinner } = buttonStyles({ intent, size, iconOnly, loading })
+  const { base, loadingSpinner } = buttonStyles({ intent, size, iconOnly, fullWidth, loading })
 
   // Only add type="button" default and `disabled` when rendering a native <button>.
   const extra: Record<string, unknown> = {}

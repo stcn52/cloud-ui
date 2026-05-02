@@ -8,7 +8,7 @@ const meta = {
   args: { children: 'Healthy', tone: 'ok', dot: true },
   argTypes: {
     tone: { control: 'select', options: ['neutral', 'ok', 'warn', 'err', 'info', 'solid'] },
-    size: { control: 'select', options: ['md', 'lg'] },
+    size: { control: 'select', options: ['xs', 'md', 'lg'] },
     mono: { control: 'boolean' },
     dot: { control: 'boolean' },
   },
@@ -39,6 +39,21 @@ export const Tags: Story = {
       <Pill mono>region:us-east-1</Pill>
       <Pill mono tone="info">service:api-gateway</Pill>
       <Pill mono onRemove={() => {}}>level:ERROR</Pill>
+      <Pill size="lg" dot>Online · 12 instances</Pill>
+    </div>
+  ),
+}
+
+export const Sizes: Story = {
+  parameters: {
+    docs: { description: { story: '`xs` (18 px) for inline table badges; `md` (default, 20 px) for everything else; `lg` (24 px) for solo status displays.' } },
+  },
+  render: () => (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Pill size="xs">prod</Pill>
+      <Pill size="xs">us-east-1</Pill>
+      <Pill size="xs" tone="info">v142</Pill>
+      <Pill>Healthy</Pill>
       <Pill size="lg" dot>Online · 12 instances</Pill>
     </div>
   ),

@@ -26,6 +26,7 @@ export const pillStyles = tv({
       solid:   { base: 'bg-text text-bg border-text' },
     },
     size: {
+      xs: { base: 'h-[18px] text-[10.5px] px-1.5 gap-1', dotc: 'w-1 h-1' },
       md: { base: 'h-5' },
       lg: { base: 'h-6 text-sm px-[9px]' },
     },

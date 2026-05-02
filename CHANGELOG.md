@@ -3,6 +3,86 @@
 All notable changes will be documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.0] — 2026-05-03
+
+Eighteen new components driven by the **02-primitives** and **11-tables**
+design handoffs. Plus three additive prop expansions on existing primitives.
+No breaking changes — drop-in upgrade from 1.0.x.
+
+### Added — new primitives (02-primitives handoff)
+
+- **`Slider`** — single-thumb and dual-thumb range; keyboard-navigable
+  (Arrow / Home / End); `min` / `max` / `step` / `ticks` / `marks` / `disabled`.
+- **`NumberStepper`** — `−` / number / `+` with auto-disabled buttons at
+  `min` / `max`; three sizes.
+- **`OtpInput`** — 6-cell PIN input by default, with auto-advance on input,
+  paste-fill, optional separator, and an `invalid` error state.
+- **`ToggleGroup`** — denser pill-of-pills single-select; lighter chrome than
+  `Segmented`. `default` and `accent` intents, two sizes.
+- **`Spinner` / `DotsLoader` / `BarLoader`** — ring spinner (sm/md/lg/muted),
+  thinking dots, indeterminate top-of-panel bar.
+- **`Divider` / `DividerLabel`** — horizontal & vertical separators, plus
+  the "or"-style labeled divider for auth screens.
+- **`Link`** — `.lnk` inline link primitive with `default` / `muted` / `danger`
+  intents and a `bare` variant (underline appears on hover only).
+- **`CodeChip`** — inline mono token with `default` / `accent` / `err`.
+  Used inline next to prose for command names, paths, identifiers.
+- **`Rating`** — display + interactive star rating; supports halves; sm/md/lg.
+- **`FileInput`** — button-style file picker with the filename to the right
+  (the dropzone variant remains a separate composition pattern).
+- **`MiniTabs`** — denser, in-panel underline tabs (the page-level `Tabs`
+  remain heavier and unchanged).
+- **`ColorSwatch` / `ColorPicker`** — single tile + a row of tiles plus an
+  optional hex input. Defaults to the 8-tone NextCli brand palette; `round`,
+  `lg`, `check` variants, and a `trailing` slot for "+ Add custom".
+- **`DateChip`** — button-style date trigger for filter-bar popovers
+  (paired with the existing `DatePicker`); `selected`, `noIcon`, `noCaret`.
+- **`FormSteps`** — numbered stepper indicator. Auto-derives done/active/
+  pending state from `current`; horizontal + vertical orientation.
+
+### Added — new data-display components (11-tables handoff)
+
+- **`FilterChip` / `FilterBar`** — the chip vocabulary for list-page filters:
+  `plain` / `active` (key + value, dismissible) / `add` (dashed) / `invalid` /
+  `count` (with badge). `FilterBar` is a thin flex wrapper.
+- **`SavedViews`** — controlled view-tab strip with per-view `count` and
+  `locked` (workspace-shared) icon, plus an `onAdd` slot for "+ New view".
+- **`Sparkline`** — tiny inline trend chart. `line` / `area` / `bar` variants,
+  five tones (accent / ok / warn / err / muted). No external dependency.
+
+### Added — Table extensions (11-tables handoff)
+
+- **`density`** prop on `Table` — `compact` (28 px) / `default` (34 px) /
+  `relaxed` (44 px) row heights.
+- **`SortHeader`** — three-state sort header (`none → desc → asc → none`)
+  with auto-rotating chevron and `aria-sort`.
+- **`TableBar`** — inline mini progress bar for cells like CPU %, memory %.
+  Auto-tones at `≥85 → err` and `≥65 → warn`.
+- **`StatusCell`** — dot + label, four tones (`ok` / `warn` / `err` / `idle`).
+- **`CaretButton`** — expandable-row toggle with rotation animation.
+- **`BulkBar` / `BulkBarButton` / `BulkBarSep`** — sticky bulk-action sheet
+  for when ≥ 1 row is selected. Includes `danger` styling for delete actions.
+- New utility classes baked into the `Table` base: `right`, `actions`,
+  `num`, `mono`, plus a `tr.sel` selected-row state and hover-revealed
+  action cells.
+
+### Added — extensions to existing primitives
+
+- **`Button`** — three new intents (`success`, `warning`, `link`) and a
+  `fullWidth` prop. Loading-spinner colors picked per intent.
+- **`Avatar`** — six brand gradient `tone`s (`azure` / `rose` / `amber` /
+  `mint` / `violet` / `stone`); plus a `presence` prop that renders a status
+  dot (`ok` / `warn` / `err` / `idle`) in the bottom-right corner with a
+  surface-matching border. New `tone="none"` opt-out for custom backgrounds.
+- **`Pill`** — new `xs` size (18 px) intended for inline table badges.
+- **`Field`** — `required` (red `*`) and `optional` (dim suffix) label markers.
+
+### Internal
+
+- New `barLoader` keyframe in `extras.css`.
+- 18 new Storybook story files; existing Button / Avatar / Pill / Table
+  stories updated to showcase the new variants.
+
 ## [1.0.0] — 2026-04-23
 
 First stable major. Acts on every friction point found while dogfooding the
