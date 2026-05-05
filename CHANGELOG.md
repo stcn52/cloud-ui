@@ -3,6 +3,19 @@
 All notable changes will be documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.1] — 2026-05-05
+
+### Fixed
+
+- **`Popover` / `Dropdown` / `Tooltip` / `Select` failed to position on first
+  open.** The internal `Portal` mounted asynchronously via a `useState +
+  useEffect` round-trip, so the panel ref was still `null` when the
+  positioning `useLayoutEffect` ran. Subsequent layout effects didn't re-run,
+  leaving panels stuck at `visibility: hidden`. `Portal` now mounts
+  synchronously (SSR-safe via a `typeof document` guard).
+  Affects every overlay that needs to read its panel rect on open. No API
+  change.
+
 ## [1.1.0] — 2026-05-03
 
 Eighteen new components driven by the **02-primitives** and **11-tables**
