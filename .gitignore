@@ -51,3 +51,4 @@ coverage/
 # Temp / scratch
 tmp/
 .tmp/
+.omx/

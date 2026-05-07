@@ -18,25 +18,40 @@ export interface SelectOption<V extends string = string> {
   group?: string
 }
 
-export interface SelectProps<V extends string = string> {
-  /** Controlled value. */
-  value?: V
-  /** Uncontrolled initial value. */
-  defaultValue?: V
-  /** Called with the new selected value. */
-  onChange?: (value: V) => void
+interface SelectBase<V extends string = string> {
   options: SelectOption<V>[]
   /** Text shown when nothing is selected. */
   placeholder?: ReactNode
   /** Enable type-to-filter inside the dropdown. */
   searchable?: boolean
+  /** Show a small × button to clear the value(s). */
+  clearable?: boolean
   disabled?: boolean
   invalid?: boolean
   size?: 'sm' | 'md'
   className?: string
-  /** Accessible label when no external <label> is bound. */
   'aria-label'?: string
 }
+
+interface SelectSingleProps<V extends string = string> extends SelectBase<V> {
+  multiple?: false
+  value?: V
+  defaultValue?: V
+  onChange?: (value: V | undefined) => void
+}
+
+interface SelectMultipleProps<V extends string = string> extends SelectBase<V> {
+  multiple: true
+  value?: V[]
+  defaultValue?: V[]
+  onChange?: (value: V[]) => void
+  /** Limit how many chips render before collapsing into "+N". */
+  maxTagCount?: number
+}
+
+export type SelectProps<V extends string = string> =
+  | SelectSingleProps<V>
+  | SelectMultipleProps<V>
 
 const triggerStyles = tv({
   base: [
@@ -48,8 +63,8 @@ const triggerStyles = tv({
   ],
   variants: {
     size: {
-      sm: 'h-[26px] px-2 text-xs',
-      md: 'h-[30px] px-2.5 text-sm',
+      sm: 'min-h-[26px] px-2 text-xs py-0.5',
+      md: 'min-h-[30px] px-2.5 text-sm py-1',
     },
     invalid: {
       true: 'border-err focus-visible:shadow-[0_0_0_3px_color-mix(in_oklch,var(--color-err)_25%,transparent)]',
@@ -59,8 +74,12 @@ const triggerStyles = tv({
       true: 'border-accent shadow-[var(--shadow-focus)]',
       false: '',
     },
+    multiple: {
+      true: 'items-start',
+      false: '',
+    },
   },
-  defaultVariants: { size: 'md', invalid: false, open: false },
+  defaultVariants: { size: 'md', invalid: false, open: false, multiple: false },
 })
 
 const panelStyles = tv({
@@ -84,25 +103,59 @@ const optionStyles = tv({
   defaultVariants: { active: false, selected: false, disabled: false },
 })
 
+const chipStyles = tv({
+  base: [
+    'inline-flex items-center gap-1 max-w-full',
+    'px-1.5 py-0.5 rounded-xs text-xs',
+    'bg-accent-weak text-accent-ink',
+  ],
+})
+
 export const Select = forwardRef(function Select<V extends string = string>(
-  {
-    value,
-    defaultValue,
-    onChange,
+  props: SelectProps<V>,
+  ref: React.Ref<HTMLButtonElement>,
+) {
+  // Internally treat both shapes as one permissive bag — the discriminated union
+  // is enforced at the call site by the `as` cast on the export below.
+  type AnyProps = SelectBase<V> & {
+    multiple?: boolean
+    value?: V | V[]
+    defaultValue?: V | V[]
+    onChange?: (v: V | V[] | undefined) => void
+    maxTagCount?: number
+  }
+  const {
     options,
     placeholder = 'Select…',
     searchable = false,
+    clearable = false,
     disabled = false,
     invalid = false,
     size = 'md',
     className,
+    multiple,
+    value: _v,
+    defaultValue: _dv,
+    onChange: _oc,
+    maxTagCount: _mtc,
     ...rest
-  }: SelectProps<V>,
-  ref: React.Ref<HTMLButtonElement>,
-) {
-  const isControlled = value !== undefined
-  const [inner, setInner] = useState<V | undefined>(defaultValue)
-  const selected = isControlled ? value : inner
+  } = props as AnyProps
+
+  // Normalize controlled/uncontrolled value across single/multi via internal array.
+  const isControlled = _v !== undefined
+  const initial: V[] = multiple
+    ? ((_dv as V[] | undefined) ?? [])
+    : (_dv as V | undefined) !== undefined
+    ? [_dv as V]
+    : []
+  const [inner, setInner] = useState<V[]>(initial)
+  const selected: V[] = multiple
+    ? ((_v as V[] | undefined) ?? (isControlled ? [] : inner))
+    : (_v as V | undefined) !== undefined
+    ? [_v as V]
+    : isControlled
+    ? []
+    : inner
 
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -111,8 +164,9 @@ export const Select = forwardRef(function Select<V extends string = string>(
   const panelRef = useRef<HTMLDivElement>(null)
   const [panelStyle, setPanelStyle] = useState<React.CSSProperties>({ position: 'fixed', visibility: 'hidden' })
 
-  const selectedOption = useMemo(
-    () => options.find((o) => o.value === selected),
+  const selectedSet = useMemo(() => new Set(selected), [selected])
+  const selectedOptions = useMemo(
+    () => selected.map((v) => options.find((o) => o.value === v)).filter(Boolean) as SelectOption<V>[],
     [options, selected],
   )
 
@@ -139,8 +193,9 @@ export const Select = forwardRef(function Select<V extends string = string>(
       left: rect.left,
       '--select-anchor-w': `${rect.width}px`,
     } as React.CSSProperties)
-    setActiveIdx(Math.max(0, filtered.findIndex((o) => o.value === selected)))
-  }, [open, filtered, selected])
+    const firstSelected = filtered.findIndex((o) => selectedSet.has(o.value))
+    setActiveIdx(Math.max(0, firstSelected))
+  }, [open, filtered, selectedSet])
 
   useEffect(() => {
     if (!open) return
@@ -158,13 +213,39 @@ export const Select = forwardRef(function Select<V extends string = string>(
     }
   }, [open])
 
+  const emit = (next: V[]) => {
+    if (!isControlled) setInner(next)
+    if (multiple) {
+      ;(_oc as ((v: V[]) => void) | undefined)?.(next)
+    } else {
+      ;(_oc as ((v: V | undefined) => void) | undefined)?.(next[0])
+    }
+  }
+
   const commit = (opt: SelectOption<V>) => {
     if (opt.disabled) return
-    if (!isControlled) setInner(opt.value)
-    onChange?.(opt.value)
-    setOpen(false)
-    setQuery('')
-    triggerRef.current?.focus()
+    if (multiple) {
+      const next = selectedSet.has(opt.value)
+        ? selected.filter((v) => v !== opt.value)
+        : [...selected, opt.value]
+      emit(next)
+      // keep panel open in multi mode
+    } else {
+      emit([opt.value])
+      setOpen(false)
+      setQuery('')
+      triggerRef.current?.focus()
+    }
+  }
+
+  const clear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    emit([])
+  }
+
+  const removeOne = (e: React.MouseEvent, v: V) => {
+    e.stopPropagation()
+    emit(selected.filter((x) => x !== v))
   }
 
   const onTriggerKey = (e: ReactKeyboardEvent<HTMLButtonElement>) => {
@@ -172,6 +253,9 @@ export const Select = forwardRef(function Select<V extends string = string>(
     if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       setOpen(true)
+    } else if (e.key === 'Backspace' && multiple && selected.length > 0 && !open) {
+      e.preventDefault()
+      emit(selected.slice(0, -1))
     }
   }
 
@@ -189,6 +273,13 @@ export const Select = forwardRef(function Select<V extends string = string>(
     }
   }
 
+  const showClear = clearable && !disabled && selected.length > 0
+  const maxTagCount = multiple ? _mtc : undefined
+  const visibleChips =
+    multiple && maxTagCount !== undefined ? selectedOptions.slice(0, maxTagCount) : selectedOptions
+  const overflow =
+    multiple && maxTagCount !== undefined ? Math.max(0, selectedOptions.length - maxTagCount) : 0
+
   return (
     <>
       <button
@@ -202,18 +293,70 @@ export const Select = forwardRef(function Select<V extends string = string>(
         aria-expanded={open}
         aria-haspopup="listbox"
         disabled={disabled}
-        className={triggerStyles({ size, invalid, open, class: className })}
+        className={triggerStyles({ size, invalid, open, multiple: !!multiple, class: className })}
         onClick={() => !disabled && setOpen((o) => !o)}
         onKeyDown={onTriggerKey}
         {...rest}
       >
-        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {selectedOption ? (
-            selectedOption.label
+        <span style={{ flex: 1, minWidth: 0, display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
+          {selected.length === 0 ? (
+            <span style={{ color: 'var(--color-text-dim)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {placeholder}
+            </span>
+          ) : multiple ? (
+            <>
+              {visibleChips.map((opt) => (
+                <span key={opt.value} className={chipStyles()} onClick={(e) => e.stopPropagation()}>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {opt.label}
+                  </span>
+                  {!disabled && (
+                    <button
+                      type="button"
+                      aria-label="Remove"
+                      onClick={(e) => removeOne(e, opt.value)}
+                      style={{
+                        border: 0,
+                        background: 'transparent',
+                        color: 'inherit',
+                        cursor: 'pointer',
+                        padding: 0,
+                        lineHeight: 1,
+                        opacity: 0.6,
+                      }}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                        <path d="M6 6l12 12M18 6L6 18" />
+                      </svg>
+                    </button>
+                  )}
+                </span>
+              ))}
+              {overflow > 0 && (
+                <span className={chipStyles()} style={{ background: 'var(--color-bg-sunk)', color: 'var(--color-text-muted)' }}>
+                  +{overflow}
+                </span>
+              )}
+            </>
           ) : (
-            <span style={{ color: 'var(--color-text-dim)' }}>{placeholder}</span>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', width: '100%' }}>
+              {selectedOptions[0]?.label}
+            </span>
           )}
         </span>
+        {showClear && (
+          <span
+            role="button"
+            aria-label="Clear"
+            tabIndex={-1}
+            onClick={clear}
+            style={{ display: 'inline-flex', opacity: 0.6, cursor: 'pointer' }}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </span>
+        )}
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
           <polyline points="6 9 12 15 18 9" />
         </svg>
@@ -223,6 +366,7 @@ export const Select = forwardRef(function Select<V extends string = string>(
           <div
             ref={panelRef}
             role="listbox"
+            aria-multiselectable={multiple || undefined}
             tabIndex={-1}
             className={panelStyles()}
             style={panelStyle}
@@ -257,7 +401,7 @@ export const Select = forwardRef(function Select<V extends string = string>(
                 </div>
               )}
               {filtered.map((opt, i) => {
-                const isSelected = opt.value === selected
+                const isSelected = selectedSet.has(opt.value)
                 return (
                   <div
                     key={opt.value}
@@ -271,11 +415,41 @@ export const Select = forwardRef(function Select<V extends string = string>(
                     onMouseEnter={() => setActiveIdx(i)}
                     onClick={() => commit(opt)}
                   >
-                    <span>{opt.label}</span>
-                    {isSelected && (
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden>
-                        <polyline points="5 12.5 10 17.5 19 7.5" />
-                      </svg>
+                    {multiple ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
+                        <span
+                          aria-hidden
+                          style={{
+                            width: 14,
+                            height: 14,
+                            border: '1px solid var(--color-line-strong)',
+                            borderRadius: 3,
+                            background: isSelected ? 'var(--color-accent)' : 'transparent',
+                            color: 'white',
+                            display: 'inline-grid',
+                            placeItems: 'center',
+                            flexShrink: 0,
+                          }}
+                        >
+                          {isSelected && (
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} aria-hidden>
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {opt.label}
+                        </span>
+                      </span>
+                    ) : (
+                      <>
+                        <span>{opt.label}</span>
+                        {isSelected && (
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                            <polyline points="5 12.5 10 17.5 19 7.5" />
+                          </svg>
+                        )}
+                      </>
                     )}
                   </div>
                 )

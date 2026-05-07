@@ -38,6 +38,8 @@ export * from './components/FileInput'
 export * from './components/ColorPicker'
 export * from './components/DateChip'
 export * from './components/FormSteps'
+export * from './components/Form'
+export * from './components/StepForm'
 
 // 03 · Data display
 export * from './components/Card'

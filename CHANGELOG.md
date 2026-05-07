@@ -3,6 +3,52 @@
 All notable changes will be documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.2.0] — 2026-05-07
+
+Form-validation primitives plus a multi-step form wrapper, on top of new
+`Select` multi-select capabilities. Also extends `Locale` with a `form` block
+so built-in validator messages localise via the existing toolbar locale toggle.
+No breaking changes — drop-in upgrade from 1.1.x.
+
+### Added — new primitives
+
+- **`Form` + `useForm`** — headless form-state hook with field-level rules,
+  cross-field `validate`, blur-then-onChange error display, `validateAll` /
+  `validateFields(names)` / `submit`. `<FormField bind={form.field('x')}>`
+  wires a control into the standard `<Field>` label/error layout and adapts
+  both `(value) => …` and native `e.target.value/checked` event signatures.
+  Built-in validators: `required`, `minLength`, `maxLength`, `pattern`,
+  `email` — each `msg` accepts `string | (ctx) => string` for project copy or
+  i18n integration; omit it to fall back to `Locale.form`.
+- **`StepForm`** — multi-step wrapper around `FormSteps` with Back / Next /
+  Finish navigation. Pair with `useForm` and per-step `fields: ['name', …]`
+  for partial validation; the final step calls `form.submit()` so `onSubmit`
+  fires once with the full values. Headless mode (per-step `validate()`) also
+  supported for branched flows.
+
+### Added — Select multi-select
+
+- **`Select multiple`** — discriminated-union API: pass `multiple` to bind a
+  `string[]` value. Selected entries render as removable chips inside the
+  trigger; Backspace removes the last chip; `maxTagCount` collapses overflow
+  into a `+N` chip.
+- **`Select clearable`** — small `×` button clears the value(s); shared by
+  single and multiple modes.
+- The dropdown shows a checkbox per row in multi mode and stays open after
+  each pick.
+
+### Added — Locale
+
+- New `Locale.form` block with built-in messages for `required`, `minLength`,
+  `maxLength`, `pattern`, and `email.{format,fullwidth,whitespace}`. Both
+  `en` and `zhCN` translated. `useForm` reads this through the existing
+  `ConfigProvider` / `useLocale()`, so the Storybook locale toolbar (and any
+  app-level provider) drives validator messages with no per-call boilerplate.
+- `email` validator now distinguishes three failure reasons —
+  `'format' | 'fullwidth' | 'whitespace'` — and surfaces the right one when
+  the input contains full-width `＠` / `．` (a common IME slip-up) or stray
+  whitespace.
+
 ## [1.1.1] — 2026-05-05
 
 ### Fixed

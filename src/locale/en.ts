@@ -37,6 +37,25 @@ export interface Locale {
     prevMonth: string
     nextMonth: string
   }
+  /**
+   * Built-in form-validation fallbacks, consumed by `useForm` when a validator
+   * is called without an explicit `msg`. Length/pattern entries support `{n}`
+   * substitution where applicable.
+   */
+  form: {
+    required: string
+    /** `{n}` is replaced with the limit. */
+    minLength: string
+    /** `{n}` is replaced with the limit. */
+    maxLength: string
+    pattern: string
+    email: {
+      format: string
+      /** Shown when the value contains full-width `＠` or `．`. */
+      fullwidth: string
+      whitespace: string
+    }
+  }
 }
 
 export const en: Locale = {
@@ -75,5 +94,16 @@ export const en: Locale = {
   datePicker: {
     prevMonth: 'Previous month',
     nextMonth: 'Next month',
+  },
+  form: {
+    required:  'Required',
+    minLength: 'Must be at least {n} characters',
+    maxLength: 'Must be at most {n} characters',
+    pattern:   'Invalid format',
+    email: {
+      format:     'Invalid email',
+      fullwidth:  'Invalid email — looks like a full-width character (＠ or ．). Switch to half-width.',
+      whitespace: 'Invalid email — contains spaces.',
+    },
   },
 }

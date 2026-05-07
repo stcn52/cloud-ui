@@ -37,4 +37,15 @@ export const zhCN: Locale = {
     prevMonth: '上一月',
     nextMonth: '下一月',
   },
+  form: {
+    required:  '必填项',
+    minLength: '至少 {n} 个字符',
+    maxLength: '最多 {n} 个字符',
+    pattern:   '格式无效',
+    email: {
+      format:     '邮箱格式无效',
+      fullwidth:  '邮箱无效 — 检测到全角字符(＠ 或 ．),请切换到半角输入。',
+      whitespace: '邮箱无效 — 不能包含空格。',
+    },
+  },
 }
