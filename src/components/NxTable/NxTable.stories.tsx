@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { StrictMode, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { NxTable, type NxColumn } from './index'
 import { Button } from '../Button'
@@ -412,5 +412,52 @@ export const EmptyAndFiltered: Story = {
         />
       </div>
     </div>
+  ),
+}
+
+export const FillHeight: Story = {
+  parameters: { docs: { description: { story: '`fillHeight` makes the toolbar pin to the top, pagination to the bottom, and the body scroll internally to fill the parent\'s height — the typical full-screen list-page layout. The parent must give NxTable a height (here a fixed-height flex column; in an app it\'d be `flex: 1` of the page shell with `min-height: 0`).' } } },
+  render: () => (
+    <div style={{ height: 460, display: 'flex', flexDirection: 'column', minHeight: 0, width: 920, border: '1px dashed var(--color-line)', padding: 8, borderRadius: 8 }}>
+      <div className="text-xs text-text-dim mb-2 shrink-0">↓ a fixed-height flex column; NxTable below gets <code>flex: 1</code></div>
+      <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+        <NxTable<Instance>
+          data={rows}
+          columns={cols()}
+          getRowId={(r) => r.id}
+          fillHeight
+          className="flex-1"
+          selectable="multi"
+          pageSize={50}
+          bulkActions={(p) => <Button size="xs" intent="danger">Terminate {p.length}</Button>}
+        />
+      </div>
+    </div>
+  ),
+}
+
+export const StrictModeWithSelectFilter: Story = {
+  parameters: { docs: { description: { story: 'Regression guard for the "Maximum update depth exceeded" loop: rendered under `<StrictMode>` (double-mount), inside a `flex` height-constrained container, with a `filterKind: "select"` column and a non-memoized `columns` array — i.e. the exact host conditions that used to trip the loop in `Select`\'s positioning effect. Open the Status / Region funnels — no console spam.' } } },
+  render: () => (
+    <StrictMode>
+      <div style={{ height: 420, display: 'flex', flexDirection: 'column', minHeight: 0, width: 880 }}>
+        <NxTable<Instance>
+          data={rows}
+          // Intentionally a fresh array every render — host code commonly does this.
+          columns={[
+            { key: 'name', label: 'Instance', type: 'text', width: 180, sortable: true, filterable: true, filterKind: 'text' },
+            { key: 'region', label: 'Region', type: 'text', width: 150, sortable: true, filterable: true, filterKind: 'select', options: REGIONS },
+            { key: 'status', label: 'Status', type: 'status', width: 120, sortable: true, filterable: true, filterKind: 'select', options: STATUSES },
+            { key: 'vcpus', label: 'vCPUs', type: 'number', width: 100, align: 'right', sortable: true, filterable: true, filterKind: 'range' },
+            { key: 'monthlyCost', label: 'Monthly cost', type: 'money', width: 150, align: 'right', sortable: true },
+          ]}
+          getRowId={(r) => String(r.id)}
+          fillHeight
+          className="flex-1"
+          paginate
+          persistKey="nxtable-strict-demo"
+        />
+      </div>
+    </StrictMode>
   ),
 }

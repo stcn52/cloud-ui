@@ -6,6 +6,35 @@ All notable changes will be documented here. Format loosely follows
 Story links below point at the live Storybook:
 <https://stcn52.github.io/cloud-ui/storybook/>.
 
+## [1.4.1] — 2026-05-12
+
+Bug-fix release. No API changes; `NxTable` gains an opt-in `fillHeight` prop.
+
+### Fixed
+
+- **`Select` could infinite-loop ("Maximum update depth exceeded") when its
+  dropdown was open and `options`/`value` came from a non-memoized parent** —
+  a very common caller pattern (e.g. `NxTable`'s per-column filter dropdown).
+  The positioning effect listed `filtered` / `selectedSet` in its deps, both of
+  which churn a new reference each render in that case, and it always wrote a
+  fresh `panelStyle` object → render → effect → render… Now the effect only
+  depends on `open` (plus a stable `useCallback`), reads `filtered`/`selectedSet`
+  via refs, repositions on scroll/resize, and bails out of `setPanelStyle` /
+  `setActiveIdx` when nothing changed. `NxTable` also memoizes the option arrays
+  it feeds to its filter / density / page-size `Select`s.
+
+### Added
+
+- **`NxTable` `fillHeight` prop** — when set, the root becomes `h-full`, the
+  toolbar pins to the top, pagination to the bottom, and the table body scrolls
+  internally to fill the parent's height (the usual full-screen list-page
+  layout). The parent must give NxTable a height (`height: 100%`, or `flex: 1`
+  in a flex container with `min-height: 0`). The root now also carries
+  `min-height: 0` so it shrinks correctly inside flex parents even without
+  `fillHeight`.
+  Stories: [Fill height](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11-·-tables-nxtable--fill-height) ·
+  [StrictMode + select filter (regression guard)](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11-·-tables-nxtable--strict-mode-with-select-filter)
+
 ## [1.4.0] — 2026-05-08
 
 Seven new components — `NxTable`, `JsonViewer`, `NotificationCenter`,

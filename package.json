@@ -1,6 +1,6 @@
 {
   "name": "@stcn52/cloud-ui",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "NextCli design system — React + TS component library with Tailwind v4.",
   "type": "module",
   "sideEffects": [

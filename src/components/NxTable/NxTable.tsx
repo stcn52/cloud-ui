@@ -71,6 +71,14 @@ export interface NxTableProps<R = Record<string, unknown>> {
   onRowClick?: (row: R) => void
   /** Empty-state node. */
   emptyState?: ReactNode
+  /**
+   * Stretch to fill the parent's height: the root becomes `h-full`, the table
+   * scroll area takes the leftover space (toolbar pinned to the top, pagination
+   * to the bottom, body scrolls internally). The parent must give NxTable a
+   * height — set `height: 100%` on it, or place it in a flex container with
+   * `flex: 1` (and remember `min-height: 0` on the flex parent so it can shrink).
+   */
+  fillHeight?: boolean
   className?: string
 }
 
@@ -163,6 +171,13 @@ const cellStyles = tv({
   base: 'px-3 align-middle text-sm text-text border-b border-line whitespace-nowrap overflow-hidden text-ellipsis',
 })
 
+// Module-level so the `<Select options>` reference is stable.
+const DENSITY_OPTIONS = [
+  { value: 'compact', label: 'Compact' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'comfy', label: 'Comfortable' },
+]
+
 /* -------------------------------------------------------------------------- */
 /* Component                                                                   */
 /* -------------------------------------------------------------------------- */
@@ -186,6 +201,7 @@ export function NxTable<R = Record<string, unknown>>({
   rowActions,
   onRowClick,
   emptyState,
+  fillHeight = false,
   className,
 }: NxTableProps<R>) {
   const persisted = useMemo(() => loadState(persistKey), [persistKey])
@@ -225,6 +241,24 @@ export function NxTable<R = Record<string, unknown>>({
   const rightPinned = columns.filter((c) => c.pinned === 'right')
   const normalCols = columns.filter((c) => !c.pinned)
   const orderedCols = [...leftPinned, ...normalCols, ...rightPinned]
+
+  const pageSizeSelectOptions = useMemo(
+    () => pageSizeOptions.map((n) => ({ value: String(n), label: String(n) })),
+    [pageSizeOptions],
+  )
+
+  // Stable `Select` options for `filterKind: 'select'` columns — built once per
+  // `columnsProp` change so the filter dropdown's `<Select options>` keeps a
+  // steady reference across renders.
+  const filterSelectOptions = useMemo(() => {
+    const m: Record<string, { value: string; label: string }[]> = {}
+    for (const c of columnsProp) {
+      if (c.filterKind === 'select' && c.options) {
+        m[c.key] = [{ value: '', label: 'All' }, ...c.options.map((o) => ({ value: o, label: o }))]
+      }
+    }
+    return m
+  }, [columnsProp])
 
   /* --- filtering --- */
   const filtered = useMemo(() => {
@@ -364,7 +398,7 @@ export function NxTable<R = Record<string, unknown>>({
   }
 
   return (
-    <div className={['flex flex-col border border-line rounded-md bg-bg-elev overflow-hidden', className].filter(Boolean).join(' ')}>
+    <div className={['flex flex-col border border-line rounded-md bg-bg-elev overflow-hidden min-h-0', fillHeight ? 'h-full' : '', className].filter(Boolean).join(' ')}>
       {/* toolbar */}
       {showToolbar && (
         <div className="flex flex-wrap items-center gap-x-2 gap-y-2 px-3 py-2 border-b border-line">
@@ -390,7 +424,7 @@ export function NxTable<R = Record<string, unknown>>({
               size="sm"
               value={density}
               onChange={(v) => setDensity(v as NxDensity)}
-              options={[{ value: 'compact', label: 'Compact' }, { value: 'normal', label: 'Normal' }, { value: 'comfy', label: 'Comfortable' }]}
+              options={DENSITY_OPTIONS}
             />
             <div className="relative">
               <Button size="sm" intent="default" className="whitespace-nowrap" onClick={(e) => { e.stopPropagation(); setColMenuOpen((o) => !o) }}>Columns</Button>
@@ -424,7 +458,7 @@ export function NxTable<R = Record<string, unknown>>({
       )}
 
       {/* table */}
-      <div className="overflow-auto">
+      <div className={fillHeight ? 'overflow-auto flex-1 min-h-0' : 'overflow-auto'}>
         <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
           <colgroup>
             {selectable && <col style={{ width: 36 }} />}
@@ -493,7 +527,7 @@ export function NxTable<R = Record<string, unknown>>({
                     {openFilterCol === c.key && (
                       <div className="absolute left-0 top-full mt-1 z-40 bg-bg-elev border border-line rounded-md shadow-md p-2 normal-case tracking-normal" onClick={(e) => e.stopPropagation()} style={{ minWidth: 180 }}>
                         {c.filterKind === 'select' && c.options ? (
-                          <Select size="sm" value={filters[c.key] || undefined} onChange={(v) => { setFilters((f) => ({ ...f, [c.key]: (v as string) ?? '' })); setPage(0) }} options={[{ value: '', label: 'All' }, ...c.options.map((o) => ({ value: o, label: o }))]} placeholder="All" />
+                          <Select size="sm" value={filters[c.key] || undefined} onChange={(v) => { setFilters((f) => ({ ...f, [c.key]: (v as string) ?? '' })); setPage(0) }} options={filterSelectOptions[c.key] ?? []} placeholder="All" />
                         ) : c.filterKind === 'range' ? (
                           <div className="flex items-center gap-1">
                             <Input size="sm" type="number" placeholder="min" style={{ width: 70 }} value={(filters[c.key] ?? '|').split('|')[0]} onChange={(e) => { const hi = (filters[c.key] ?? '|').split('|')[1] ?? ''; setFilters((f) => ({ ...f, [c.key]: `${e.target.value}|${hi}` })); setPage(0) }} />
@@ -596,7 +630,7 @@ export function NxTable<R = Record<string, unknown>>({
           <span className="whitespace-nowrap">{sorted.length === 0 ? '0' : `${safePage * pageSize + 1}–${Math.min(sorted.length, (safePage + 1) * pageSize)}`} of {sorted.length}</span>
           <div className="ml-auto flex items-center gap-2">
             <span className="whitespace-nowrap">Rows per page</span>
-            <Select size="sm" value={String(pageSize)} onChange={(v) => { setPageSize(Number(v)); setPage(0) }} options={pageSizeOptions.map((n) => ({ value: String(n), label: String(n) }))} />
+            <Select size="sm" value={String(pageSize)} onChange={(v) => { setPageSize(Number(v)); setPage(0) }} options={pageSizeSelectOptions} />
             <div className="flex items-center gap-1.5 ml-1">
               <Button size="sm" intent="default" disabled={safePage === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>Prev</Button>
               <span className="tabular-nums whitespace-nowrap px-1">{safePage + 1} / {pageCount}</span>
