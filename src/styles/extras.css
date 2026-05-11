@@ -63,6 +63,9 @@ kbd {
   border: 2px solid var(--color-bg);
 }
 ::-webkit-scrollbar-track { background: transparent; }
+/* The corner where vertical & horizontal scrollbars meet — browser default
+   is a light-grey square that pops on dark surfaces. */
+::-webkit-scrollbar-corner { background: transparent; }
 
 /* Utility shortcuts used internally (mono + tabular-nums). */
 .mono { font-family: var(--font-mono); }

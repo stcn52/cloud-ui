@@ -90,3 +90,29 @@ export const WithAffix: Story = {
     </div>
   ),
 }
+
+export const Clearable: Story = {
+  parameters: { docs: { description: { story: '`clearable` shows a small × on the right while the input has a value; clicking it empties the field (works for controlled and uncontrolled inputs) and refocuses. `onClear` fires alongside.' } } },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 320 }}>
+      <Field label="Search (uncontrolled)">
+        <Input clearable defaultValue="some text" placeholder="Type something…" />
+      </Field>
+      <Field label="Filter (sizes)">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Input size="sm" clearable defaultValue="sm" />
+          <Input size="md" clearable defaultValue="md" />
+          <Input size="lg" clearable defaultValue="lg" />
+        </div>
+      </Field>
+      <Field label="With left icon (compose with absolute positioning)">
+        <div style={{ position: 'relative' }}>
+          <Input clearable defaultValue="acme-staging" style={{ paddingLeft: 28 }} />
+          <svg style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="text-text-dim" aria-hidden>
+            <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </div>
+      </Field>
+    </div>
+  ),
+}

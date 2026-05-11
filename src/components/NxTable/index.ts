@@ -5,4 +5,9 @@ export type {
   NxColumnType,
   NxFilterKind,
   NxDensity,
-} from './NxTable'
+  NxSortDir,
+  NxSortState,
+  NxRowReorderEvent,
+  NxCellEditorArgs,
+  NxEditable,
+} from './types'
