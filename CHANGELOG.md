@@ -6,6 +6,38 @@ All notable changes will be documented here. Format loosely follows
 Story links below point at the live Storybook:
 <https://stcn52.github.io/cloud-ui/storybook/>.
 
+## [1.5.0] — 2026-05-12
+
+New `Transfer` component and a `Transfer`-powered column manager for `NxTable`.
+No breaking changes — `NxTable`'s `columnManager` defaults to the existing
+checkbox dropdown.
+
+### Added — new component
+
+- **`Transfer`** — dual-list "shuttle" picker. Left pane = available items
+  (searchable), right pane = selected items (searchable), click to move between
+  them; "Add all" / "Remove all". The right pane supports **drag-to-reorder**
+  (`sortable`, default on) and optional **target groups** (`groups`) — each a
+  labelled bucket, optionally with a `max` cap that rejects drops past it (e.g.
+  a "Frozen (3)" group). Items can carry `icon` / `disabled` / `searchText`;
+  controlled (`value` of `string | {key, group}` entries) or uncontrolled
+  (`defaultValue`); `onResetDefaults` renders a "Restore defaults" link. This is
+  the standard "configure fields / configure columns" UI.
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-transfer--playground) ·
+  [With frozen group](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-transfer--with-frozen-group) ·
+  [Not sortable](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-transfer--not-sortable) ·
+  [In a dialog](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-transfer--in-a-dialog)
+
+### Added — NxTable column manager
+
+- **`NxTable` `columnManager` prop** — `'menu'` (default, the existing checkbox
+  dropdown) or `'dialog'`. In `'dialog'` mode the toolbar "Columns" button opens
+  a `Transfer` dialog where you can show/hide columns, **reorder** them by drag,
+  and drag columns into a "Frozen" group (= `pinned: 'left'`, max 3). Column
+  order and pinning are now tracked internally (and persisted under `persistKey`,
+  which gained `order` / `pins` fields).
+  Story: [Column manager dialog](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11-·-tables-nxtable--column-manager-dialog)
+
 ## [1.4.1] — 2026-05-12
 
 Bug-fix release. No API changes; `NxTable` gains an opt-in `fillHeight` prop.

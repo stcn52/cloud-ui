@@ -107,7 +107,7 @@ only, no runtime components).
 **06 · Advanced** — `Dropdown`, `DropdownItem`, `DropdownGroup`,
 `DropdownSeparator`, `DropdownSearch`, `Tree`, `Cascader`, `DatePicker`,
 `TagInput`, `CopyField`, `Accordion`, `AccordionItem`, `PromptInput`,
-`JsonViewer`, `NotificationCenter`, `QueryBuilder`, `MentionPopover`.
+`JsonViewer`, `NotificationCenter`, `QueryBuilder`, `MentionPopover`, `Transfer`.
 
 **11 · Tables** — `NxTable` (enterprise data table: resize/pin columns, sort,
 per-column filters, search, pagination, selection + bulk actions, expandable

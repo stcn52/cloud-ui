@@ -11,6 +11,8 @@ import { Button } from '../Button'
 import { Input } from '../Input'
 import { Select } from '../Select'
 import { Pill } from '../Pill'
+import { Dialog, DialogHead, DialogBody, DialogFoot } from '../Dialog'
+import { Transfer, type TransferItem, type TransferTargetEntry } from '../Transfer'
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */
@@ -79,6 +81,14 @@ export interface NxTableProps<R = Record<string, unknown>> {
    * `flex: 1` (and remember `min-height: 0` on the flex parent so it can shrink).
    */
   fillHeight?: boolean
+  /**
+   * How the "Columns" toolbar control behaves:
+   * - `'menu'` (default) — a simple checkbox dropdown to show/hide columns.
+   * - `'dialog'` — opens a `Transfer` dialog where you can show/hide, **reorder**,
+   *   and pin columns to a "Frozen" group (left side). Order and pinning are
+   *   tracked internally (and persisted with `persistKey`).
+   */
+  columnManager?: 'menu' | 'dialog'
   className?: string
 }
 
@@ -151,6 +161,8 @@ interface UiState {
   pageSize: number
   hidden: string[]
   widths: Record<string, number>
+  order: string[]
+  pins: Record<string, 'left' | 'right' | null>
 }
 
 function loadState(key: string | undefined): Partial<UiState> | null {
@@ -202,6 +214,7 @@ export function NxTable<R = Record<string, unknown>>({
   onRowClick,
   emptyState,
   fillHeight = false,
+  columnManager = 'menu',
   className,
 }: NxTableProps<R>) {
   const persisted = useMemo(() => loadState(persistKey), [persistKey])
@@ -214,10 +227,15 @@ export function NxTable<R = Record<string, unknown>>({
   const [page, setPage] = useState(0)
   const [hidden, setHidden] = useState<Set<string>>(new Set(persisted?.hidden ?? columnsProp.filter((c) => c.hidden).map((c) => c.key)))
   const [widths, setWidths] = useState<Record<string, number>>(persisted?.widths ?? {})
+  // Column display order (keys). Persisted; falls back to `columnsProp` order.
+  const [colOrder, setColOrder] = useState<string[]>(persisted?.order ?? columnsProp.map((c) => c.key))
+  // Per-column pin override (keys → 'left' | 'right' | null). `null` means "explicitly not pinned"; absent means "use the prop".
+  const [colPins, setColPins] = useState<Record<string, 'left' | 'right' | null>>(persisted?.pins ?? {})
   const [q, setQ] = useState('')
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [openFilterCol, setOpenFilterCol] = useState<string | null>(null)
   const [colMenuOpen, setColMenuOpen] = useState(false)
+  const [colDialogOpen, setColDialogOpen] = useState(false)
 
   // Uncontrolled selection fallback.
   const [innerSel, setInnerSel] = useState<Set<string>>(new Set())
@@ -229,14 +247,26 @@ export function NxTable<R = Record<string, unknown>>({
 
   // Persist on change.
   useEffect(() => {
-    saveState(persistKey, { sort, filters, density, pageSize, hidden: [...hidden], widths })
-  }, [persistKey, sort, filters, density, pageSize, hidden, widths])
+    saveState(persistKey, { sort, filters, density, pageSize, hidden: [...hidden], widths, order: colOrder, pins: colPins })
+  }, [persistKey, sort, filters, density, pageSize, hidden, widths, colOrder, colPins])
 
-  /* --- columns (visible + width) --- */
-  const columns = useMemo(
-    () => columnsProp.filter((c) => !hidden.has(c.key)).map((c) => ({ ...c, width: widths[c.key] ?? c.width ?? 160 })),
-    [columnsProp, hidden, widths],
-  )
+  /* --- columns (visible, ordered, pin-resolved, width) --- */
+  const columns = useMemo(() => {
+    const byKey = new Map(columnsProp.map((c) => [c.key, c]))
+    // Honour `colOrder` first, then any prop columns not yet in it (newly added).
+    const orderedKeys = [
+      ...colOrder.filter((k) => byKey.has(k)),
+      ...columnsProp.map((c) => c.key).filter((k) => !colOrder.includes(k)),
+    ]
+    return orderedKeys
+      .map((k) => byKey.get(k)!)
+      .filter((c) => !hidden.has(c.key))
+      .map((c) => {
+        const pinOverride = colPins[c.key]
+        const pinned = pinOverride === undefined ? (c.pinned ?? null) : pinOverride
+        return { ...c, pinned, width: widths[c.key] ?? c.width ?? 160 }
+      })
+  }, [columnsProp, hidden, widths, colOrder, colPins])
   const leftPinned = columns.filter((c) => c.pinned === 'left')
   const rightPinned = columns.filter((c) => c.pinned === 'right')
   const normalCols = columns.filter((c) => !c.pinned)
@@ -427,8 +457,19 @@ export function NxTable<R = Record<string, unknown>>({
               options={DENSITY_OPTIONS}
             />
             <div className="relative">
-              <Button size="sm" intent="default" className="whitespace-nowrap" onClick={(e) => { e.stopPropagation(); setColMenuOpen((o) => !o) }}>Columns</Button>
-              {colMenuOpen && (
+              <Button
+                size="sm"
+                intent="default"
+                className="whitespace-nowrap"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (columnManager === 'dialog') setColDialogOpen(true)
+                  else setColMenuOpen((o) => !o)
+                }}
+              >
+                Columns
+              </Button>
+              {columnManager === 'menu' && colMenuOpen && (
                 <div className="absolute right-0 mt-1 z-[52] min-w-[180px] bg-bg-elev border border-line rounded-md shadow-md p-1" onClick={(e) => e.stopPropagation()}>
                   {columnsProp.map((c) => (
                     <label key={c.key} className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-xs hover:bg-bg-sunk cursor-pointer">
@@ -639,7 +680,128 @@ export function NxTable<R = Record<string, unknown>>({
           </div>
         </div>
       )}
+      {columnManager === 'dialog' && (
+        <ColumnManagerDialog
+          open={colDialogOpen}
+          onClose={() => setColDialogOpen(false)}
+          allColumns={columnsProp}
+          hidden={hidden}
+          colOrder={colOrder}
+          colPins={colPins}
+          onApply={(next) => {
+            setHidden(new Set(next.hidden))
+            setColOrder(next.order)
+            setColPins(next.pins)
+            setColDialogOpen(false)
+          }}
+          onResetDefaults={() => {
+            setHidden(new Set(columnsProp.filter((c) => c.hidden).map((c) => c.key)))
+            setColOrder(columnsProp.map((c) => c.key))
+            setColPins({})
+            setColDialogOpen(false)
+          }}
+        />
+      )}
     </div>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* Column manager dialog (columnManager="dialog")                              */
+/* -------------------------------------------------------------------------- */
+
+const FROZEN_GROUP = 'frozen'
+
+function ColumnManagerDialog<R>({
+  open, onClose, allColumns, hidden, colOrder, colPins, onApply, onResetDefaults,
+}: {
+  open: boolean
+  onClose: () => void
+  allColumns: NxColumn<R>[]
+  hidden: Set<string>
+  colOrder: string[]
+  colPins: Record<string, 'left' | 'right' | null>
+  onApply: (next: { hidden: string[]; order: string[]; pins: Record<string, 'left' | 'right' | null> }) => void
+  onResetDefaults: () => void
+}) {
+  // Build the Transfer "items" once per column set.
+  const items: TransferItem[] = useMemo(
+    () => allColumns.map((c) => ({
+      key: c.key,
+      label: c.label,
+      searchText: typeof c.label === 'string' ? c.label : c.key,
+    })),
+    [allColumns],
+  )
+
+  // Compute the current target (visible, ordered, with frozen group from pin state).
+  const resolvePin = useCallback((c: NxColumn<R>): 'left' | 'right' | null => {
+    const o = colPins[c.key]
+    return o === undefined ? (c.pinned ?? null) : o
+  }, [colPins])
+
+  const initialTarget = useMemo<TransferTargetEntry[]>(() => {
+    const byKey = new Map(allColumns.map((c) => [c.key, c]))
+    const orderedKeys = [
+      ...colOrder.filter((k) => byKey.has(k)),
+      ...allColumns.map((c) => c.key).filter((k) => !colOrder.includes(k)),
+    ]
+    return orderedKeys
+      .map((k) => byKey.get(k)!)
+      .filter((c) => !hidden.has(c.key))
+      .map((c) => ({ key: c.key, group: resolvePin(c) === 'left' ? FROZEN_GROUP : undefined }))
+  }, [allColumns, colOrder, hidden, resolvePin])
+
+  const [draft, setDraft] = useState<TransferTargetEntry[]>(initialTarget)
+  const initialTargetRef = useRef(initialTarget)
+  initialTargetRef.current = initialTarget
+  // Re-seed the draft each time the dialog opens (so it reflects the latest applied state).
+  useEffect(() => {
+    if (open) setDraft(initialTargetRef.current)
+  }, [open])
+
+  const apply = () => {
+    const visibleKeys = draft.map((e) => e.key)
+    const hiddenKeys = allColumns.map((c) => c.key).filter((k) => !visibleKeys.includes(k))
+    // Order: frozen entries first (their order), then ungrouped (their order), then hidden columns appended in their previous order.
+    const frozen = draft.filter((e) => e.group === FROZEN_GROUP).map((e) => e.key)
+    const normal = draft.filter((e) => e.group !== FROZEN_GROUP).map((e) => e.key)
+    const order = [...frozen, ...normal, ...hiddenKeys]
+    // Pins: every visible entry gets an explicit pin override (left if frozen, else null).
+    // Right-pinned prop columns that are still visible & not frozen keep 'right'.
+    const pins: Record<string, 'left' | 'right' | null> = {}
+    for (const e of draft) {
+      if (e.group === FROZEN_GROUP) pins[e.key] = 'left'
+      else {
+        const col = allColumns.find((c) => c.key === e.key)
+        pins[e.key] = (col?.pinned === 'right' && colPins[e.key] !== null) ? 'right' : null
+      }
+    }
+    onApply({ hidden: hiddenKeys, order, pins })
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogHead title="Columns" />
+      <DialogBody>
+        <div style={{ width: 720 }}>
+          <Transfer
+            items={items}
+            value={draft}
+            onChange={setDraft}
+            titles={[`Available · ${items.length}`, `Shown · ${draft.length}`]}
+            groups={[{ id: FROZEN_GROUP, label: 'Frozen', max: 3 }]}
+            ungroupedLabel="Scrollable"
+            onResetDefaults={onResetDefaults}
+            paneHeight={320}
+          />
+        </div>
+      </DialogBody>
+      <DialogFoot>
+        <Button intent="ghost" onClick={onClose}>Cancel</Button>
+        <Button intent="primary" onClick={apply}>Apply</Button>
+      </DialogFoot>
+    </Dialog>
   )
 }
 

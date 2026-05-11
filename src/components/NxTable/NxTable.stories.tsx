@@ -415,6 +415,23 @@ export const EmptyAndFiltered: Story = {
   ),
 }
 
+export const ColumnManagerDialog: Story = {
+  parameters: { docs: { description: { story: 'Set `columnManager="dialog"` and the toolbar "Columns" button opens a `Transfer` dialog: show/hide, **drag to reorder**, and drag into the "Frozen" group (= pin left, max 3). Order / visibility / pinning are tracked internally (and persisted with `persistKey`).' } } },
+  render: () => (
+    <div style={{ width: 980 }}>
+      <NxTable<Instance>
+        data={rows}
+        columns={cols({ pinName: 'left', pinOwner: null })}
+        getRowId={(r) => r.id}
+        columnManager="dialog"
+        pageSize={12}
+        persistKey="nxtable-colmgr-demo"
+      />
+      <p className="text-xs text-text-dim mt-2">Click <strong>Columns</strong> in the toolbar. UI state persists to <code>localStorage["nxtable:nxtable-colmgr-demo"]</code>.</p>
+    </div>
+  ),
+}
+
 export const FillHeight: Story = {
   parameters: { docs: { description: { story: '`fillHeight` makes the toolbar pin to the top, pagination to the bottom, and the body scroll internally to fill the parent\'s height — the typical full-screen list-page layout. The parent must give NxTable a height (here a fixed-height flex column; in an app it\'d be `flex: 1` of the page shell with `min-height: 0`).' } } },
   render: () => (
