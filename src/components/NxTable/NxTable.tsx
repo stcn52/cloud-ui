@@ -367,7 +367,7 @@ export function NxTable<R = Record<string, unknown>>({
     <div className={['flex flex-col border border-line rounded-md bg-bg-elev overflow-hidden', className].filter(Boolean).join(' ')}>
       {/* toolbar */}
       {showToolbar && (
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-line">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-2 px-3 py-2 border-b border-line">
           {search && (
             <div className="relative">
               <Input
@@ -375,7 +375,7 @@ export function NxTable<R = Record<string, unknown>>({
                 value={q}
                 onChange={(e) => { setQ(e.target.value); setPage(0) }}
                 placeholder="Search…"
-                style={{ width: 220, paddingLeft: 26 }}
+                style={{ width: 200, paddingLeft: 26 }}
               />
               <svg className="absolute left-2 top-1/2 -translate-y-1/2 text-text-dim" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
                 <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -383,7 +383,7 @@ export function NxTable<R = Record<string, unknown>>({
             </div>
           )}
           {activeFilterCount > 0 && (
-            <Button size="xs" intent="ghost" onClick={() => setFilters({})}>Clear filters ({activeFilterCount})</Button>
+            <Button size="xs" intent="ghost" className="whitespace-nowrap" onClick={() => setFilters({})}>Clear filters ({activeFilterCount})</Button>
           )}
           <div className="ml-auto flex items-center gap-2">
             <Select
@@ -393,7 +393,7 @@ export function NxTable<R = Record<string, unknown>>({
               options={[{ value: 'compact', label: 'Compact' }, { value: 'normal', label: 'Normal' }, { value: 'comfy', label: 'Comfortable' }]}
             />
             <div className="relative">
-              <Button size="sm" intent="default" onClick={(e) => { e.stopPropagation(); setColMenuOpen((o) => !o) }}>Columns</Button>
+              <Button size="sm" intent="default" className="whitespace-nowrap" onClick={(e) => { e.stopPropagation(); setColMenuOpen((o) => !o) }}>Columns</Button>
               {colMenuOpen && (
                 <div className="absolute right-0 mt-1 z-[52] min-w-[180px] bg-bg-elev border border-line rounded-md shadow-md p-1" onClick={(e) => e.stopPropagation()}>
                   {columnsProp.map((c) => (
@@ -409,7 +409,7 @@ export function NxTable<R = Record<string, unknown>>({
                 </div>
               )}
             </div>
-            <Button size="sm" intent="ghost" onClick={exportCsv}>Export CSV</Button>
+            <Button size="sm" intent="ghost" className="whitespace-nowrap" onClick={exportCsv}>Export CSV</Button>
           </div>
         </div>
       )}
@@ -432,10 +432,10 @@ export function NxTable<R = Record<string, unknown>>({
             {orderedCols.map((c) => <col key={c.key} style={{ width: c.width }} />)}
             {rowActions && <col style={{ width: 44 }} />}
           </colgroup>
-          <thead>
+          <thead className="sticky top-0 z-[4]">
             <tr className="bg-bg-sunk">
               {selectable && (
-                <th className="px-3 py-2 sticky left-0 bg-bg-sunk z-[3]">
+                <th className="px-3 py-2 sticky left-0 bg-bg-sunk z-[6]">
                   {selectable === 'multi' && (
                     <input
                       type="checkbox"
@@ -447,7 +447,7 @@ export function NxTable<R = Record<string, unknown>>({
                   )}
                 </th>
               )}
-              {hasExpander && <th className="sticky bg-bg-sunk z-[3]" style={{ left: selectable ? 36 : 0 }} />}
+              {hasExpander && <th className="sticky bg-bg-sunk z-[6]" style={{ left: selectable ? 36 : 0 }} />}
               {orderedCols.map((c) => {
                 const isLeft = c.pinned === 'left'
                 const isRight = c.pinned === 'right'
@@ -458,8 +458,8 @@ export function NxTable<R = Record<string, unknown>>({
                   <th
                     key={c.key}
                     className={[
-                      'px-3 py-2 text-left text-[11px] uppercase tracking-[0.04em] font-medium text-text-muted relative select-none',
-                      isLeft || isRight ? 'sticky bg-bg-sunk z-[2]' : '',
+                      'px-3 py-2 text-left text-[11px] uppercase tracking-[0.04em] font-medium text-text-muted relative select-none bg-bg-sunk',
+                      isLeft || isRight ? 'sticky z-[5]' : '',
                       c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : '',
                     ].filter(Boolean).join(' ')}
                     style={isLeft ? { left: stickyLeftOffset(leftIdx) } : isRight ? { right: stickyRightOffset(rightIdx) } : undefined}
@@ -590,14 +590,16 @@ export function NxTable<R = Record<string, unknown>>({
 
       {/* footer / pagination */}
       {paginate && (
-        <div className="flex items-center gap-3 px-3 py-2 border-t border-line text-xs text-text-muted">
-          <span>{sorted.length === 0 ? '0' : `${safePage * pageSize + 1}–${Math.min(sorted.length, (safePage + 1) * pageSize)}`} of {sorted.length}</span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2 border-t border-line text-xs text-text-muted">
+          <span className="whitespace-nowrap">{sorted.length === 0 ? '0' : `${safePage * pageSize + 1}–${Math.min(sorted.length, (safePage + 1) * pageSize)}`} of {sorted.length}</span>
           <div className="ml-auto flex items-center gap-2">
-            <span>Rows per page</span>
+            <span className="whitespace-nowrap">Rows per page</span>
             <Select size="sm" value={String(pageSize)} onChange={(v) => { setPageSize(Number(v)); setPage(0) }} options={pageSizeOptions.map((n) => ({ value: String(n), label: String(n) }))} />
-            <Button size="sm" intent="default" disabled={safePage === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>Prev</Button>
-            <span className="tabular-nums">{safePage + 1} / {pageCount}</span>
-            <Button size="sm" intent="default" disabled={safePage >= pageCount - 1} onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}>Next</Button>
+            <div className="flex items-center gap-1.5 ml-1">
+              <Button size="sm" intent="default" disabled={safePage === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>Prev</Button>
+              <span className="tabular-nums whitespace-nowrap px-1">{safePage + 1} / {pageCount}</span>
+              <Button size="sm" intent="default" disabled={safePage >= pageCount - 1} onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}>Next</Button>
+            </div>
           </div>
         </div>
       )}
