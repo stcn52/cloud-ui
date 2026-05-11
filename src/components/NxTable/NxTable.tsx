@@ -432,10 +432,10 @@ export function NxTable<R = Record<string, unknown>>({
             {orderedCols.map((c) => <col key={c.key} style={{ width: c.width }} />)}
             {rowActions && <col style={{ width: 44 }} />}
           </colgroup>
-          <thead className="sticky top-0 z-[4]">
-            <tr className="bg-bg-sunk">
+          <thead>
+            <tr>
               {selectable && (
-                <th className="px-3 py-2 sticky left-0 bg-bg-sunk z-[6]">
+                <th className="px-3 py-2 sticky top-0 left-0 bg-bg-sunk z-30">
                   {selectable === 'multi' && (
                     <input
                       type="checkbox"
@@ -447,7 +447,7 @@ export function NxTable<R = Record<string, unknown>>({
                   )}
                 </th>
               )}
-              {hasExpander && <th className="sticky bg-bg-sunk z-[6]" style={{ left: selectable ? 36 : 0 }} />}
+              {hasExpander && <th className="sticky top-0 bg-bg-sunk z-30" style={{ left: selectable ? 36 : 0 }} />}
               {orderedCols.map((c) => {
                 const isLeft = c.pinned === 'left'
                 const isRight = c.pinned === 'right'
@@ -458,8 +458,10 @@ export function NxTable<R = Record<string, unknown>>({
                   <th
                     key={c.key}
                     className={[
-                      'px-3 py-2 text-left text-[11px] uppercase tracking-[0.04em] font-medium text-text-muted relative select-none bg-bg-sunk',
-                      isLeft || isRight ? 'sticky z-[5]' : '',
+                      // Every header cell is sticky-top so it stays above body cells on
+                      // both vertical and horizontal scroll; pinned ones also stick to the side.
+                      'px-3 py-2 text-left text-[11px] uppercase tracking-[0.04em] font-medium text-text-muted select-none bg-bg-sunk sticky top-0',
+                      isLeft || isRight ? 'z-30' : 'z-20',
                       c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : '',
                     ].filter(Boolean).join(' ')}
                     style={isLeft ? { left: stickyLeftOffset(leftIdx) } : isRight ? { right: stickyRightOffset(rightIdx) } : undefined}
@@ -489,7 +491,7 @@ export function NxTable<R = Record<string, unknown>>({
                       )}
                     </span>
                     {openFilterCol === c.key && (
-                      <div className="absolute left-0 top-full mt-1 z-[10] bg-bg-elev border border-line rounded-md shadow-md p-2 normal-case tracking-normal" onClick={(e) => e.stopPropagation()} style={{ minWidth: 180 }}>
+                      <div className="absolute left-0 top-full mt-1 z-40 bg-bg-elev border border-line rounded-md shadow-md p-2 normal-case tracking-normal" onClick={(e) => e.stopPropagation()} style={{ minWidth: 180 }}>
                         {c.filterKind === 'select' && c.options ? (
                           <Select size="sm" value={filters[c.key] || undefined} onChange={(v) => { setFilters((f) => ({ ...f, [c.key]: (v as string) ?? '' })); setPage(0) }} options={[{ value: '', label: 'All' }, ...c.options.map((o) => ({ value: o, label: o }))]} placeholder="All" />
                         ) : c.filterKind === 'range' ? (
@@ -516,7 +518,7 @@ export function NxTable<R = Record<string, unknown>>({
                   </th>
                 )
               })}
-              {rowActions && <th className="sticky right-0 bg-bg-sunk z-[3]" />}
+              {rowActions && <th className="sticky top-0 right-0 bg-bg-sunk z-30" />}
             </tr>
           </thead>
           <tbody>
@@ -536,7 +538,7 @@ export function NxTable<R = Record<string, unknown>>({
                     onClick={() => onRowClick?.(row)}
                   >
                     {selectable && (
-                      <td className={`${cellStyles()} ${rowPad[density]} sticky left-0 z-[1] ${isSel ? 'bg-[color-mix(in_oklch,var(--color-accent)_8%,transparent)]' : 'bg-bg-elev'}`} onClick={(e) => { e.stopPropagation(); toggleRow(row) }}>
+                      <td className={`${cellStyles()} ${rowPad[density]} sticky left-0 z-10 ${isSel ? 'bg-[color-mix(in_oklch,var(--color-accent)_8%,transparent)]' : 'bg-bg-elev'}`} onClick={(e) => { e.stopPropagation(); toggleRow(row) }}>
                         <input type={selectable === 'single' ? 'radio' : 'checkbox'} checked={isSel} onChange={() => toggleRow(row)} aria-label="Select row" />
                       </td>
                     )}
@@ -558,7 +560,7 @@ export function NxTable<R = Record<string, unknown>>({
                           key={c.key}
                           className={[
                             cellStyles(), rowPad[density],
-                            isLeft || isRight ? `sticky z-[1] ${isSel ? 'bg-[color-mix(in_oklch,var(--color-accent)_8%,transparent)]' : 'bg-bg-elev'}` : '',
+                            isLeft || isRight ? `sticky z-10 ${isSel ? 'bg-[color-mix(in_oklch,var(--color-accent)_8%,transparent)]' : 'bg-bg-elev'}` : '',
                             c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : '',
                           ].filter(Boolean).join(' ')}
                           style={isLeft ? { left: stickyLeftOffset(leftIdx) } : isRight ? { right: stickyRightOffset(rightIdx) } : undefined}
@@ -569,7 +571,7 @@ export function NxTable<R = Record<string, unknown>>({
                       )
                     })}
                     {rowActions && (
-                      <td className={`${cellStyles()} ${rowPad[density]} sticky right-0 z-[1] ${isSel ? 'bg-[color-mix(in_oklch,var(--color-accent)_8%,transparent)]' : 'bg-bg-elev'}`} onClick={(e) => e.stopPropagation()}>
+                      <td className={`${cellStyles()} ${rowPad[density]} sticky right-0 z-10 ${isSel ? 'bg-[color-mix(in_oklch,var(--color-accent)_8%,transparent)]' : 'bg-bg-elev'}`} onClick={(e) => e.stopPropagation()}>
                         {rowActions(row)}
                       </td>
                     )}
