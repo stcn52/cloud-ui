@@ -23,58 +23,58 @@ makes solid status fills (`Button danger/success/warning`, `Badge`, the
   and optional `persistKey` to save UI state to `localStorage`. Cell `type`s:
   `text` / `number` / `money` / `status` / `date` / `bar` / `custom`, plus
   per-column `render` / `formatter`.
-  Stories: [Full featured](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11---tables-nxtable--full-featured) ·
-  [Minimal](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11---tables-nxtable--minimal) ·
-  [Single-select compact](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11---tables-nxtable--single-select-compact)
+  Stories: [Full featured](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11-·-tables-nxtable--full-featured) ·
+  [Minimal](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11-·-tables-nxtable--minimal) ·
+  [Single-select compact](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11-·-tables-nxtable--single-select-compact)
 
 ### Added — data display
 
 - **`Donut`** — multi-segment ring chart with an auto or custom centre label
   and an optional legend; segments normalise against the sum or an explicit
   `total`.
-  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-donut--playground) ·
-  [With total](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-donut--with-total) ·
-  [No legend](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-donut--no-legend) ·
-  [Status breakdown](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-donut--status-breakdown)
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-donut--playground) ·
+  [With total](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-donut--with-total) ·
+  [No legend](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-donut--no-legend) ·
+  [Status breakdown](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-donut--status-breakdown)
 - **`Gauge`** — arc gauge with optional threshold bands; the value text picks
   up the active band's colour. Configurable `sweep`, `min`/`max`, custom
   centre, caption.
-  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--playground) ·
-  [Thresholds](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--thresholds) ·
-  [Flat arc](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--flat-arc) ·
-  [Custom center](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--custom-center) ·
-  [Sizes](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--sizes)
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-gauge--playground) ·
+  [Thresholds](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-gauge--thresholds) ·
+  [Flat arc](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-gauge--flat-arc) ·
+  [Custom center](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-gauge--custom-center) ·
+  [Sizes](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03-·-data-display-gauge--sizes)
 
 ### Added — more
 
 - **`JsonViewer`** — collapsible JSON tree. Parses strings (with a warning on
   invalid input), `defaultExpandDepth` (incl. `Infinity`), syntax colours that
   flip with the theme, optional copy button.
-  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-json-viewer--playground) ·
-  [Fully expanded](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-json-viewer--fully-expanded) ·
-  [From string](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-json-viewer--from-string) ·
-  [Primitive](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-json-viewer--primitive)
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-json-viewer--playground) ·
+  [Fully expanded](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-json-viewer--fully-expanded) ·
+  [From string](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-json-viewer--from-string) ·
+  [Primitive](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-json-viewer--primitive)
 - **`NotificationCenter`** — notification panel: grouped buckets, unread
   highlight + count, per-item `icon` / `tone` / `actions`, "mark all read",
   footer slot, empty state.
-  Stories: [Default](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-notification-center--default) ·
-  [With item actions](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-notification-center--with-item-actions) ·
-  [Empty](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-notification-center--empty) ·
-  [In a user menu](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-notification-center--in-a-user-menu)
+  Stories: [Default](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-notification-center--default) ·
+  [With item actions](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-notification-center--with-item-actions) ·
+  [Empty](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-notification-center--empty) ·
+  [In a user menu](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-notification-center--in-a-user-menu)
 - **`QueryBuilder`** — visual filter builder: per-rule field / operator / value
   (operators adapt to the field `type`), nested AND/OR groups up to `maxDepth`,
   add/remove rows & groups. Ships `queryToString(tree, fields)` for a readable
   expression and `emptyGroup()` helper.
-  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-query-builder--playground) ·
-  [With nested groups](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-query-builder--with-nested-groups) ·
-  [Flat only](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-query-builder--flat-only)
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-query-builder--playground) ·
+  [With nested groups](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-query-builder--with-nested-groups) ·
+  [Flat only](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-query-builder--flat-only)
 - **`MentionPopover`** — textarea with `@`-mention autocomplete: detects the
   active mention from the caret, filters items, keyboard navigation
   (↑/↓/Enter/Tab/Esc), inserts `@handle `. Configurable `trigger` char and
   filter; exposes a `MentionPopoverHandle` ref.
-  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-mention-popover--playground) ·
-  [Custom trigger](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-mention-popover--custom-trigger) ·
-  [Uncontrolled](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-mention-popover--uncontrolled)
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-mention-popover--playground) ·
+  [Custom trigger](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-mention-popover--custom-trigger) ·
+  [Uncontrolled](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-more-mention-popover--uncontrolled)
 
 ### Changed — theme
 
@@ -98,27 +98,27 @@ changes — drop-in upgrade from 1.2.x.
   (default, with `collapsible`) or `"multiple"`; controlled via `value` /
   `onValueChange` or uncontrolled via `defaultValue`. Each item header takes an
   `extra` slot for a count / `Pill` / `Badge`, and supports `disabled`.
-  Stories: [Default](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-accordion--default) ·
-  [Multiple](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-accordion--multiple) ·
-  [Controlled](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-accordion--controlled)
+  Stories: [Default](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-accordion--default) ·
+  [Multiple](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-accordion--multiple) ·
+  [Controlled](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-accordion--controlled)
 - **`Badge`** — count / `max+` overflow / bare `dot` mode, six tones, two
   sizes. Renders standalone or, when given `children`, anchors to their
   top-right corner (icon buttons, avatars, …).
-  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--playground) ·
-  [Counts](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--counts) ·
-  [Tones](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--tones) ·
-  [Dot](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--dot) ·
-  [On icons](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--on-icons)
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-badge--playground) ·
+  [Counts](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-badge--counts) ·
+  [Tones](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-badge--tones) ·
+  [Dot](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-badge--dot) ·
+  [On icons](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-badge--on-icons)
 - **`PromptInput`** — chat/composer input: auto-growing textarea (`minRows` /
   `maxRows`) inside a focus-ring shell, with `leading` / `trailing` toolbar
   slots for icon buttons, attachment chips, status text, and the send/stop
   button. `submitOn="enter"` (Enter sends, Shift+Enter newline) or
   `"cmd-enter"`. Controlled or uncontrolled; exposes a `PromptInputHandle` ref
   with `focus()` / `clear()` / `textarea`.
-  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-prompt-input--playground) ·
-  [Queue composer](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-prompt-input--queue-composer) ·
-  [Cmd+Enter](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-prompt-input--cmd-enter) ·
-  [With mic](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-prompt-input--with-mic)
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-prompt-input--playground) ·
+  [Queue composer](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-prompt-input--queue-composer) ·
+  [Cmd+Enter](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-prompt-input--cmd-enter) ·
+  [With mic](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06-·-advanced-prompt-input--with-mic)
 
 ### Added — Select option enrichment
 
@@ -131,9 +131,9 @@ changes — drop-in upgrade from 1.2.x.
   hint).
 - New `Select.footer` slot — sticky element at the bottom of the panel, e.g. a
   persistent "+ Add new…" action.
-- Stories: [Grouped](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-select--grouped) ·
-  [Rich options](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-select--rich-options) ·
-  [With footer](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-select--with-footer)
+- Stories: [Grouped](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-select--grouped) ·
+  [Rich options](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-select--rich-options) ·
+  [With footer](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-select--with-footer)
 
 ### Changed — dark theme
 
@@ -151,7 +151,7 @@ changes — drop-in upgrade from 1.2.x.
   entirely from primitives (header strip, thread, reply box, metadata
   sidebar), doubling as a dark-mode contrast reference. Flip the Storybook
   theme toolbar to compare.
-  [Story](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---compositions-ticket-detail--default)
+  [Story](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07-·-compositions-ticket-detail--default)
 
 ## [1.2.0] — 2026-05-07
 
