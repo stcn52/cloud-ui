@@ -29,7 +29,7 @@ const stepStyles = tv({
         label: 'text-text font-medium',
       },
       done: {
-        num:   'bg-ok text-white border-ok',
+        num:   'bg-ok text-on-solid border-ok',
         label: 'text-text',
       },
     },

@@ -93,7 +93,8 @@ only, no runtime components).
 `FormField`, `useForm`, `StepForm`, `FormSteps`.
 
 **03 · Data display** — `Card`, `CardHead`, `CardFoot`, `Kpi`, `Delta`,
-`Table`, `Progress`, `Ring`, `Skeleton`, `Pipeline`, `PipeStep`, `LogLine`.
+`Table`, `Progress`, `Ring`, `Skeleton`, `Pipeline`, `PipeStep`, `LogLine`,
+`Donut`, `Gauge`.
 
 **04 · Navigation** — `Tabs`, `Tab`, `Segmented`, `Breadcrumbs`, `Breadcrumb`,
 `Pagination`.
@@ -105,7 +106,12 @@ only, no runtime components).
 
 **06 · Advanced** — `Dropdown`, `DropdownItem`, `DropdownGroup`,
 `DropdownSeparator`, `DropdownSearch`, `Tree`, `Cascader`, `DatePicker`,
-`TagInput`, `CopyField`, `Accordion`, `AccordionItem`, `PromptInput`.
+`TagInput`, `CopyField`, `Accordion`, `AccordionItem`, `PromptInput`,
+`JsonViewer`, `NotificationCenter`, `QueryBuilder`, `MentionPopover`.
+
+**11 · Tables** — `NxTable` (enterprise data table: resize/pin columns, sort,
+per-column filters, search, pagination, selection + bulk actions, expandable
+rows, density, column toggle, CSV export, optional `localStorage` persistence).
 
 ## Theming via CSS variables
 

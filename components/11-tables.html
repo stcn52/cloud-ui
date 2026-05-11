@@ -1,0 +1,1488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>11 · Tables &amp; filters — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="nx-table.css">
+<style>
+  /* Page-specific helpers */
+  .demo-body.block { display: block; padding: 0; }
+  .stack-v { display: flex; flex-direction: column; gap: 12px; }
+  .scene { background: var(--canvas, var(--bg)); padding: 18px; border-radius: 8px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+  .stat-strip { display: flex; align-items: center; gap: 14px; font-size: 11px; color: var(--text-dim); }
+  .stat-strip b { color: var(--text); font-family: var(--font-mono); font-weight: 600; }
+  .stat-strip .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--line-strong); }
+  .health-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); display: inline-block; margin-right: 6px; vertical-align: 1px; }
+  .health-dot.warn { background: var(--warn); }
+  .health-dot.err  { background: var(--err); }
+  .health-dot.idle { background: var(--text-dim); }
+  .header-cell { font-weight: 500; color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono); }
+  .pop {
+    position: absolute; z-index: 10;
+    background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+  }
+  .demo-static-pop { position: relative; height: 240px; }
+  .demo-static-pop .anchor {
+    position: absolute; left: 36px; top: 28px;
+  }
+  .demo-static-pop .pop {
+    left: 36px; top: 60px;
+  }
+  /* Two-column layout for resource list scene */
+  .scene-frame {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+  }
+  .scene-frame .frame-head {
+    padding: 16px 22px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  }
+  .scene-frame .frame-head h3 {
+    margin: 0 0 4px; font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+  }
+  .scene-frame .frame-body { padding: 12px 14px 14px; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+      <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
+      <a class="lib-link" href="07-more.html">07 · More components</a>
+      <a class="lib-link" href="08-compositions.html">08 · Compositions</a>
+      <a class="lib-link" href="09-layouts.html">09 · App layouts</a>
+      <a class="lib-link" href="10-patterns.html">10 · More patterns</a>
+      <a class="lib-link active" href="11-tables.html">11 · Tables &amp; filters</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">On this page</div>
+      <a class="lib-link" href="#anatomy">Anatomy</a>
+      <a class="lib-link" href="#densities">Densities</a>
+      <a class="lib-link" href="#cells">Cell vocabulary</a>
+      <a class="lib-link" href="#sort">Sortable headers</a>
+      <a class="lib-link" href="#chips">Filter chips</a>
+      <a class="lib-link" href="#bar">Filter bars</a>
+      <a class="lib-link" href="#views">Saved views</a>
+      <a class="lib-link" href="#col-filter">Column filter</a>
+      <a class="lib-link" href="#bulk">Bulk select</a>
+      <a class="lib-link" href="#expandable">Expandable rows</a>
+      <a class="lib-link" href="#empty">Empty &amp; loading</a>
+      <a class="lib-link" href="#full">Full pattern</a>
+      <a class="lib-link" href="#nxtable">NxTable component</a>
+      <a class="lib-link" href="#nxt-basic">  · Basic + sort + paging</a>
+      <a class="lib-link" href="#nxt-enterprise">  · Enterprise demo</a>
+      <a class="lib-link" href="#nxt-edit">  · Inline edit + pin + resize</a>
+      <a class="lib-link" href="#nxt-power">  · Right-click + box select</a>
+      <a class="lib-link" href="#nxt-api">  · API reference</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+
+    <header class="lib-header">
+      <div class="eyebrow">11 / 11</div>
+      <h1 class="lib-title-1">Tables &amp; filters</h1>
+      <p class="lib-lede">A dense list page is the bread and butter of a console — services, deployments, invoices, audits, members. This chapter goes deep on the table primitive (densities, cell types, sorting, expansion, bulk select, empty / loading) and on the filter vocabulary that lives above it (filter chips, query bar, saved views, column filters).</p>
+    </header>
+
+    <!-- ========================================================== -->
+    <section id="anatomy">
+      <h2 class="lib-section-title">Anatomy</h2>
+      <p class="lib-section-sub">A list page is built from five horizontal bands. Top to bottom: page header, filter strip, view tabs, the table itself, footer / pagination. Each is independent and stays at its own visual weight.</p>
+
+      <div class="demo">
+        <div class="demo-body block">
+          <div class="scene">
+            <div class="panel">
+              <!-- Page head -->
+              <div style="padding: 16px 18px 12px; border-bottom: 1px solid var(--line)">
+                <div class="row" style="justify-content: space-between; align-items: flex-start">
+                  <div>
+                    <h3 style="margin: 0 0 2px; font-size: 16px; font-weight: 600">Deployments</h3>
+                    <div class="stat-strip">
+                      <span><b>248</b> total</span><span class="sep"></span>
+                      <span><b>14</b> running</span><span class="sep"></span>
+                      <span><b>2</b> failed</span><span class="sep"></span>
+                      <span>last 24 h · <b>+18</b></span>
+                    </div>
+                  </div>
+                  <div class="row" style="gap: 6px">
+                    <button class="btn sm">Export CSV</button>
+                    <button class="btn primary sm">+ New deploy</button>
+                  </div>
+                </div>
+              </div>
+              <!-- Filter band -->
+              <div style="padding: 10px 14px; border-bottom: 1px solid var(--line); display: flex; gap: 6px; align-items: center; flex-wrap: wrap">
+                <div class="row" style="position: relative; flex: 1; min-width: 200px">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--text-dim)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input class="input sm" placeholder="Search deployments…" style="padding-left: 26px; width: 100%">
+                </div>
+                <button class="fchip"><span class="k">env:</span> <span class="v">prod</span> <span class="x">×</span></button>
+                <button class="fchip"><span class="k">status:</span> <span class="v">running</span> <span class="x">×</span></button>
+                <button class="fchip add">+ Filter</button>
+                <button class="btn ghost sm">Reset</button>
+              </div>
+              <!-- View tabs -->
+              <div class="views">
+                <span class="v on">All <span class="n">248</span></span>
+                <span class="v">Running <span class="n">14</span></span>
+                <span class="v">Failed <span class="n">2</span></span>
+                <span class="v">Mine <span class="n">7</span></span>
+                <span class="add">+</span>
+              </div>
+              <!-- Table -->
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th style="width: 28px"><input type="checkbox" class="check"></th>
+                    <th><span class="sort on">Service <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 15 12 9 18 15"/></svg></span></th>
+                    <th>Env</th>
+                    <th>Commit</th>
+                    <th>Status</th>
+                    <th class="right">Started</th>
+                    <th style="width: 28px"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type="checkbox" class="check"></td>
+                    <td><span class="inline"><span class="health-dot"></span><span class="stack"><b>api-gateway</b><span class="row-meta mono">v2.14.0</span></span></span></td>
+                    <td>prod</td>
+                    <td><span class="mono" style="color: var(--text-muted)">a3f8d2c</span></td>
+                    <td><span class="status ok"><span class="glyph"></span>healthy</span></td>
+                    <td class="right num" style="color: var(--text-muted)">14:32:08</td>
+                    <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="check"></td>
+                    <td><span class="inline"><span class="health-dot warn"></span><span class="stack"><b>billing-worker</b><span class="row-meta mono">v1.8.2</span></span></span></td>
+                    <td>prod</td>
+                    <td><span class="mono" style="color: var(--text-muted)">7e21b14</span></td>
+                    <td><span class="status warn"><span class="glyph"></span>degraded</span></td>
+                    <td class="right num" style="color: var(--text-muted)">14:21:44</td>
+                    <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- Footer -->
+              <div style="padding: 10px 14px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-muted)">
+                <span>1–25 of 248</span>
+                <div class="pgn">
+                  <button disabled>‹</button>
+                  <button class="on">1</button><button>2</button><button>3</button>
+                  <span class="ellipsis">…</span>
+                  <button>10</button>
+                  <button>›</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anatomy callouts -->
+      <div class="lib-spec">
+        <table>
+          <tr><th>Band</th><th>Purpose</th><th>Density</th></tr>
+          <tr><td>Page head</td><td>Title, summary stats, primary actions</td><td>Padded · 16 px gutter</td></tr>
+          <tr><td>Filter bar</td><td>Search + active filter chips + add-filter trigger</td><td>Compact · 10 px</td></tr>
+          <tr><td>View tabs</td><td>Saved queries the user (or workspace) returns to</td><td>Compact · borderless</td></tr>
+          <tr><td>Table</td><td>The data. Sortable, selectable, expandable.</td><td>34 px rows default</td></tr>
+          <tr><td>Footer</td><td>Result count + pagination</td><td>Compact · 10 px</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="densities">
+      <h2 class="lib-section-title">Densities</h2>
+      <p class="lib-section-sub">Three row heights. Pick by data: <b>compact</b> (28&nbsp;px) for log-style streams, <b>default</b> (34&nbsp;px) for resource lists, <b>relaxed</b> (44&nbsp;px) for cards-as-rows like a billing history.</p>
+
+      <div class="demo">
+        <div class="demo-label">Compact · default · relaxed</div>
+        <div class="demo-body block">
+          <div class="scene-frame" style="margin: 18px">
+            <div class="frame-body" style="padding: 0">
+              <div class="tbl-wrap" style="border-radius: 0; border: 0; border-bottom: 1px solid var(--line)">
+                <div style="padding: 8px 14px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono); background: var(--bg-sunk)">.compact · 28 px</div>
+                <table class="tbl compact">
+                  <thead><tr><th>Time</th><th>Source</th><th>Message</th><th class="right">Latency</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">14:32:08.412</td><td class="mono">api-gateway</td><td>POST /v1/orders → 201</td><td class="right num">42 ms</td></tr>
+                    <tr><td class="mono">14:32:08.418</td><td class="mono">billing</td><td>charge.created · cus_8a71</td><td class="right num">88 ms</td></tr>
+                    <tr><td class="mono">14:32:08.501</td><td class="mono">api-gateway</td><td>GET /v1/me → 200</td><td class="right num">12 ms</td></tr>
+                    <tr><td class="mono">14:32:08.612</td><td class="mono">notify</td><td>email.queued · welcome</td><td class="right num">7 ms</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tbl-wrap" style="border-radius: 0; border: 0; border-bottom: 1px solid var(--line)">
+                <div style="padding: 8px 14px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono); background: var(--bg-sunk)">default · 34 px</div>
+                <table class="tbl">
+                  <thead><tr><th>Service</th><th>Region</th><th>Status</th><th class="right">Requests · 24 h</th></tr></thead>
+                  <tbody>
+                    <tr><td><b>api-gateway</b></td><td>us-east-1</td><td><span class="status ok"><span class="glyph"></span>healthy</span></td><td class="right num">14 218</td></tr>
+                    <tr><td><b>billing-worker</b></td><td>us-east-1</td><td><span class="status warn"><span class="glyph"></span>degraded</span></td><td class="right num">2 401</td></tr>
+                    <tr><td><b>notify</b></td><td>eu-west-2</td><td><span class="status ok"><span class="glyph"></span>healthy</span></td><td class="right num">5 880</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="tbl-wrap" style="border-radius: 0; border: 0">
+                <div style="padding: 8px 14px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono); background: var(--bg-sunk)">.relaxed · 44 px</div>
+                <table class="tbl relaxed">
+                  <thead><tr><th>Invoice</th><th>Period</th><th>Status</th><th class="right">Amount</th></tr></thead>
+                  <tbody>
+                    <tr><td><span class="stack"><b>INV-2026-0042</b><span class="row-meta mono">PDF · 184 KB</span></span></td><td>Apr 1–30, 2026</td><td><span class="status ok"><span class="glyph"></span>paid</span></td><td class="right num">$ 4 218.00</td></tr>
+                    <tr><td><span class="stack"><b>INV-2026-0041</b><span class="row-meta mono">PDF · 192 KB</span></span></td><td>Mar 1–31, 2026</td><td><span class="status ok"><span class="glyph"></span>paid</span></td><td class="right num">$ 3 980.00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="cells">
+      <h2 class="lib-section-title">Cell vocabulary</h2>
+      <p class="lib-section-sub">A small library of cell shapes covers 90 % of cases: identity (avatar + name + secondary), code, status, mini-bar, range, money, timestamp, list of badges, action chip. Combine these — never invent a new layout per column.</p>
+
+      <div class="demo">
+        <div class="demo-body block">
+          <div class="tbl-wrap" style="margin: 18px">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Identity</th>
+                  <th>Code / ID</th>
+                  <th>Status</th>
+                  <th>Mini bar</th>
+                  <th>Range</th>
+                  <th class="right">Money</th>
+                  <th class="right">Timestamp</th>
+                  <th>Badges</th>
+                  <th class="actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="inline">
+                      <span class="avatar sm c-azure">MA</span>
+                      <span class="stack"><b>Maya Aguirre</b><span class="row-meta">maya@acme.io</span></span>
+                    </span>
+                  </td>
+                  <td><span class="mono" style="color: var(--text-muted)">cus_8a71</span></td>
+                  <td><span class="status ok"><span class="glyph"></span>active</span></td>
+                  <td>
+                    <span class="tbl-bar"><span class="track"><span class="fill" style="width: 78%"></span></span><span class="v">78 %</span></span>
+                  </td>
+                  <td><span class="num" style="color: var(--text-muted)">12 → 248</span></td>
+                  <td class="right num">$ 1 420.00</td>
+                  <td class="right num" style="color: var(--text-muted)"><span class="stack"><span>14:32:08</span><span class="row-meta">2 min ago</span></span></td>
+                  <td>
+                    <span class="row" style="gap: 4px">
+                      <span class="pill xs">prod</span>
+                      <span class="pill xs">us-east-1</span>
+                    </span>
+                  </td>
+                  <td class="actions">
+                    <button class="btn ghost sm">Edit</button>
+                    <button class="btn icon sm ghost">⋯</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="inline">
+                      <span class="avatar sm c-rose">DT</span>
+                      <span class="stack"><b>Daniela Torres</b><span class="row-meta">dani@acme.io</span></span>
+                    </span>
+                  </td>
+                  <td><span class="mono" style="color: var(--text-muted)">cus_3f0e</span></td>
+                  <td><span class="status warn"><span class="glyph"></span>past_due</span></td>
+                  <td>
+                    <span class="tbl-bar warn"><span class="track"><span class="fill" style="width: 92%"></span></span><span class="v">92 %</span></span>
+                  </td>
+                  <td><span class="num" style="color: var(--text-muted)">8 → 180</span></td>
+                  <td class="right num">$ 980.00</td>
+                  <td class="right num" style="color: var(--text-muted)"><span class="stack"><span>13:14:02</span><span class="row-meta">1 h ago</span></span></td>
+                  <td>
+                    <span class="row" style="gap: 4px">
+                      <span class="pill xs">prod</span>
+                      <span class="pill xs">eu-west-1</span>
+                    </span>
+                  </td>
+                  <td class="actions">
+                    <button class="btn ghost sm">Edit</button>
+                    <button class="btn icon sm ghost">⋯</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="inline">
+                      <span class="avatar sm c-violet">RK</span>
+                      <span class="stack"><b>Ravi Krishnan</b><span class="row-meta">ravi@acme.io</span></span>
+                    </span>
+                  </td>
+                  <td><span class="mono" style="color: var(--text-muted)">cus_b290</span></td>
+                  <td><span class="status err"><span class="glyph"></span>cancelled</span></td>
+                  <td>
+                    <span class="tbl-bar err"><span class="track"><span class="fill" style="width: 14%"></span></span><span class="v">14 %</span></span>
+                  </td>
+                  <td><span class="num" style="color: var(--text-dim)">—</span></td>
+                  <td class="right num" style="color: var(--text-dim)">—</td>
+                  <td class="right num" style="color: var(--text-muted)"><span class="stack"><span>Apr 28</span><span class="row-meta">5 d ago</span></span></td>
+                  <td>
+                    <span class="row" style="gap: 4px">
+                      <span class="pill xs">prod</span>
+                    </span>
+                  </td>
+                  <td class="actions">
+                    <button class="btn ghost sm">Edit</button>
+                    <button class="btn icon sm ghost">⋯</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-spec">
+        <table>
+          <tr><th>Cell</th><th>Anatomy</th><th>Notes</th></tr>
+          <tr><td>Identity</td><td>Avatar (16/20 px) + primary + dim secondary</td><td>Wrap in <span class="code-chip">.inline</span> so it never wraps</td></tr>
+          <tr><td>Code / ID</td><td>Mono, dim color, no truncation</td><td>For long IDs, ellipsize with explicit max-width</td></tr>
+          <tr><td>Status</td><td><span class="code-chip">.status</span> with leading dot</td><td>Five states match logs and cards</td></tr>
+          <tr><td>Mini bar</td><td>92 px track + numeric value</td><td>Right-edge value keeps tabular alignment</td></tr>
+          <tr><td>Range</td><td>Mono, en-dash separator</td><td>Use <span class="code-chip">→</span> or <span class="code-chip">–</span> consistently per column</td></tr>
+          <tr><td>Money</td><td>Right-aligned, mono, tabular nums</td><td>Currency symbol stays attached to the digits</td></tr>
+          <tr><td>Timestamp</td><td>Time + dim "X ago"</td><td>Sort by absolute, display relative</td></tr>
+          <tr><td>Badges</td><td>Pill row, max 3 visible</td><td>Show "+N" pill when overflow</td></tr>
+          <tr><td>Actions</td><td>Hidden until row hover</td><td>Last column, right-aligned</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="sort">
+      <h2 class="lib-section-title">Sortable headers</h2>
+      <p class="lib-section-sub">Affordance is the chevron, not the entire header. Active sort gets the accent caret pointing the direction.</p>
+      <div class="demo">
+        <div class="demo-body block">
+          <div class="tbl-wrap" style="margin: 18px">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th><span class="sort">Service <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/><polyline points="9 18 15 12 9 6" transform="rotate(90 12 12)"/></svg></span></th>
+                  <th><span class="sort">Region <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/><polyline points="9 18 15 12 9 6" transform="rotate(90 12 12)"/></svg></span></th>
+                  <th class="right"><span class="sort on">CPU % <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></span></th>
+                  <th class="right"><span class="sort">Mem <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/><polyline points="9 18 15 12 9 6" transform="rotate(90 12 12)"/></svg></span></th>
+                  <th><span class="sort">Status <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/><polyline points="9 18 15 12 9 6" transform="rotate(90 12 12)"/></svg></span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>billing-worker</b></td><td>us-east-1</td>
+                  <td class="right num">92 %</td><td class="right num">71 %</td>
+                  <td><span class="status warn"><span class="glyph"></span>degraded</span></td>
+                </tr>
+                <tr>
+                  <td><b>api-gateway</b></td><td>us-east-1</td>
+                  <td class="right num">68 %</td><td class="right num">52 %</td>
+                  <td><span class="status ok"><span class="glyph"></span>healthy</span></td>
+                </tr>
+                <tr>
+                  <td><b>notify</b></td><td>eu-west-2</td>
+                  <td class="right num">42 %</td><td class="right num">38 %</td>
+                  <td><span class="status ok"><span class="glyph"></span>healthy</span></td>
+                </tr>
+                <tr>
+                  <td><b>image-proc</b></td><td>ap-south-1</td>
+                  <td class="right num">14 %</td><td class="right num">22 %</td>
+                  <td><span class="status idle"><span class="glyph"></span>idle</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <p class="lib-section-sub" style="font-size: 12px">Sort cycle: <span class="code-chip">none → desc → asc → none</span>. Holding shift adds a secondary sort (numeric badge appears on the chevron).</p>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="chips">
+      <h2 class="lib-section-title">Filter chips</h2>
+      <p class="lib-section-sub">A chip is the visual token for "one filter." It's compact, colored when active, dismissible. Shapes for kinds: <b>add</b> (dashed, opens picker), <b>plain</b> (idle key), <b>active</b> (key + value), <b>count</b> (label with badge), <b>group</b> (key with multiple values).</p>
+
+      <div class="demo">
+        <div class="demo-label">All chip variants</div>
+        <div class="demo-body" style="padding: 18px; flex-wrap: wrap; gap: 8px">
+          <span class="fchip add">+ Filter</span>
+          <span class="fchip">env</span>
+          <span class="fchip on"><span class="k">env:</span><span class="v">prod</span><span class="x">×</span></span>
+          <span class="fchip on"><span class="k">status:</span><span class="v">running</span><span class="x">×</span></span>
+          <span class="fchip on"><span class="k">region:</span><span class="v">us-east-1, eu-west-2 +1</span><span class="x">×</span></span>
+          <span class="fchip count">Active <span class="n">14</span></span>
+          <span class="fchip on count">Failed <span class="n">2</span></span>
+          <span class="fchip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/></svg> All instances</span>
+          <span class="fchip on"><span class="k">cost &gt;</span><span class="v">$50/mo</span><span class="x">×</span></span>
+          <span class="fchip on"><span class="k">created:</span><span class="v">Apr 1 → Apr 30</span><span class="x">×</span></span>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Operator chips · numeric &amp; date</div>
+        <div class="demo-body" style="padding: 18px; flex-wrap: wrap">
+          <span class="fchip on"><span class="k">cpu &gt;=</span><span class="v">80 %</span><span class="x">×</span></span>
+          <span class="fchip on"><span class="k">mem in</span><span class="v">[40, 90]</span><span class="x">×</span></span>
+          <span class="fchip on"><span class="k">latency &lt;</span><span class="v">120 ms</span><span class="x">×</span></span>
+          <span class="fchip on"><span class="k">tag has</span><span class="v">team:platform</span><span class="x">×</span></span>
+          <span class="fchip on"><span class="k">created &gt;</span><span class="v">last 7 d</span><span class="x">×</span></span>
+          <span class="fchip on"><span class="k">name ~</span><span class="v">api-*</span><span class="x">×</span></span>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Disabled · loading · invalid</div>
+        <div class="demo-body" style="padding: 18px">
+          <span class="fchip" style="opacity: 0.45; cursor: not-allowed"><span class="k">env:</span><span class="v">staging</span><span class="x">×</span></span>
+          <span class="fchip on" style="position: relative">
+            <span class="k">team:</span><span class="v" style="opacity: 0.4">platform</span>
+            <span class="dotc" style="position: absolute; right: -2px; top: -2px; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1.2s infinite"></span>
+          </span>
+          <span class="fchip on" style="border-color: color-mix(in oklch, var(--err) 40%, transparent); background: color-mix(in oklch, var(--err) 8%, transparent); color: var(--err)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+            <span class="k">cost</span><span class="v">invalid syntax</span><span class="x">×</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="bar">
+      <h2 class="lib-section-title">Filter bars</h2>
+      <p class="lib-section-sub">Three flavors: <b>chip-only</b> (cheapest, used most), <b>search + chips</b> (the standard), and <b>query bar</b> (mono input that parses a tiny DSL — <span class="code-chip">env:prod status:running cost&gt;50</span>). The DSL is for power users; everyone else clicks chips.</p>
+
+      <div class="demo">
+        <div class="demo-label">Chip-only · used in toolbars</div>
+        <div class="demo-body block">
+          <div class="filter-bar" style="margin: 18px">
+            <span class="fchip on"><span class="k">env:</span><span class="v">prod</span><span class="x">×</span></span>
+            <span class="fchip on"><span class="k">status:</span><span class="v">running</span><span class="x">×</span></span>
+            <span class="fchip on"><span class="k">region:</span><span class="v">us-east-1</span><span class="x">×</span></span>
+            <span class="fchip add">+ Filter</span>
+            <span style="flex: 1"></span>
+            <button class="btn ghost sm">Clear all</button>
+            <button class="btn sm">Save view</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Search + chips · default</div>
+        <div class="demo-body block">
+          <div class="filter-bar" style="margin: 18px; gap: 10px">
+            <div class="row" style="position: relative; flex: 1; min-width: 200px; gap: 0">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--text-dim)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input class="input sm" placeholder="Search by name, ID, region…" style="padding-left: 26px; width: 100%; height: 26px">
+              <kbd style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 10px">⌘K</kbd>
+            </div>
+            <span class="fchip on"><span class="k">env:</span><span class="v">prod</span><span class="x">×</span></span>
+            <span class="fchip add">+ Filter</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Query bar · with syntax highlighting</div>
+        <div class="demo-body block">
+          <div style="margin: 18px; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; background: var(--bg-elev); box-shadow: var(--focus-ring); display: flex; align-items: center; gap: 10px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-dim); flex-shrink: 0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span style="font-family: var(--font-mono); font-size: 12.5px; line-height: 1.4; flex: 1">
+              <span style="color: var(--accent-ink); font-weight: 600">env</span><span style="color: var(--text-dim)">:</span><span>prod</span>
+              <span> </span>
+              <span style="color: var(--accent-ink); font-weight: 600">status</span><span style="color: var(--text-dim)">:</span><span>running</span>
+              <span> </span>
+              <span style="color: var(--accent-ink); font-weight: 600">cost</span><span style="color: var(--text-dim)">&gt;</span><span style="color: var(--ok)">50</span>
+              <span> </span>
+              <span style="color: var(--accent-ink); font-weight: 600">name</span><span style="color: var(--text-dim)">~</span><span style="color: oklch(0.55 0.18 30)">"api-*"</span>
+              <span style="display: inline-block; width: 1px; height: 14px; background: var(--accent); animation: pulse 1.1s infinite; margin-left: 1px; vertical-align: -2px"></span>
+            </span>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); white-space: nowrap">14 results</span>
+            <button class="btn icon sm ghost"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>
+          <div style="margin: -8px 18px 18px; padding: 8px 12px; background: var(--bg-elev); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 8px 8px; font-size: 11.5px; color: var(--text-muted)">
+            <span style="color: var(--text-dim); margin-right: 8px">Suggestions:</span>
+            <span class="code-chip">created &gt; "7 days ago"</span>
+            <span style="margin: 0 6px"></span>
+            <span class="code-chip">tag has team:platform</span>
+            <span style="margin: 0 6px"></span>
+            <span class="code-chip">NOT region:eu-*</span>
+            <a href="#" class="lnk" style="float: right">Syntax help →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="views">
+      <h2 class="lib-section-title">Saved views</h2>
+      <p class="lib-section-sub">A view is a named bundle of filters + sort + columns. Tabs across the top, with a count of matching rows. The lock icon means workspace-shared (read-only); pencil means user-editable.</p>
+
+      <div class="demo">
+        <div class="demo-body block">
+          <div class="panel" style="margin: 18px">
+            <div class="views">
+              <span class="v"><span class="lock"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>All <span class="n">248</span></span>
+              <span class="v on"><span class="lock"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Production <span class="n">42</span></span>
+              <span class="v">Failed last 24 h <span class="n">2</span></span>
+              <span class="v">Owned by me <span class="n">7</span></span>
+              <span class="v">My team <span class="n">14</span></span>
+              <span class="v">High cost <span class="n">38</span></span>
+              <span class="add">+ New view</span>
+            </div>
+            <div style="padding: 14px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 12px">
+              <span>Active filters from <b style="color: var(--text)">Production</b>:</span>
+              <span class="fchip on"><span class="k">env:</span><span class="v">prod</span></span>
+              <span class="fchip on"><span class="k">status:</span><span class="v">running, degraded</span></span>
+              <span style="flex: 1"></span>
+              <span style="color: var(--text-dim); font-size: 11.5px">Modified · pin or save changes</span>
+              <button class="btn ghost sm">Discard</button>
+              <button class="btn sm primary">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">View dropdown · alternate to tabs</div>
+        <div class="demo-body block" style="padding: 18px; position: relative; height: 320px">
+          <div style="position: absolute; left: 18px; top: 18px; display: inline-flex; align-items: center; gap: 8px">
+            <button class="btn" style="gap: 8px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <b>Production</b>
+              <span style="color: var(--text-dim); font-family: var(--font-mono); font-size: 10.5px">42</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="pop" style="position: absolute; left: 18px; top: 56px; padding: 6px; min-width: 280px">
+            <div style="padding: 4px 8px 6px; font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono)">Workspace views</div>
+            <div class="row" style="padding: 6px 8px; border-radius: 4px; gap: 8px; cursor: pointer; background: var(--bg-sunk)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>All</span>
+              <span style="margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim)">248</span>
+            </div>
+            <div class="row" style="padding: 6px 8px; border-radius: 4px; gap: 8px; cursor: pointer; background: var(--accent-weak); color: var(--accent-ink); font-weight: 500">
+              <span style="width: 11px"></span>
+              <span>Production</span>
+              <span style="margin-left: auto; font-family: var(--font-mono); font-size: 10.5px">42</span>
+            </div>
+            <div class="row" style="padding: 6px 8px; border-radius: 4px; gap: 8px; cursor: pointer">
+              <span style="width: 11px"></span>
+              <span>Failed last 24 h</span>
+              <span style="margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--err)">2</span>
+            </div>
+            <div style="height: 1px; background: var(--line); margin: 6px 0"></div>
+            <div style="padding: 4px 8px 6px; font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono)">Mine</div>
+            <div class="row" style="padding: 6px 8px; border-radius: 4px; gap: 8px; cursor: pointer">
+              <span style="width: 11px"></span>
+              <span>Owned by me</span>
+              <span style="margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim)">7</span>
+            </div>
+            <div class="row" style="padding: 6px 8px; border-radius: 4px; gap: 8px; cursor: pointer">
+              <span style="width: 11px"></span>
+              <span>High cost</span>
+              <span style="margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim)">38</span>
+            </div>
+            <div style="height: 1px; background: var(--line); margin: 6px 0"></div>
+            <div class="row" style="padding: 6px 8px; border-radius: 4px; gap: 8px; cursor: pointer; color: var(--text-muted)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Save current as new view…</span>
+              <span style="margin-left: auto; font-size: 10px"><kbd>⌘S</kbd></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="col-filter">
+      <h2 class="lib-section-title">Column filter</h2>
+      <p class="lib-section-sub">Click a header → it gets a filter popover scoped to that column. Multi-select for enums, range for numbers, date picker for dates. The chevron flips up while open.</p>
+
+      <div class="demo">
+        <div class="demo-body block" style="position: relative; padding: 0 18px 18px; min-height: 380px">
+          <div class="tbl-wrap" style="margin-top: 18px">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>
+                    <span class="sort on" style="color: var(--accent-ink)">
+                      Status
+                      <span class="dotc" style="background: var(--accent); width: 5px; height: 5px; border-radius: 50%"></span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                    </span>
+                  </th>
+                  <th>Region</th>
+                  <th class="right">CPU</th>
+                  <th class="right">Started</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><b>api-gateway</b></td><td><span class="status ok"><span class="glyph"></span>healthy</span></td><td>us-east-1</td><td class="right num">68 %</td><td class="right num" style="color: var(--text-muted)">14:32:08</td></tr>
+                <tr><td><b>billing-worker</b></td><td><span class="status warn"><span class="glyph"></span>degraded</span></td><td>us-east-1</td><td class="right num">92 %</td><td class="right num" style="color: var(--text-muted)">14:21:44</td></tr>
+                <tr><td><b>notify</b></td><td><span class="status ok"><span class="glyph"></span>healthy</span></td><td>eu-west-2</td><td class="right num">42 %</td><td class="right num" style="color: var(--text-muted)">14:18:01</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Popover positioned over Status column -->
+          <div class="col-filter" style="position: absolute; left: 230px; top: 70px;">
+            <div style="position: relative; padding: 4px 6px 6px">
+              <input class="input sm" placeholder="Search statuses…" style="width: 100%; padding-left: 24px">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim)"><circle cx="11" cy="11" r="8"/></svg>
+            </div>
+            <div class="item on">
+              <span class="check"></span>
+              <span class="status ok"><span class="glyph"></span>healthy</span>
+              <span class="count">14</span>
+            </div>
+            <div class="item on">
+              <span class="check"></span>
+              <span class="status warn"><span class="glyph"></span>degraded</span>
+              <span class="count">2</span>
+            </div>
+            <div class="item">
+              <span class="check"></span>
+              <span class="status err"><span class="glyph"></span>down</span>
+              <span class="count">0</span>
+            </div>
+            <div class="item">
+              <span class="check"></span>
+              <span class="status idle"><span class="glyph"></span>idle</span>
+              <span class="count">3</span>
+            </div>
+            <div class="sep"></div>
+            <div class="foot">
+              <button class="btn ghost sm" style="flex: 1">Clear</button>
+              <button class="btn primary sm" style="flex: 1">Apply (2)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Numeric range · date range</div>
+        <div class="demo-body" style="padding: 22px; gap: 24px; align-items: flex-start">
+          <div class="col-filter" style="position: static; box-shadow: var(--shadow-sm)">
+            <div style="padding: 6px 8px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono)">CPU %</div>
+            <div class="row" style="padding: 4px 8px; gap: 6px">
+              <input class="input sm mono" value="80" style="width: 60px; text-align: right">
+              <span style="color: var(--text-dim)">—</span>
+              <input class="input sm mono" value="100" style="width: 60px; text-align: right">
+            </div>
+            <div style="padding: 12px 8px 6px">
+              <div class="slider" style="--lo: 80%; --hi: 100%">
+                <div class="track"><div class="fill range"></div></div>
+                <div class="thumb" style="left: 80%"></div>
+                <div class="thumb" style="left: 100%"></div>
+                <div class="marks"><span>0</span><span>50</span><span>100</span></div>
+              </div>
+            </div>
+            <div class="sep"></div>
+            <div class="foot">
+              <button class="btn ghost sm" style="flex: 1">Reset</button>
+              <button class="btn primary sm" style="flex: 1">Apply</button>
+            </div>
+          </div>
+
+          <div class="col-filter" style="position: static; box-shadow: var(--shadow-sm); width: 280px">
+            <div style="padding: 6px 8px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono)">Started</div>
+            <div class="item"><span class="check"></span><span>Last hour</span><span class="count">12</span></div>
+            <div class="item on"><span class="check"></span><span>Last 24 hours</span><span class="count">42</span></div>
+            <div class="item"><span class="check"></span><span>Last 7 days</span><span class="count">198</span></div>
+            <div class="item"><span class="check"></span><span>Last 30 days</span><span class="count">540</span></div>
+            <div class="sep"></div>
+            <div class="row" style="padding: 4px 6px; gap: 6px">
+              <input type="date" class="input sm mono" value="2026-04-26" style="font-family: var(--font-mono); flex: 1; min-width: 0">
+              <span style="color: var(--text-dim)">—</span>
+              <input type="date" class="input sm mono" value="2026-05-03" style="font-family: var(--font-mono); flex: 1; min-width: 0">
+            </div>
+            <div class="sep"></div>
+            <div class="foot">
+              <button class="btn ghost sm" style="flex: 1">Clear</button>
+              <button class="btn primary sm" style="flex: 1">Apply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="bulk">
+      <h2 class="lib-section-title">Bulk select</h2>
+      <p class="lib-section-sub">When ≥ 1 row is selected, the toolbar mode flips: filters dim, a sticky bulk-action sheet appears at the bottom of the viewport. Header checkbox cycles indeterminate → all → none.</p>
+
+      <div class="demo">
+        <div class="demo-body block">
+          <div class="panel" style="margin: 18px; position: relative">
+            <div class="tbl-toolbar">
+              <div class="left">
+                <span class="sel-bar">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <b>3 selected</b>
+                  <button style="color: inherit; font-size: 11px; opacity: 0.7">Select all 248</button>
+                </span>
+              </div>
+              <div class="right">
+                <button class="btn sm">Tag…</button>
+                <button class="btn sm">Move…</button>
+                <button class="btn sm danger">Delete</button>
+              </div>
+            </div>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width: 28px"><input type="checkbox" class="check" checked style="--check-state: ind"></th>
+                  <th>Service</th>
+                  <th>Region</th>
+                  <th>Status</th>
+                  <th class="right">Started</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="sel"><td><input type="checkbox" class="check" checked></td><td><b>api-gateway</b></td><td>us-east-1</td><td><span class="status ok"><span class="glyph"></span>healthy</span></td><td class="right num" style="color: var(--text-muted)">14:32</td></tr>
+                <tr class="sel"><td><input type="checkbox" class="check" checked></td><td><b>billing-worker</b></td><td>us-east-1</td><td><span class="status warn"><span class="glyph"></span>degraded</span></td><td class="right num" style="color: var(--text-muted)">14:21</td></tr>
+                <tr class="sel"><td><input type="checkbox" class="check" checked></td><td><b>notify</b></td><td>eu-west-2</td><td><span class="status ok"><span class="glyph"></span>healthy</span></td><td class="right num" style="color: var(--text-muted)">14:18</td></tr>
+                <tr><td><input type="checkbox" class="check"></td><td><b>image-proc</b></td><td>ap-south-1</td><td><span class="status idle"><span class="glyph"></span>idle</span></td><td class="right num" style="color: var(--text-muted)">13:54</td></tr>
+                <tr><td><input type="checkbox" class="check"></td><td><b>auth-svc</b></td><td>us-east-1</td><td><span class="status ok"><span class="glyph"></span>healthy</span></td><td class="right num" style="color: var(--text-muted)">13:42</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Sticky bulk sheet · floats above table</div>
+        <div class="demo-body block" style="position: relative; padding: 18px">
+          <div class="bulk-sheet" style="display: inline-flex">
+            <span class="count">3 selected</span>
+            <span class="sep"></span>
+            <button>Tag</button>
+            <button>Move</button>
+            <button>Export</button>
+            <span class="sep"></span>
+            <button class="danger">Delete</button>
+            <span class="sep"></span>
+            <button style="opacity: 0.6">Cancel <kbd style="background: rgba(255,255,255,0.15); border: 0; color: inherit; box-shadow: none; padding: 0 4px; margin-left: 4px; font-size: 10px">Esc</kbd></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="expandable">
+      <h2 class="lib-section-title">Expandable rows</h2>
+      <p class="lib-section-sub">Click the caret to inline-reveal a sub-panel — useful for long messages, JSON payloads, or a row's children. Keep nesting to one level; deeper hierarchies belong in a tree.</p>
+
+      <div class="demo">
+        <div class="demo-body block">
+          <div class="tbl-wrap" style="margin: 18px">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width: 28px"></th>
+                  <th>Endpoint</th>
+                  <th>Method</th>
+                  <th>p99</th>
+                  <th class="right">Calls · 24 h</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><button class="caret-btn"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                  <td class="mono">/v1/orders</td>
+                  <td><span class="pill xs">POST</span></td>
+                  <td class="num">88 ms</td>
+                  <td class="right num">14 218</td>
+                </tr>
+                <tr>
+                  <td><button class="caret-btn open"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                  <td class="mono">/v1/orders/<span style="color: var(--text-dim)">{id}</span></td>
+                  <td><span class="pill xs">GET</span></td>
+                  <td class="num">42 ms</td>
+                  <td class="right num">88 102</td>
+                </tr>
+                <tr>
+                  <td colspan="5" style="background: var(--bg-sunk); padding: 14px 18px">
+                    <div class="stack-v" style="gap: 12px">
+                      <div class="row" style="gap: 16px">
+                        <div class="stack" style="gap: 1px">
+                          <span style="font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono)">Median</span>
+                          <span class="num" style="font-size: 14px; font-weight: 600">12 ms</span>
+                        </div>
+                        <div class="stack" style="gap: 1px">
+                          <span style="font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono)">p95</span>
+                          <span class="num" style="font-size: 14px; font-weight: 600">38 ms</span>
+                        </div>
+                        <div class="stack" style="gap: 1px">
+                          <span style="font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono)">p99</span>
+                          <span class="num" style="font-size: 14px; font-weight: 600; color: var(--warn)">42 ms</span>
+                        </div>
+                        <div class="stack" style="gap: 1px">
+                          <span style="font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono)">Error rate</span>
+                          <span class="num" style="font-size: 14px; font-weight: 600; color: var(--ok)">0.04 %</span>
+                        </div>
+                        <span style="flex: 1"></span>
+                        <a href="#" class="lnk">Open trace →</a>
+                      </div>
+                      <svg width="100%" height="50" viewBox="0 0 600 50" preserveAspectRatio="none">
+                        <defs><linearGradient id="exp1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity="0.3"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+                        <path fill="url(#exp1)" d="M0,40 L50,38 100,42 150,30 200,34 250,28 300,22 350,30 400,18 450,24 500,12 550,16 600,8 L600,50 L0,50 Z"/>
+                        <polyline fill="none" stroke="var(--accent)" stroke-width="1.5" points="0,40 50,38 100,42 150,30 200,34 250,28 300,22 350,30 400,18 450,24 500,12 550,16 600,8"/>
+                      </svg>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><button class="caret-btn"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                  <td class="mono">/v1/me</td>
+                  <td><span class="pill xs">GET</span></td>
+                  <td class="num">12 ms</td>
+                  <td class="right num">2 401</td>
+                </tr>
+                <tr>
+                  <td><button class="caret-btn"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button></td>
+                  <td class="mono">/v1/webhooks</td>
+                  <td><span class="pill xs">POST</span></td>
+                  <td class="num">128 ms</td>
+                  <td class="right num">5 880</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="empty">
+      <h2 class="lib-section-title">Empty &amp; loading states</h2>
+      <p class="lib-section-sub">A list page has three resting states besides "data": <b>first run</b> (no rows ever existed), <b>filtered empty</b> (filters hide everything), and <b>loading</b> (skeleton rows). Each gets a different illustration and CTA.</p>
+
+      <div class="demo">
+        <div class="demo-label">First run · primary CTA + secondary</div>
+        <div class="demo-body block">
+          <div class="tbl-wrap" style="margin: 18px">
+            <div class="empty-state">
+              <div class="ill">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+              </div>
+              <h4>No deployments yet</h4>
+              <p>Connect a repo or push a build artifact to see deployments stream in here. Most teams have their first deploy live in under 5 minutes.</p>
+              <div class="row" style="justify-content: center; gap: 8px">
+                <button class="btn primary">+ New deployment</button>
+                <button class="btn">Connect a repo</button>
+                <a href="#" class="lnk">Read the docs →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Filtered empty · suggest fix</div>
+        <div class="demo-body block">
+          <div class="panel" style="margin: 18px">
+            <div style="padding: 10px 14px; border-bottom: 1px solid var(--line); display: flex; gap: 6px; align-items: center; background: var(--panel)">
+              <span class="fchip on"><span class="k">env:</span><span class="v">prod</span><span class="x">×</span></span>
+              <span class="fchip on"><span class="k">status:</span><span class="v">failed</span><span class="x">×</span></span>
+              <span class="fchip on"><span class="k">region:</span><span class="v">eu-central-1</span><span class="x">×</span></span>
+              <span class="fchip add">+ Filter</span>
+            </div>
+            <div class="empty-state">
+              <div class="ill">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <h4>No matches for these filters</h4>
+              <p>3 active filters narrowed the list to zero. Try removing a constraint — most likely the region.</p>
+              <div class="row" style="justify-content: center; gap: 6px">
+                <button class="btn sm">Remove <span class="code-chip" style="margin-left: 4px">region:eu-central-1</span></button>
+                <button class="btn ghost sm">Clear all filters</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Loading · skeleton rows</div>
+        <div class="demo-body block">
+          <div class="tbl-wrap" style="margin: 18px">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Region</th>
+                  <th>Status</th>
+                  <th class="right">CPU</th>
+                  <th class="right">Started</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="sk" style="width: 120px"></span></td><td><span class="sk" style="width: 70px"></span></td><td><span class="sk" style="width: 60px"></span></td><td class="right"><span class="sk" style="width: 36px"></span></td><td class="right"><span class="sk" style="width: 60px"></span></td></tr>
+                <tr><td><span class="sk" style="width: 90px"></span></td><td><span class="sk" style="width: 80px"></span></td><td><span class="sk" style="width: 60px"></span></td><td class="right"><span class="sk" style="width: 30px"></span></td><td class="right"><span class="sk" style="width: 60px"></span></td></tr>
+                <tr><td><span class="sk" style="width: 140px"></span></td><td><span class="sk" style="width: 60px"></span></td><td><span class="sk" style="width: 70px"></span></td><td class="right"><span class="sk" style="width: 40px"></span></td><td class="right"><span class="sk" style="width: 60px"></span></td></tr>
+                <tr><td><span class="sk" style="width: 100px"></span></td><td><span class="sk" style="width: 80px"></span></td><td><span class="sk" style="width: 60px"></span></td><td class="right"><span class="sk" style="width: 36px"></span></td><td class="right"><span class="sk" style="width: 60px"></span></td></tr>
+                <tr><td><span class="sk" style="width: 110px"></span></td><td><span class="sk" style="width: 70px"></span></td><td><span class="sk" style="width: 60px"></span></td><td class="right"><span class="sk" style="width: 30px"></span></td><td class="right"><span class="sk" style="width: 60px"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="full">
+      <h2 class="lib-section-title">Full pattern</h2>
+      <p class="lib-section-sub">Every primitive in this chapter, assembled into the kind of resource list a console uses every day. This is the "VPS instances" reference layout — KPI strip, filter chips, sortable headers, mini-bars, status pills, hover actions, footer summary.</p>
+
+      <div class="demo">
+        <div class="demo-body block">
+          <div class="scene-frame" style="margin: 18px">
+            <div class="frame-head">
+              <div>
+                <h3>VPS 实例</h3>
+                <div class="stat-strip">
+                  <span><b>8</b> 实例</span><span class="sep"></span>
+                  <span>月支出 <b>¥846</b></span><span class="sep"></span>
+                  <span>平均 CPU <b>23 %</b></span><span class="sep"></span>
+                  <span>跨 <b>4</b> 家服务商</span>
+                </div>
+              </div>
+              <div class="row" style="gap: 6px">
+                <button class="btn sm">批量操作</button>
+                <button class="btn primary sm">+ 新建实例</button>
+              </div>
+            </div>
+            <div class="frame-body">
+              <!-- KPI -->
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px">
+                <div class="kpi" style="padding: 12px 14px">
+                  <div class="kpi-label">运行中</div>
+                  <div class="kpi-value">7 <span style="font-family: var(--font-mono); font-size: 14px; color: var(--text-dim); font-weight: 400">/ 8</span></div>
+                </div>
+                <div class="kpi" style="padding: 12px 14px">
+                  <div class="kpi-label">月支出</div>
+                  <div class="kpi-value">¥846</div>
+                </div>
+                <div class="kpi" style="padding: 12px 14px">
+                  <div class="kpi-label">平均 CPU</div>
+                  <div class="kpi-value">23 %</div>
+                  <div class="progress" style="margin-top: 8px"><span style="width: 23%"></span></div>
+                </div>
+                <div class="kpi" style="padding: 12px 14px">
+                  <div class="kpi-label">总流量 30 d</div>
+                  <div class="kpi-value">12.4 <span style="font-family: var(--font-mono); font-size: 14px; color: var(--text-dim); font-weight: 400">TB</span></div>
+                </div>
+              </div>
+              <!-- Filter chips row -->
+              <div class="row" style="justify-content: space-between; padding: 0 2px 10px; gap: 8px; flex-wrap: wrap">
+                <div class="row" style="gap: 6px; align-items: center">
+                  <span style="font-size: 11px; color: var(--text-dim); margin-right: 2px">筛选:</span>
+                  <span class="fchip on">全部 <span class="n" style="background: rgba(255,255,255,0.4); padding: 0 5px; border-radius: 8px; font-family: var(--font-mono); font-size: 10.5px; margin-left: 2px">8</span></span>
+                  <span class="fchip">运行 <span class="n" style="background: var(--bg-sunk); padding: 0 5px; border-radius: 8px; font-family: var(--font-mono); font-size: 10.5px; margin-left: 2px">7</span></span>
+                  <span class="fchip">异常 <span class="n" style="background: var(--bg-sunk); padding: 0 5px; border-radius: 8px; font-family: var(--font-mono); font-size: 10.5px; margin-left: 2px">1</span></span>
+                  <span class="fchip">Helix EU <span class="n" style="background: var(--bg-sunk); padding: 0 5px; border-radius: 8px; font-family: var(--font-mono); font-size: 10.5px; margin-left: 2px">4</span></span>
+                  <span class="fchip">Sakura.io <span class="n" style="background: var(--bg-sunk); padding: 0 5px; border-radius: 8px; font-family: var(--font-mono); font-size: 10.5px; margin-left: 2px">2</span></span>
+                </div>
+                <div class="row" style="gap: 8px; font-size: 11px; color: var(--text-dim)">
+                  排序:
+                  <span class="sort on" style="color: var(--text); font-weight: 500">CPU 占用 ↓</span>
+                </div>
+              </div>
+              <!-- Table -->
+              <div class="tbl-wrap">
+                <table class="tbl">
+                  <thead>
+                    <tr>
+                      <th style="width: 28px"><input type="checkbox" class="check"></th>
+                      <th>实例</th>
+                      <th>规格</th>
+                      <th>区域 · 服务商</th>
+                      <th>公网 IP</th>
+                      <th class="right" style="width: 110px">CPU</th>
+                      <th class="right" style="width: 110px">内存</th>
+                      <th>状态</th>
+                      <th class="right">¥/月</th>
+                      <th style="width: 28px"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="checkbox" class="check"></td>
+                      <td><span class="stack"><b>api-prod-01</b><span class="row-meta">Ubuntu 24.04</span></span></td>
+                      <td class="mono" style="color: var(--text-muted)">8c · 16GB · 240GB</td>
+                      <td><span class="mono" style="color: var(--text-muted)">de-fra-1</span> · Helix EU</td>
+                      <td class="mono">88.198.42.7</td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 42%"></span></span><span class="v">42 %</span></span></td>
+                      <td class="right"><span class="tbl-bar warn"><span class="track"><span class="fill" style="width: 68%"></span></span><span class="v">68 %</span></span></td>
+                      <td><span class="status ok"><span class="glyph"></span>running</span></td>
+                      <td class="right num">¥118</td>
+                      <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="check"></td>
+                      <td><span class="stack"><b>db-replica-tk</b><span class="row-meta">Debian 12</span></span></td>
+                      <td class="mono" style="color: var(--text-muted)">4c · 8GB · 120GB</td>
+                      <td><span class="mono" style="color: var(--text-muted)">jp-tokyo-2</span> · Sakura.io</td>
+                      <td class="mono">160.16.124.88</td>
+                      <td class="right num" style="color: var(--text-dim)">—</td>
+                      <td class="right num" style="color: var(--text-dim)">—</td>
+                      <td><span class="status warn"><span class="glyph"></span>rebooting</span></td>
+                      <td class="right num">¥62</td>
+                      <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="check"></td>
+                      <td><span class="stack"><b>api-prod-02</b><span class="row-meta">Ubuntu 24.04</span></span></td>
+                      <td class="mono" style="color: var(--text-muted)">8c · 16GB · 240GB</td>
+                      <td><span class="mono" style="color: var(--text-muted)">de-fra-1</span> · Helix EU</td>
+                      <td class="mono">88.198.42.8</td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 38%"></span></span><span class="v">38 %</span></span></td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 62%"></span></span><span class="v">62 %</span></span></td>
+                      <td><span class="status ok"><span class="glyph"></span>running</span></td>
+                      <td class="right num">¥118</td>
+                      <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="check"></td>
+                      <td><span class="stack"><b>redis-cache</b><span class="row-meta">Alpine 3.21</span></span></td>
+                      <td class="mono" style="color: var(--text-muted)">2c · 4GB · 80GB</td>
+                      <td><span class="mono" style="color: var(--text-muted)">sg1.fr2</span> · NeonStack</td>
+                      <td class="mono">203.107.211.42</td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 12%"></span></span><span class="v">12 %</span></span></td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 28%"></span></span><span class="v">28 %</span></span></td>
+                      <td><span class="status ok"><span class="glyph"></span>running</span></td>
+                      <td class="right num">¥18</td>
+                      <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="check"></td>
+                      <td><span class="stack"><b>worker-eu-01</b><span class="row-meta">NixOS 25.05</span></span></td>
+                      <td class="mono" style="color: var(--text-muted)">4c · 8GB · 160GB</td>
+                      <td><span class="mono" style="color: var(--text-muted)">de-fra-1</span> · Helix EU</td>
+                      <td class="mono">88.198.42.9</td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 18%"></span></span><span class="v">18 %</span></span></td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 34%"></span></span><span class="v">34 %</span></span></td>
+                      <td><span class="status ok"><span class="glyph"></span>running</span></td>
+                      <td class="right num">¥84</td>
+                      <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="check"></td>
+                      <td><span class="stack"><b>staging-bgp</b><span class="row-meta">Rocky 9</span></span></td>
+                      <td class="mono" style="color: var(--text-muted)">2c · 4GB · 80GB</td>
+                      <td><span class="mono" style="color: var(--text-muted)">cn-sha-bgp</span> · Yulin IDC</td>
+                      <td class="mono">120.78.198.42</td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 8%"></span></span><span class="v">8 %</span></span></td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 22%"></span></span><span class="v">22 %</span></span></td>
+                      <td><span class="status ok"><span class="glyph"></span>running</span></td>
+                      <td class="right num">¥48</td>
+                      <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="check"></td>
+                      <td><span class="stack"><b>db-primary</b><span class="row-meta">Debian 12</span></span></td>
+                      <td class="mono" style="color: var(--text-muted)">8c · 32GB · 480GB</td>
+                      <td><span class="mono" style="color: var(--text-muted)">jp-tokyo-2</span> · Sakura.io</td>
+                      <td class="mono">160.16.124.89</td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 52%"></span></span><span class="v">52 %</span></span></td>
+                      <td class="right"><span class="tbl-bar warn"><span class="track"><span class="fill" style="width: 71%"></span></span><span class="v">71 %</span></span></td>
+                      <td><span class="status ok"><span class="glyph"></span>running</span></td>
+                      <td class="right num">¥218</td>
+                      <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox" class="check"></td>
+                      <td><span class="stack"><b>jump-host</b><span class="row-meta">Alpine 3.21</span></span></td>
+                      <td class="mono" style="color: var(--text-muted)">1c · 1GB · 25GB</td>
+                      <td><span class="mono" style="color: var(--text-muted)">us-sjc-3</span> · Ampera Bay</td>
+                      <td class="mono">23.236.62.147</td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 2%"></span></span><span class="v">2 %</span></span></td>
+                      <td class="right"><span class="tbl-bar"><span class="track"><span class="fill" style="width: 14%"></span></span><span class="v">14 %</span></span></td>
+                      <td><span class="status ok"><span class="glyph"></span>running</span></td>
+                      <td class="right num">¥16</td>
+                      <td class="actions"><button class="btn icon sm ghost">⋯</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="row" style="justify-content: space-between; padding: 12px 4px 2px; font-size: 12px; color: var(--text-muted)">
+                <span>8 个实例 · 0 已选择</span>
+                <span>月支出合计 <b style="color: var(--text); font-family: var(--font-mono)">¥846.00</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="nxtable">
+      <h2 class="lib-section-title">NxTable — enterprise data table</h2>
+      <p class="lib-section-sub">
+        A real JS component, not markup. Drive it with a <code>data</code> array and <code>columns</code> defs;
+        get sorting (multi-column with <kbd>Shift</kbd>), per-column filters, global search, drag-to-reorder headers,
+        drag-to-resize widths, pin left/right, hide/show columns, density toggle, row selection + bulk actions,
+        pagination, inline editing, row expansion, CSV export, and persisted UI state — all out of the box.
+        State persists to <code>localStorage</code> under the <code>persistKey</code> you provide.
+      </p>
+    </section>
+
+    <!-- Basic -->
+    <section id="nxt-basic">
+      <h3 class="lib-h3">Basic — sort, search, paginate</h3>
+      <p class="lib-section-sub">Minimum config: pass data + columns. Click a header to sort; hold <kbd>Shift</kbd> to add a second sort key.</p>
+      <div id="demo-basic" class="demo-host"></div>
+      <details class="lib-code">
+        <summary>Source</summary>
+<pre><code>new NxTable(el, {
+  data, columns: [
+    { key:'id',     label:'ID',     type:'text',   width: 110, pinned:'left' },
+    { key:'name',   label:'Name',   type:'text',   width: 200 },
+    { key:'role',   label:'Role',   type:'text',   width: 130 },
+    { key:'salary', label:'Salary', type:'money',  width: 130, align:'right' },
+    { key:'hired',  label:'Hired',  type:'date',   width: 160 },
+  ],
+  pageSize: 8,
+});</code></pre>
+      </details>
+    </section>
+
+    <!-- Enterprise -->
+    <section id="nxt-enterprise">
+      <h3 class="lib-h3">Enterprise — selection, bulk, filter, density, columns, export</h3>
+      <p class="lib-section-sub">Drag headers to reorder. Drag the right edge of a header to resize. Use the column-menu (⋯) to pin, hide, or auto-size. Filter (▽) on any column header — text, multi-select, or numeric range. Toolbar exports a CSV of what's currently visible.</p>
+      <div id="demo-enterprise" class="demo-host"></div>
+    </section>
+
+    <!-- Inline edit + expand -->
+    <section id="nxt-edit">
+      <h3 class="lib-h3">Inline edit + row expand + pinned columns</h3>
+      <p class="lib-section-sub">Double-click an editable cell to edit (<kbd>Enter</kbd> commits, <kbd>Esc</kbd> cancels). Click the chevron to expand a row into a detail panel.</p>
+      <div id="demo-edit" class="demo-host"></div>
+    </section>
+
+    <!-- Right-click + lasso -->
+    <section id="nxt-power">
+      <h3 class="lib-h3">Right-click context menu + drag-to-select</h3>
+      <p class="lib-section-sub">
+        <b>Right-click any row</b> for a context menu — copy, expand, bulk actions, select-all-on-page, invert, clear.
+        <b>Click and drag</b> on the table body to draw a selection box; hold <kbd>Shift</kbd>/<kbd>⌘</kbd> while dragging to add to the existing selection.
+        <b>Shift-click</b> a row for range select. <b>⌘/Ctrl-click</b> to toggle. Custom context menus via <code>contextMenu: (row) => items[]</code>.
+      </p>
+      <div id="demo-power" class="demo-host"></div>
+    </section>
+
+    <!-- API reference -->
+    <section id="nxt-api">
+      <h3 class="lib-h3">API reference</h3>
+      <div class="api-grid">
+        <div class="api-card">
+          <h4>Constructor options</h4>
+          <table class="api-tbl">
+            <tr><td><code>data</code></td><td>Row[] — array of row objects.</td></tr>
+            <tr><td><code>columns</code></td><td>Column[] — see below.</td></tr>
+            <tr><td><code>getRowId</code></td><td><code>(row, i) =&gt; id</code>. Defaults to <code>row.id ?? i</code>.</td></tr>
+            <tr><td><code>selectable</code></td><td><code>'multi' | 'single' | false</code></td></tr>
+            <tr><td><code>density</code></td><td><code>'compact' | 'normal' | 'comfy'</code></td></tr>
+            <tr><td><code>paginate</code> / <code>pageSize</code></td><td>Boolean and Number (default 20).</td></tr>
+            <tr><td><code>search</code></td><td>Toggle the global search input in the toolbar.</td></tr>
+            <tr><td><code>showToolbar</code></td><td>Hide the whole top bar if false.</td></tr>
+            <tr><td><code>persistKey</code></td><td>String — saves widths, hidden, pinned, sort, density to <code>localStorage</code>.</td></tr>
+            <tr><td><code>bulkActions</code></td><td>String[] — labels for the bulk action sheet.</td></tr>
+            <tr><td><code>expandable</code> / <code>expandRender</code></td><td>Enable per-row expand; renderer returns the inner HTML.</td></tr>
+            <tr><td><code>rowClickSelects</code></td><td>Click a row to select (default true). Honors Shift/⌘ modifiers.</td></tr>
+            <tr><td><code>lasso</code></td><td><code>true | false | 'auto'</code> — drag-to-select box. Auto enables it for multi-select.</td></tr>
+            <tr><td><code>contextMenu</code></td><td><code>(row, table, {selectedRows}) =&gt; items[]</code> — customize the right-click menu. Pass <code>false</code> to disable.</td></tr>
+            <tr><td><code>onAction</code></td><td><code>(action, payload) =&gt; void</code> — fires on bulk, edit, copy, and custom actions.</td></tr>
+          </table>
+        </div>
+        <div class="api-card">
+          <h4>Column shape</h4>
+          <table class="api-tbl">
+            <tr><td><code>key</code></td><td>Field name on row.</td></tr>
+            <tr><td><code>label</code></td><td>Header text.</td></tr>
+            <tr><td><code>type</code></td><td><code>text | number | money | date | status | bar | tags | custom</code> — drives default rendering + sort.</td></tr>
+            <tr><td><code>render</code></td><td><code>(value, row) =&gt; htmlString</code>. Overrides type rendering.</td></tr>
+            <tr><td><code>width</code> / <code>minWidth</code></td><td>Initial px / floor for resize.</td></tr>
+            <tr><td><code>pinned</code></td><td><code>'left' | 'right' | null</code></td></tr>
+            <tr><td><code>sortable</code></td><td>Default true.</td></tr>
+            <tr><td><code>filterable</code> / <code>filterKind</code></td><td>Toggle the funnel button. <code>'text' | 'select' | 'range'</code>.</td></tr>
+            <tr><td><code>options</code></td><td>String[] — choices when <code>filterKind === 'select'</code>.</td></tr>
+            <tr><td><code>toneMap</code></td><td>Map status value → pill tone (<code>ok | warn | err | info | neutral</code>).</td></tr>
+            <tr><td><code>editable</code></td><td>Allow double-click inline edit.</td></tr>
+            <tr><td><code>align</code></td><td><code>'left' | 'right' | 'center'</code></td></tr>
+            <tr><td><code>hidden</code></td><td>Hide by default (still in columns menu).</td></tr>
+          </table>
+        </div>
+        <div class="api-card">
+          <h4>Instance methods</h4>
+          <table class="api-tbl">
+            <tr><td><code>setData(rows)</code></td><td>Replace dataset, reset pagination.</td></tr>
+            <tr><td><code>addRow(row)</code></td><td>Append a row.</td></tr>
+            <tr><td><code>removeRows(ids)</code></td><td>Delete by id list.</td></tr>
+            <tr><td><code>getSelectedRows()</code></td><td>Returns currently selected row objects.</td></tr>
+            <tr><td><code>clearFilters()</code></td><td>Resets global + column filters.</td></tr>
+            <tr><td><code>exportCSV()</code></td><td>Triggers a CSV download of the filtered/sorted dataset.</td></tr>
+            <tr><td><code>refresh()</code></td><td>Re-renders from current state.</td></tr>
+          </table>
+        </div>
+        <div class="api-card">
+          <h4>Keyboard</h4>
+          <table class="api-tbl">
+            <tr><td><kbd>Shift</kbd> + click header</td><td>Add to multi-sort.</td></tr>
+            <tr><td>Right-click a row</td><td>Open context menu (copy, bulk, select-all…).</td></tr>
+            <tr><td>Click + drag in body</td><td>Box (lasso) select. Hold ⇧/⌘ to add to selection.</td></tr>
+            <tr><td><kbd>Shift</kbd> + row click</td><td>Range select between last and current.</td></tr>
+            <tr><td><kbd>⌘/Ctrl</kbd> + row click</td><td>Toggle row in selection.</td></tr>
+            <tr><td>Double-click cell</td><td>Begin inline edit (if <code>editable</code>).</td></tr>
+            <tr><td><kbd>Enter</kbd></td><td>Commit edit.</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>Cancel edit.</td></tr>
+            <tr><td>Drag header label</td><td>Reorder columns.</td></tr>
+            <tr><td>Drag header right edge</td><td>Resize column.</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<style>
+  .demo-host { margin: 4px 0 20px; }
+  .lib-h3 { margin: 24px 0 4px; font-size: 15px; font-weight: 600; color: var(--text); }
+  .lib-code { margin-top: 10px; }
+  .lib-code summary { cursor: pointer; color: var(--text-dim); font-size: 12px; }
+  .lib-code pre { margin: 8px 0 0; padding: 12px 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font-size: 11.5px; overflow: auto; }
+  .api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+  @media (max-width: 980px) { .api-grid { grid-template-columns: 1fr; } }
+  .api-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px 14px; }
+  .api-card h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); font-family: var(--font-mono); font-weight: 500; }
+  .api-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .api-tbl td { padding: 5px 8px 5px 0; vertical-align: top; border-top: 1px solid var(--line); }
+  .api-tbl tr:first-child td { border-top: 0; }
+  .api-tbl td:first-child { white-space: nowrap; font-family: var(--font-mono); color: var(--text); width: 38%; }
+  .api-tbl td:last-child { color: var(--text-dim); }
+</style>
+
+<script src="nx-table.js"></script>
+<script>
+(function () {
+  // ---------- Fake data ----------
+  const FIRST = ['Alice','Bao','Chen','Diana','Eli','Fang','Grace','Hua','Ivan','Jia','Kai','Lina','Mei','Noah','Olive','Peng','Qing','Ravi','Sasha','Tao','Uma','Vera','Wei','Xin','Yuna','Zoe'];
+  const LAST  = ['Wang','Li','Zhao','Tan','Park','Singh','Garcia','Patel','Lin','Kim','Sato','Ng','Cheng','Hong','Wu','Yu','Yamada'];
+  const ROLES = ['Engineer','Designer','PM','SRE','Data','Manager','Analyst'];
+  const STATUSES = ['running','idle','degraded','stopped'];
+  const REGIONS = ['cn-hz-1','cn-bj-2','cn-sh-3','sg-1','jp-1','us-1'];
+  const PLANS = ['S1.medium','S2.large','C4.xlarge','M4.2xlarge','G1.gpu'];
+
+  const rand = (n) => Math.floor(Math.random() * n);
+  const pick = (a) => a[rand(a.length)];
+
+  function makeEmployees(n) {
+    const rows = [];
+    for (let i = 0; i < n; i++) {
+      const f = pick(FIRST), l = pick(LAST);
+      rows.push({
+        id: 'EMP-' + String(1000 + i),
+        name: f + ' ' + l,
+        email: (f + '.' + l).toLowerCase() + '@nextcli.io',
+        role: pick(ROLES),
+        salary: 8000 + rand(180) * 100,
+        hired: new Date(2018 + rand(7), rand(12), 1 + rand(28)),
+      });
+    }
+    return rows;
+  }
+
+  function makeInstances(n) {
+    const rows = [];
+    for (let i = 0; i < n; i++) {
+      rows.push({
+        id: 'i-' + Math.random().toString(36).slice(2, 10),
+        name: pick(['web','api','worker','db','cache','proxy']) + '-' + String(i + 1).padStart(3, '0'),
+        plan: pick(PLANS),
+        region: pick(REGIONS),
+        status: pick(STATUSES),
+        cpu: rand(100),
+        mem: rand(100),
+        ip: '10.' + rand(255) + '.' + rand(255) + '.' + rand(255),
+        cost: (40 + rand(420)) + 0.99,
+        tags: Array.from({length: 1 + rand(3)}, () => pick(['prod','staging','test','db','core','edge','asia','demo'])),
+        owner: pick(FIRST) + ' ' + pick(LAST),
+        updated: new Date(Date.now() - rand(72) * 3600e3),
+      });
+    }
+    return rows;
+  }
+
+  // ---------- Demo 1: basic ----------
+  new NxTable(document.getElementById('demo-basic'), {
+    data: makeEmployees(63),
+    columns: [
+      { key:'id',     label:'ID',     type:'text',   width: 110, pinned:'left' },
+      { key:'name',   label:'Name',   type:'text',   width: 180 },
+      { key:'email',  label:'Email',  type:'text',   width: 240 },
+      { key:'role',   label:'Role',   type:'text',   width: 130 },
+      { key:'salary', label:'Salary', type:'money',  width: 130, align:'right' },
+      { key:'hired',  label:'Hired',  type:'date',   width: 170 },
+    ],
+    pageSize: 8,
+    persistKey: 'demo-basic',
+  });
+
+  // ---------- Demo 2: enterprise ----------
+  const ent = new NxTable(document.getElementById('demo-enterprise'), {
+    data: makeInstances(240),
+    selectable: 'multi',
+    bulkActions: ['Start','Stop','Reboot','Reassign','Delete'],
+    columns: [
+      { key:'id',     label:'Instance ID', type:'text',   width: 150, pinned:'left' },
+      { key:'name',   label:'Name',        type:'text',   width: 160, filterable:true, filterKind:'text' },
+      { key:'status', label:'Status',      type:'status', width: 130,
+        toneMap: { running:'ok', idle:'neutral', degraded:'warn', stopped:'err' },
+        filterable:true, filterKind:'select', options: STATUSES },
+      { key:'plan',   label:'Plan',        type:'text',   width: 140,
+        filterable:true, filterKind:'select', options: PLANS },
+      { key:'region', label:'Region',      type:'text',   width: 110,
+        filterable:true, filterKind:'select', options: REGIONS },
+      { key:'cpu',    label:'CPU',         type:'bar',    width: 150, filterable:true, filterKind:'range' },
+      { key:'mem',    label:'Memory',      type:'bar',    width: 150, filterable:true, filterKind:'range' },
+      { key:'ip',     label:'IP',          type:'text',   width: 140, render: v => '<span class="mono">' + v + '</span>' },
+      { key:'cost',   label:'Cost / mo',   type:'money',  width: 130, align:'right', filterable:true, filterKind:'range' },
+      { key:'tags',   label:'Tags',        type:'tags',   width: 200 },
+      { key:'owner',  label:'Owner',       type:'text',   width: 160, hidden: true },
+      { key:'updated',label:'Updated',     type:'date',   width: 170 },
+    ],
+    pageSize: 10,
+    persistKey: 'demo-enterprise',
+    onAction: (action, payload) => {
+      if (action === 'bulk') {
+        alert(`Bulk "${payload.action}" on ${payload.rows.length} row(s)`);
+      }
+    },
+  });
+
+  // ---------- Demo 4: right-click + lasso ----------
+  new NxTable(document.getElementById('demo-power'), {
+    data: makeInstances(120),
+    selectable: 'multi',
+    lasso: true,
+    bulkActions: ['Start','Stop','Reboot','Snapshot','Delete'],
+    columns: [
+      { key:'id',     label:'Instance ID', type:'text',   width: 150, pinned:'left' },
+      { key:'name',   label:'Name',        type:'text',   width: 160 },
+      { key:'status', label:'Status',      type:'status', width: 130,
+        toneMap: { running:'ok', idle:'neutral', degraded:'warn', stopped:'err' } },
+      { key:'region', label:'Region',      type:'text',   width: 110 },
+      { key:'cpu',    label:'CPU',         type:'bar',    width: 150 },
+      { key:'mem',    label:'Memory',      type:'bar',    width: 150 },
+      { key:'cost',   label:'Cost / mo',   type:'money',  width: 130, align:'right' },
+    ],
+    pageSize: 9,
+    persistKey: 'demo-power',
+    contextMenu: (row, table, { selectedRows }) => {
+      const n = selectedRows.length;
+      const single = n <= 1;
+      return [
+        { header: single ? row.name : `${n} instances selected` },
+        { label: 'SSH into instance', kbd: 'S', action: () => alert('ssh ' + row.id) },
+        { label: 'View metrics', action: () => alert('Metrics for ' + row.id) },
+        { sep: true },
+        { label: single ? 'Reboot' : `Reboot ${n}`, action: () => table.opts.onAction('bulk', { action: 'Reboot', rows: single ? [row] : selectedRows }) },
+        { label: single ? 'Stop' : `Stop ${n}`,     action: () => table.opts.onAction('bulk', { action: 'Stop',   rows: single ? [row] : selectedRows }) },
+        { sep: true },
+        { label: 'Copy instance ID', kbd: '⌘C', action: () => { try { navigator.clipboard.writeText(row.id); } catch (_) {} } },
+        { label: 'Select all on page', kbd: '⌘A', action: () => { table._selectAllOnPage(); table.refresh(); } },
+        { sep: true },
+        { label: single ? 'Terminate' : `Terminate ${n}`, danger: true, action: () => alert('Would terminate ' + (single ? row.id : n + ' rows')) },
+      ];
+    },
+    onAction: (action, payload) => {
+      if (action === 'bulk') alert(`${payload.action} → ${payload.rows.length} row(s)`);
+    },
+  });
+
+  // ---------- Demo 3: inline edit + expand ----------
+  new NxTable(document.getElementById('demo-edit'), {
+    data: makeInstances(40),
+    selectable: 'multi',
+    expandable: true,
+    expandRender: (r) => `
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px 24px; font-size: 12px;">
+        <div><div class="muted" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em">Instance</div><div class="mono">${r.id}</div></div>
+        <div><div class="muted" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em">Plan</div><div>${r.plan}</div></div>
+        <div><div class="muted" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em">Owner</div><div>${r.owner}</div></div>
+        <div><div class="muted" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em">IP</div><div class="mono">${r.ip}</div></div>
+        <div style="grid-column: 1 / -1; margin-top: 4px;">
+          <div class="muted" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Tags</div>
+          <div>${r.tags.map(t => '<span class="nxt-tag">'+t+'</span>').join(' ')}</div>
+        </div>
+      </div>
+    `,
+    columns: [
+      { key:'id',     label:'ID',        type:'text',   width: 150, pinned:'left' },
+      { key:'name',   label:'Name',      type:'text',   width: 160, editable:true },
+      { key:'status', label:'Status',    type:'status', width: 130,
+        toneMap: { running:'ok', idle:'neutral', degraded:'warn', stopped:'err' } },
+      { key:'plan',   label:'Plan',      type:'text',   width: 140, editable:true },
+      { key:'owner',  label:'Owner',     type:'text',   width: 160, editable:true },
+      { key:'cost',   label:'Cost / mo', type:'money',  width: 130, align:'right', pinned:'right' },
+    ],
+    pageSize: 8,
+    persistKey: 'demo-edit',
+    onAction: (action, payload) => {
+      if (action === 'edit') console.log('Edited', payload);
+    },
+  });
+})();
+</script>
+
+<script>
+  document.querySelectorAll(".lib-tools button").forEach(b => b.onclick = () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll(".lib-tools button").forEach(x => x.classList.toggle("on", x === b));
+  });
+</script>
+</body>
+</html>

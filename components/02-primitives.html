@@ -8,6 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="components.css">
+<style>
+  /* page-local helpers */
+  .swatch-row { display: flex; gap: 8px; align-items: center; }
+  .demo-grid { display: grid; gap: 14px; align-items: start; }
+  .demo-grid.c2 { grid-template-columns: repeat(2, 1fr); }
+  .demo-grid.c3 { grid-template-columns: repeat(3, 1fr); }
+  .demo-grid.c4 { grid-template-columns: repeat(4, 1fr); }
+  .demo-grid.c5 { grid-template-columns: repeat(5, 1fr); }
+  .lbl-strip { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-family: var(--font-mono); margin-bottom: 4px; }
+  .stack-v { display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
+  .demo-body.col-stack { flex-direction: column; align-items: stretch; gap: 16px; }
+</style>
 </head>
 <body data-theme="light">
 
@@ -30,15 +42,44 @@
       <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
       <a class="lib-link" href="07-more.html">07 · More components</a>
       <a class="lib-link" href="08-compositions.html">08 · Compositions</a>
+      <a class="lib-link" href="09-layouts.html">09 · App layouts</a>
+      <a class="lib-link" href="10-patterns.html">10 · More patterns</a>
+      <a class="lib-link" href="11-tables.html">11 · Tables &amp; filters</a>
     </div>
     <div class="lib-section">
       <div class="lib-title">This page</div>
       <a class="lib-link" href="#buttons">Buttons</a>
-      <a class="lib-link" href="#inputs">Inputs</a>
-      <a class="lib-link" href="#selects">Select & textarea</a>
-      <a class="lib-link" href="#toggles">Checkbox, radio, switch</a>
-      <a class="lib-link" href="#pills">Pills & badges</a>
+      <a class="lib-link" href="#button-extras">Button extras</a>
+      <a class="lib-link" href="#inputs">Text inputs</a>
+      <a class="lib-link" href="#input-extras">Input extras</a>
+      <a class="lib-link" href="#number">Number stepper</a>
+      <a class="lib-link" href="#otp">OTP / PIN</a>
+      <a class="lib-link" href="#textarea">Textarea</a>
+      <a class="lib-link" href="#select">Select</a>
+      <a class="lib-link" href="#file">File input</a>
+      <a class="lib-link" href="#toggles">Checkbox · radio · switch</a>
+      <a class="lib-link" href="#toggle-group">Toggle group</a>
+      <a class="lib-link" href="#field">Field layouts</a>
+      <a class="lib-link" href="#pills">Pills &amp; tags</a>
+      <a class="lib-link" href="#status">Status &amp; counters</a>
       <a class="lib-link" href="#avatars">Avatars</a>
+      <a class="lib-link" href="#spinners">Spinners &amp; loaders</a>
+      <a class="lib-link" href="#skeletons">Skeletons</a>
+      <a class="lib-link" href="#dividers">Dividers</a>
+      <a class="lib-link" href="#links">Links</a>
+      <a class="lib-link" href="#sliders">Sliders</a>
+      <a class="lib-link" href="#dt">Date &amp; time</a>
+      <a class="lib-link" href="#color">Color picker</a>
+      <a class="lib-link" href="#rating">Rating &amp; stars</a>
+      <a class="lib-link" href="#tooltip">Tooltips</a>
+      <a class="lib-link" href="#code">Code chips</a>
+      <a class="lib-link" href="#tag-input">Tag input</a>
+      <a class="lib-link" href="#mini-tabs">Mini tabs</a>
+      <a class="lib-link" href="#stepper-ind">Form steps</a>
+      <a class="lib-link" href="#pgn">Pagination</a>
+      <a class="lib-link" href="#tree-caret">Tree caret</a>
+      <a class="lib-link" href="#crumbs">Breadcrumbs</a>
+      <a class="lib-link" href="#sparks">Sparklines</a>
       <a class="lib-link" href="#keyboard">Keyboard</a>
     </div>
     <div class="lib-section">
@@ -53,186 +94,626 @@
       <h1 class="lib-h1">The atoms every screen is built from.</h1>
       <p class="lib-lede">
         Buttons, inputs, pills and toggles. Every variant is a modifier class on a single base —
-        never a new component. Keep the surface tiny on purpose.
+        never a new component. Twenty primitive surfaces, every state explicit, no hidden defaults.
       </p>
     </header>
 
+    <!-- ========================================================== -->
     <section id="buttons">
       <h2 class="lib-section-title">Buttons</h2>
-      <p class="lib-section-sub">One base <code class="mono">.btn</code>, six intents, three sizes. Primary is reserved for the main action on a page — never two at once.</p>
+      <p class="lib-section-sub">One base <code class="mono">.btn</code>, eight intents, four sizes, six states. Primary is reserved for the main action on a page — never two at once.</p>
 
       <div class="demo">
-        <div class="demo-label">Intents <span class="sub">.btn.primary · .subtle · .ghost · .outline · .danger</span></div>
+        <div class="demo-label">Intents <span class="sub">.primary · .subtle · default · .outline · .ghost · .link · .success · .danger</span></div>
         <div class="demo-body">
           <button class="btn primary">Deploy to prod</button>
-          <button class="btn">Cancel</button>
           <button class="btn subtle">Promote</button>
-          <button class="btn ghost">Skip for now</button>
+          <button class="btn">Cancel</button>
           <button class="btn outline">Outline</button>
+          <button class="btn ghost">Skip for now</button>
+          <button class="btn link">Learn more →</button>
+          <button class="btn success">Approve</button>
+          <button class="btn warning">Override</button>
           <button class="btn danger">Delete project</button>
         </div>
       </div>
 
       <div class="demo">
-        <div class="demo-label">Sizes <span class="sub">.xs · .sm · (default) · .lg</span></div>
-        <div class="demo-body">
+        <div class="demo-label">Sizes <span class="sub">.xs · .sm · default · .lg</span></div>
+        <div class="demo-body" style="align-items: center">
           <button class="btn primary xs">xs</button>
           <button class="btn primary sm">sm</button>
           <button class="btn primary">default</button>
-          <button class="btn primary lg">lg</button>
+          <button class="btn primary lg">large</button>
+          <span class="divider-v" style="height: 22px"></span>
+          <button class="btn icon xs"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="btn icon sm"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="btn icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="btn icon lg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
         </div>
       </div>
 
       <div class="demo">
-        <div class="demo-label">States</div>
+        <div class="demo-label">States <span class="sub">default · hover · focus · loading · disabled · pressed</span></div>
         <div class="demo-body">
           <button class="btn primary">Default</button>
           <button class="btn primary" style="filter: brightness(1.06)">Hover</button>
           <button class="btn primary" style="box-shadow: var(--shadow-sm), var(--focus-ring)">Focus</button>
-          <button class="btn primary loading">Saving…</button>
+          <button class="btn primary loading">Saving</button>
+          <button class="btn primary" style="filter: brightness(0.92); box-shadow: inset 0 1px 2px rgba(0,0,0,0.2)">Pressed</button>
           <button class="btn primary" disabled>Disabled</button>
         </div>
       </div>
 
       <div class="demo">
-        <div class="demo-label">With icon & group</div>
+        <div class="demo-label">With icon · trailing icon · with badge · with avatar</div>
         <div class="demo-body">
           <button class="btn">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/></svg>
             Deploy
           </button>
           <button class="btn primary">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             New resource
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>
           </button>
-          <button class="btn icon" title="More">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>
+          <button class="btn">
+            Notifications
+            <span class="count accent">12</span>
           </button>
-          <div class="btn-group">
-            <button class="btn">Day</button>
-            <button class="btn" style="background:var(--bg-sunk)">Week</button>
-            <button class="btn">Month</button>
-          </div>
+          <button class="btn">
+            <span class="avatar sm c-azure">MA</span>
+            maya@acme.io
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <button class="btn outline">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33"/></svg>
+            Settings
+          </button>
         </div>
       </div>
     </section>
 
+    <!-- ========================================================== -->
+    <section id="button-extras">
+      <h2 class="lib-section-title">Button extras</h2>
+      <p class="lib-section-sub">Groups, full-width, split actions, and toolbar density. The button is the workhorse — these compositions cover 95% of layouts.</p>
+
+      <div class="demo">
+        <div class="demo-label">Group · split · toolbar</div>
+        <div class="demo-body">
+          <div class="btn-group">
+            <button class="btn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Grid
+            </button>
+            <button class="btn" style="background: var(--bg-sunk)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              List
+            </button>
+            <button class="btn">Map</button>
+          </div>
+          <div class="split">
+            <button class="btn primary">Deploy main</button>
+            <button class="btn primary"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          </div>
+          <div class="row" style="gap: 4px; padding: 4px; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 7px">
+            <button class="btn icon sm ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <button class="btn icon sm ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12a9 9 0 0 1 9-9"/></svg></button>
+            <button class="btn icon sm ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></button>
+            <span class="divider-v" style="height: 16px"></span>
+            <button class="btn icon sm ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg></button>
+            <button class="btn icon sm ghost"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Full-width · paired · stacked</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="max-width: 320px">
+            <button class="btn primary lg full">Continue with email</button>
+            <button class="btn lg full"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1H12v3.8h5.4c-.24 2.04-2.06 3.5-5.4 3.5a6.1 6.1 0 1 1 0-12.2c1.55 0 2.96.55 4.06 1.46l2.86-2.86A9.94 9.94 0 0 0 12 2 10 10 0 1 0 22 12c0-.6-.05-1.2-.15-1.9z"/></svg>Continue with Google</button>
+            <button class="btn ghost lg full">Use single sign-on</button>
+            <div class="divider-label">or</div>
+            <div class="row" style="gap: 8px">
+              <button class="btn full">Cancel</button>
+              <button class="btn primary full">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">FAB · floating action</div>
+        <div class="demo-body">
+          <button class="btn primary lg" style="border-radius: 999px; padding: 0 18px; box-shadow: var(--shadow-lg)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Compose
+          </button>
+          <button class="btn lg icon" style="width: 44px; height: 44px; border-radius: 50%; box-shadow: var(--shadow-lg); background: var(--text); color: var(--bg-elev); border-color: var(--text)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <button class="btn icon" style="width: 36px; height: 36px; border-radius: 50%; box-shadow: var(--shadow-md)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
     <section id="inputs">
       <h2 class="lib-section-title">Text inputs</h2>
+      <p class="lib-section-sub">Three sizes, six states, a tight 30-pixel default. Borders on hover, accent ring on focus, no unnecessary motion.</p>
 
       <div class="demo">
-        <div class="demo-label">Sizes & states</div>
-        <div class="demo-body" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start">
-          <div class="field"><label>Default</label><input class="input" placeholder="linden-labs"></div>
-          <div class="field"><label>Small</label><input class="input sm" placeholder="Filter"></div>
-          <div class="field"><label>Large</label><input class="input lg" placeholder="Project name"></div>
-          <div class="field"><label>Focused</label><input class="input" value="api-gateway" style="border-color: var(--accent); box-shadow: var(--focus-ring)"></div>
-          <div class="field"><label>Disabled</label><input class="input" value="locked" disabled></div>
-          <div class="field"><label>Error</label><input class="input invalid" value="bad value"><span class="err">Must be lowercase kebab-case.</span></div>
-        </div>
-      </div>
-
-      <div class="demo">
-        <div class="demo-label">With affix & icon</div>
-        <div class="demo-body" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; align-items: start">
-          <div class="field"><label>Endpoint</label>
-            <div class="input-group">
-              <div class="affix">https://</div>
-              <input class="input mono" value="api.linden.dev">
-              <div class="affix r">.linden.sh</div>
+        <div class="demo-label">Sizes &amp; states</div>
+        <div class="demo-body">
+          <div class="demo-grid c3" style="width: 100%">
+            <div class="field"><label>Default</label><input class="input" placeholder="linden-labs"></div>
+            <div class="field"><label>Small</label><input class="input sm" placeholder="Filter"></div>
+            <div class="field"><label>Large</label><input class="input lg" placeholder="Project name"></div>
+            <div class="field"><label>Filled</label><input class="input" value="api-gateway"></div>
+            <div class="field"><label>Focused</label><input class="input" value="api-gateway" style="border-color: var(--accent); box-shadow: var(--focus-ring)"></div>
+            <div class="field"><label>Read-only</label><input class="input mono" value="usr_4Ke9X2" readonly style="background: var(--bg-sunk); cursor: default"></div>
+            <div class="field"><label>Disabled</label><input class="input" value="locked" disabled></div>
+            <div class="field"><label>Loading</label>
+              <div class="input-group">
+                <input class="input" value="checking availability…" style="border:0; background: transparent">
+                <div class="affix r"><span class="spinner sm"></span></div>
+              </div>
             </div>
-          </div>
-          <div class="field"><label>Price cap</label>
-            <div class="input-group">
-              <div class="affix">$</div>
-              <input class="input mono num" value="25.00">
-              <div class="affix r">USD / mo</div>
-            </div>
-          </div>
-          <div class="field"><label>Search</label>
-            <div class="input-group">
-              <div class="affix"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
-              <input class="input" placeholder="Find a service…">
-              <div class="affix r"><kbd>⌘K</kbd></div>
-            </div>
-          </div>
-          <div class="field"><label>Secret</label>
-            <div class="input-group">
-              <input class="input mono" value="••••••••••8a71">
-              <div class="affix r"><button class="btn xs ghost" style="height:18px">reveal</button></div>
-            </div>
-            <span class="hint">Never shown again after you leave this page.</span>
+            <div class="field"><label>Error</label><input class="input invalid" value="bad value"><span class="err">Must be lowercase kebab-case.</span></div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="selects">
-      <h2 class="lib-section-title">Select & Textarea</h2>
+    <!-- ========================================================== -->
+    <section id="input-extras">
+      <h2 class="lib-section-title">Input extras</h2>
+      <p class="lib-section-sub">Affixes, leading icons, character counters, password reveal, clearable, and inline copy. All compositions of <code class="mono">.input-group</code>.</p>
+
       <div class="demo">
-        <div class="demo-label">Native select</div>
-        <div class="demo-body" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start">
-          <div class="field"><label>Region</label>
-            <select class="select">
-              <option>us-east-1 (N. Virginia)</option>
-              <option>us-west-2 (Oregon)</option>
-              <option>eu-west-1 (Ireland)</option>
-            </select>
+        <div class="demo-label">Affixes &amp; units</div>
+        <div class="demo-body">
+          <div class="demo-grid c2" style="width: 100%; gap: 14px 22px">
+            <div class="field"><label>Endpoint</label>
+              <div class="input-group">
+                <div class="affix">https://</div>
+                <input class="input mono" value="api.linden.dev">
+                <div class="affix r">.linden.sh</div>
+              </div>
+              <span class="hint">Custom domain available on Pro.</span>
+            </div>
+            <div class="field"><label>Price cap</label>
+              <div class="input-group">
+                <div class="affix">$</div>
+                <input class="input mono num" value="25.00">
+                <div class="affix r">USD / mo</div>
+              </div>
+            </div>
+            <div class="field"><label>Memory</label>
+              <div class="input-group">
+                <input class="input mono num" value="2048">
+                <div class="affix r" style="padding: 0">
+                  <select class="select sm" style="border: 0; box-shadow: none; background: transparent; font-family: var(--font-mono); width: 64px"><option>MB</option><option>GB</option></select>
+                </div>
+              </div>
+            </div>
+            <div class="field"><label>Timeout</label>
+              <div class="input-group">
+                <input class="input mono num" value="30">
+                <div class="affix r" style="padding: 0">
+                  <div class="tog-group" style="border: 0; padding: 0; background: transparent">
+                    <button class="on">s</button><button>min</button><button>h</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="field"><label>Plan</label>
-            <select class="select">
-              <option>Starter · $7 /mo</option>
-              <option>Pro 2× · $24 /mo</option>
-              <option>Pro 4× · $48 /mo</option>
-            </select>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Leading icon · clearable · password · copy</div>
+        <div class="demo-body">
+          <div class="demo-grid c2" style="width: 100%; gap: 14px 22px">
+            <div class="field"><label>Search <span class="optional">(.input-search)</span></label>
+              <label class="input-search block">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                <input type="search" placeholder="Find a service…">
+                <kbd>⌘K</kbd>
+              </label>
+            </div>
+            <div class="field"><label>Clearable</label>
+              <div class="input-group">
+                <input class="input" value="staging-cluster">
+                <div class="affix r" style="padding: 0 4px">
+                  <button class="btn icon xs ghost" title="Clear">×</button>
+                </div>
+              </div>
+            </div>
+            <div class="field"><label>Password</label>
+              <div class="input-group">
+                <input class="input mono" type="password" value="hunter22-pwd">
+                <div class="affix r" style="padding: 0 4px">
+                  <button class="btn icon xs ghost" title="Show">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+              <span class="hint">12 chars · mixed case · 1 number</span>
+            </div>
+            <div class="field"><label>API token</label>
+              <div class="input-group">
+                <input class="input mono" value="sk_live_••••••8a71">
+                <div class="affix r" style="padding: 0 4px">
+                  <button class="btn xs ghost"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copy</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="field"><label>Notes</label>
-            <textarea class="textarea" placeholder="Migration runbook…"></textarea>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Validation states · with helper</div>
+        <div class="demo-body">
+          <div class="demo-grid c3" style="width: 100%">
+            <div class="field"><label>Available <span class="optional">(checked)</span></label>
+              <div class="input-group" style="border-color: var(--ok); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ok) 18%, transparent)">
+                <input class="input" value="api-gateway-staging" style="border:0; background: transparent">
+                <div class="affix r" style="color: var(--ok); border-left: 0">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </div>
+              <span class="hint" style="color: var(--ok)">Available in us-east-1.</span>
+            </div>
+            <div class="field"><label>Warning</label>
+              <div class="input-group" style="border-color: var(--warn); box-shadow: 0 0 0 3px color-mix(in oklch, var(--warn) 22%, transparent)">
+                <input class="input" value="prod-api" style="border:0; background: transparent">
+                <div class="affix r" style="color: var(--warn); border-left: 0">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+                </div>
+              </div>
+              <span class="hint" style="color: oklch(0.42 0.13 75)">Reserved name — adds the org prefix automatically.</span>
+            </div>
+            <div class="field"><label>Error</label>
+              <input class="input invalid" value="bad value!!!">
+              <span class="err">Must be lowercase kebab-case · 3–32 chars.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Character counter · auto-grow textarea</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="field" style="max-width: 480px">
+            <div class="lbl-row spread"><label style="margin: 0">Bio</label><span class="counter" id="bio-cnt">42 / 160</span></div>
+            <textarea class="textarea" id="bio-txt" maxlength="160" rows="3">Senior platform engineer · runs the on-call rotation.</textarea>
+            <span class="hint">Shown on your profile and approval cards.</span>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ========================================================== -->
+    <section id="number">
+      <h2 class="lib-section-title">Number stepper</h2>
+      <p class="lib-section-sub">For integer-bounded fields — replicas, retries, ports. Step buttons disable at min/max so users never have to guess the range.</p>
+      <div class="demo">
+        <div class="demo-label">Default · disabled-at-bound · with affix</div>
+        <div class="demo-body">
+          <div class="num-stepper">
+            <button>−</button><input value="3"><button>+</button>
+          </div>
+          <div class="num-stepper">
+            <button disabled>−</button><input value="0"><button>+</button>
+          </div>
+          <div class="num-stepper">
+            <button>−</button><input value="100"><button disabled>+</button>
+          </div>
+          <div class="input-group" style="height: 30px">
+            <div class="num-stepper" style="border: 0; height: auto"><button>−</button><input value="2048"><button>+</button></div>
+            <div class="affix r">MB</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="otp">
+      <h2 class="lib-section-title">OTP / PIN</h2>
+      <p class="lib-section-sub">Six monospace cells, one per digit. Filled cells flip to the accent so progress is visible without an extra meter.</p>
+      <div class="demo">
+        <div class="demo-label">Empty · in progress · complete · error</div>
+        <div class="demo-body" style="gap: 28px">
+          <div class="col" style="gap: 6px">
+            <div class="lbl-strip">Empty</div>
+            <div class="otp">
+              <input maxlength="1"><input maxlength="1"><input maxlength="1">
+              <span class="sep">—</span>
+              <input maxlength="1"><input maxlength="1"><input maxlength="1">
+            </div>
+          </div>
+          <div class="col" style="gap: 6px">
+            <div class="lbl-strip">In progress · 3/6</div>
+            <div class="otp">
+              <input maxlength="1" value="4" class="filled"><input maxlength="1" value="2" class="filled"><input maxlength="1" value="9" class="filled">
+              <span class="sep">—</span>
+              <input maxlength="1" autofocus style="border-color: var(--accent); box-shadow: var(--focus-ring)"><input maxlength="1"><input maxlength="1">
+            </div>
+          </div>
+          <div class="col" style="gap: 6px">
+            <div class="lbl-strip">Complete</div>
+            <div class="otp">
+              <input maxlength="1" value="4" class="filled"><input maxlength="1" value="2" class="filled"><input maxlength="1" value="9" class="filled">
+              <span class="sep">—</span>
+              <input maxlength="1" value="0" class="filled"><input maxlength="1" value="1" class="filled"><input maxlength="1" value="8" class="filled">
+            </div>
+            <span class="hint" style="color: var(--ok)">Verified · signing you in…</span>
+          </div>
+          <div class="col" style="gap: 6px">
+            <div class="lbl-strip">Error</div>
+            <div class="otp">
+              <input maxlength="1" value="4" style="border-color: var(--err); color: var(--err)"><input maxlength="1" value="2" style="border-color: var(--err); color: var(--err)"><input maxlength="1" value="9" style="border-color: var(--err); color: var(--err)">
+              <span class="sep">—</span>
+              <input maxlength="1" value="0" style="border-color: var(--err); color: var(--err)"><input maxlength="1" value="0" style="border-color: var(--err); color: var(--err)"><input maxlength="1" value="0" style="border-color: var(--err); color: var(--err)">
+            </div>
+            <span class="err">Invalid code · 2 attempts remaining</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="textarea">
+      <h2 class="lib-section-title">Textarea</h2>
+      <p class="lib-section-sub">Same border + ring as inputs. Resizable on the vertical only — never both axes.</p>
+      <div class="demo">
+        <div class="demo-label">Default · with toolbar · in-progress save</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="demo-grid c2" style="gap: 18px">
+            <div class="field">
+              <label>Migration runbook</label>
+              <textarea class="textarea" rows="4">1. Take snapshot of db-primary
+2. Switch traffic to the read replica
+3. Apply migration v142
+4. Promote replica → primary</textarea>
+              <span class="hint">Markdown supported.</span>
+            </div>
+            <div class="field">
+              <label>Postmortem note</label>
+              <div style="border: 1px solid var(--line); border-radius: 6px; background: var(--bg-elev); overflow: hidden">
+                <div class="row" style="gap: 2px; padding: 6px 8px; border-bottom: 1px solid var(--line); background: var(--panel)">
+                  <button class="btn xs ghost icon" title="Bold"><b style="font-size: 11px">B</b></button>
+                  <button class="btn xs ghost icon" title="Italic"><i style="font-size: 11px">i</i></button>
+                  <button class="btn xs ghost icon" title="Code"><span class="mono" style="font-size: 11px">{ }</span></button>
+                  <span class="divider-v" style="height: 14px; margin: 0 4px"></span>
+                  <button class="btn xs ghost icon" title="List">≡</button>
+                  <button class="btn xs ghost icon" title="Link">⌘</button>
+                  <button class="btn xs ghost icon" title="Mention">@</button>
+                  <span style="margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim)">
+                    <span class="dots-loader" style="margin-right: 4px"><span></span><span></span><span></span></span>
+                    Saving draft
+                  </span>
+                </div>
+                <textarea class="textarea" rows="4" style="border: 0; border-radius: 0">Root cause: rate-limit middleware regression introduced in #479. The token-bucket counter wasn't being decremented on retry, leading to…</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="select">
+      <h2 class="lib-section-title">Select</h2>
+      <p class="lib-section-sub">Native first — semantics, accessibility, mobile keyboards. The combobox in part 06 picks up where this leaves off.</p>
+      <div class="demo">
+        <div class="demo-label">Native · sized · disabled · grouped</div>
+        <div class="demo-body">
+          <div class="demo-grid c3" style="width: 100%">
+            <div class="field"><label>Region</label>
+              <select class="select">
+                <option>us-east-1 (N. Virginia)</option>
+                <option>us-west-2 (Oregon)</option>
+                <option>eu-west-1 (Ireland)</option>
+                <option>ap-southeast-1 (Singapore)</option>
+              </select>
+            </div>
+            <div class="field"><label>Plan</label>
+              <select class="select">
+                <optgroup label="Personal">
+                  <option>Hobby · free</option>
+                  <option>Starter · $7 /mo</option>
+                </optgroup>
+                <optgroup label="Team">
+                  <option>Pro 2× · $24 /mo</option>
+                  <option>Pro 4× · $48 /mo</option>
+                  <option>Pro 8× · $96 /mo</option>
+                </optgroup>
+                <optgroup label="Enterprise">
+                  <option>Contact sales</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="field"><label>Locked plan</label>
+              <select class="select" disabled>
+                <option>Pro 4× (annual contract)</option>
+              </select>
+              <span class="hint">Renews on 2026-08-01.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="file">
+      <h2 class="lib-section-title">File input</h2>
+      <p class="lib-section-sub">Uses a button-style affix with the filename to the right. The dropzone variant lives on page 07.</p>
+      <div class="demo">
+        <div class="demo-label">Empty · selected · multiple</div>
+        <div class="demo-body">
+          <label class="file-input">
+            <span class="btn-pick">Choose file</span>
+            <span class="name empty">No file chosen</span>
+          </label>
+          <label class="file-input">
+            <span class="btn-pick">Choose file</span>
+            <span class="name">release-v142.tar.gz · 38.4 MB</span>
+          </label>
+          <label class="file-input" style="height: auto; padding: 4px 0 4px 0; flex-wrap: wrap; gap: 4px">
+            <span class="btn-pick" style="margin: 2px 6px 2px 0; border-radius: 4px">Add files</span>
+            <span class="pill mono" style="margin: 2px 0">schema.sql<button class="x">×</button></span>
+            <span class="pill mono" style="margin: 2px 0">README.md<button class="x">×</button></span>
+            <span class="pill mono" style="margin: 2px 0">deploy.yml<button class="x">×</button></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
     <section id="toggles">
-      <h2 class="lib-section-title">Checkbox, Radio, Switch</h2>
+      <h2 class="lib-section-title">Checkbox · Radio · Switch</h2>
+      <p class="lib-section-sub">Three boolean primitives. Switch for instant state changes; checkbox for form fields you submit; radio for one-of-many.</p>
 
       <div class="demo">
-        <div class="demo-label">Checkbox</div>
+        <div class="demo-label">Checkbox · all states</div>
         <div class="demo-body">
           <label class="check-row"><input type="checkbox" class="check"><span class="lbl">Unchecked</span></label>
           <label class="check-row"><input type="checkbox" class="check" checked><span class="lbl">Checked</span></label>
-          <label class="check-row"><input type="checkbox" class="check" id="indet"><span class="lbl">Indeterminate</span></label>
+          <label class="check-row"><input type="checkbox" class="check" id="indet-1"><span class="lbl">Indeterminate</span></label>
           <label class="check-row"><input type="checkbox" class="check" disabled><span class="lbl" style="color:var(--text-dim)">Disabled</span></label>
-          <script>document.getElementById('indet').indeterminate = true;</script>
+          <label class="check-row"><input type="checkbox" class="check" disabled checked><span class="lbl" style="color:var(--text-dim)">Disabled · checked</span></label>
+          <label class="check-row" style="opacity: 1"><input type="checkbox" class="check" checked style="border-color: var(--err); background: var(--err)"><span class="lbl" style="color: var(--err)">Error</span></label>
+          <script>document.getElementById('indet-1').indeterminate = true;</script>
         </div>
       </div>
 
       <div class="demo">
-        <div class="demo-label">Radio</div>
+        <div class="demo-label">Checkbox stack · with descriptions</div>
+        <div class="demo-body" style="display: block">
+          <div class="stack-v" style="gap: 8px; max-width: 480px">
+            <label class="check-row" style="align-items: flex-start; gap: 10px"><input type="checkbox" class="check" checked style="margin-top: 2px"><div><div class="lbl" style="font-weight: 500">Email me about deployments</div><div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px">Sent only when a deploy succeeds, fails, or is rolled back.</div></div></label>
+            <label class="check-row" style="align-items: flex-start; gap: 10px"><input type="checkbox" class="check" style="margin-top: 2px"><div><div class="lbl" style="font-weight: 500">Slack me about incidents</div><div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px">DM in <span class="mono">#platform-ops</span> for any P1 or P2.</div></div></label>
+            <label class="check-row" style="align-items: flex-start; gap: 10px; opacity: 0.6"><input type="checkbox" class="check" disabled style="margin-top: 2px"><div><div class="lbl" style="font-weight: 500">SMS for outages <span class="optional">(Enterprise)</span></div><div style="font-size: 11.5px; color: var(--text-dim); margin-top: 2px">Available on the Enterprise plan.</div></div></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Radio · stack · card-style</div>
         <div class="demo-body">
-          <label class="radio-row"><input type="radio" name="r" class="radio"><span class="lbl">Public</span></label>
-          <label class="radio-row"><input type="radio" name="r" class="radio" checked><span class="lbl">Team only</span></label>
-          <label class="radio-row"><input type="radio" name="r" class="radio"><span class="lbl">Owner only</span></label>
-          <label class="radio-row"><input type="radio" name="r" class="radio" disabled><span class="lbl" style="color:var(--text-dim)">Enterprise</span></label>
+          <div class="col" style="gap: 8px">
+            <label class="radio-row"><input type="radio" name="r1" class="radio"><span class="lbl">Public</span></label>
+            <label class="radio-row"><input type="radio" name="r1" class="radio" checked><span class="lbl">Team only</span></label>
+            <label class="radio-row"><input type="radio" name="r1" class="radio"><span class="lbl">Owner only</span></label>
+            <label class="radio-row"><input type="radio" name="r1" class="radio" disabled><span class="lbl" style="color:var(--text-dim)">Enterprise</span></label>
+          </div>
+          <div class="col" style="gap: 6px; min-width: 280px">
+            <label style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--accent); background: var(--accent-weak); border-radius: 8px; cursor: pointer"><input type="radio" name="r2" class="radio" checked style="margin-top: 2px"><div><div style="font-size: 13px; font-weight: 600; color: var(--accent-ink)">Pro 2× · $24 /mo</div><div style="font-size: 11.5px; color: var(--accent-ink); opacity: 0.8; margin-top: 2px">2 vCPU · 4 GB · unlimited builds</div></div></label>
+            <label style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); background: var(--bg-elev); border-radius: 8px; cursor: pointer"><input type="radio" name="r2" class="radio" style="margin-top: 2px"><div><div style="font-size: 13px; font-weight: 600">Pro 4× · $48 /mo</div><div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px">4 vCPU · 8 GB · priority queue</div></div></label>
+          </div>
         </div>
       </div>
 
       <div class="demo">
-        <div class="demo-label">Switch</div>
+        <div class="demo-label">Switch · sizes · with description</div>
         <div class="demo-body">
           <label class="check-row"><input type="checkbox" class="switch"><span class="lbl">Auto-deploy main</span></label>
           <label class="check-row"><input type="checkbox" class="switch" checked><span class="lbl">Preview deploys</span></label>
           <label class="check-row"><input type="checkbox" class="switch" checked><span class="lbl">2FA required</span></label>
-          <label class="check-row"><input type="checkbox" class="switch" disabled><span class="lbl" style="color:var(--text-dim)">Audit log (Enterprise)</span></label>
+          <label class="check-row"><input type="checkbox" class="switch" disabled><span class="lbl" style="color:var(--text-dim)">Audit log</span></label>
+          <label style="display: flex; align-items: center; gap: 14px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; max-width: 380px; background: var(--bg-elev)">
+            <div style="flex: 1"><div style="font-size: 13px; font-weight: 500">Allow risky deploys</div><div style="font-size: 11.5px; color: var(--text-muted); margin-top: 1px">Skip the 2-person approval on staging.</div></div>
+            <input type="checkbox" class="switch" checked>
+          </label>
         </div>
       </div>
     </section>
 
-    <section id="pills">
-      <h2 class="lib-section-title">Pills & Badges</h2>
+    <!-- ========================================================== -->
+    <section id="toggle-group">
+      <h2 class="lib-section-title">Toggle group</h2>
+      <p class="lib-section-sub">A pill-of-pills for one-of-N selection. Stylistic alternative to the segmented control on part 04 — denser, lighter chrome, fits inside toolbars.</p>
+      <div class="demo">
+        <div class="demo-label">Default · accent · with icons</div>
+        <div class="demo-body">
+          <div class="tog-group">
+            <button class="on">Day</button><button>Week</button><button>Month</button><button>Year</button>
+          </div>
+          <div class="tog-group accent">
+            <button>Read</button><button class="on">Write</button><button>Admin</button>
+          </div>
+          <div class="tog-group">
+            <button class="on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Grid</button>
+            <button><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>List</button>
+            <button><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Chart</button>
+          </div>
+          <div class="tog-group">
+            <button>Off</button><button class="on">Auto</button><button>Always</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="field">
+      <h2 class="lib-section-title">Field layouts</h2>
+      <p class="lib-section-sub">Three label arrangements: stacked (default), inline (label-left), and floating-label (compact forms). Pick once per surface and stay consistent.</p>
 
       <div class="demo">
-        <div class="demo-label">Status pills</div>
+        <div class="demo-label">Required · optional · with help</div>
+        <div class="demo-body">
+          <div class="demo-grid c2" style="width: 100%; gap: 14px 22px">
+            <div class="field">
+              <div class="lbl-row"><label style="margin: 0">Project name<span class="req">*</span></label></div>
+              <input class="input" value="api-gateway">
+            </div>
+            <div class="field">
+              <div class="lbl-row"><label style="margin: 0">Description<span class="optional">optional</span></label></div>
+              <input class="input" placeholder="One-line summary">
+            </div>
+            <div class="field">
+              <div class="lbl-row"><label style="margin: 0">Region</label><span class="help-icon" title="Region affects latency and cost. Lock once chosen.">?</span></div>
+              <select class="select"><option>us-east-1 (N. Virginia)</option></select>
+            </div>
+            <div class="field">
+              <div class="lbl-row spread"><label style="margin: 0">Memory<span class="req">*</span></label><a class="lnk muted" style="font-size: 10.5px">Reset to default</a></div>
+              <div class="num-stepper"><button>−</button><input value="2048"><button>+</button></div>
+              <span class="hint">Default: 2 048 MB · max: 16 384 MB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Inline · label-left rows</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="max-width: 540px; gap: 10px">
+            <div class="field-row"><label>Replicas</label><div class="num-stepper" style="width: 120px"><button>−</button><input value="3"><button>+</button></div></div>
+            <div class="field-row"><label>Auto-scale</label><label class="check-row"><input type="checkbox" class="switch" checked><span class="lbl">CPU above 70 %</span></label></div>
+            <div class="field-row"><label>Strategy</label>
+              <div class="tog-group"><button class="on">Rolling</button><button>Blue/green</button><button>Canary</button></div>
+            </div>
+            <div class="field-row"><label>Healthcheck</label>
+              <div class="input-group" style="max-width: 320px"><div class="affix">GET</div><input class="input mono" value="/healthz"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="pills">
+      <h2 class="lib-section-title">Pills &amp; tags</h2>
+      <p class="lib-section-sub">A 20-pixel default for inline use, 24-pixel for solo states. Status pills carry a dot; mono pills don't. Removable tags get an inline ✕.</p>
+
+      <div class="demo">
+        <div class="demo-label">Status</div>
         <div class="demo-body">
           <span class="pill ok"><span class="dotc"></span>Healthy</span>
           <span class="pill warn"><span class="dotc"></span>Degraded</span>
@@ -240,65 +721,791 @@
           <span class="pill info"><span class="dotc"></span>Building</span>
           <span class="pill"><span class="dotc"></span>Paused</span>
           <span class="pill solid">v142</span>
+          <span class="pill lg ok"><span class="dotc"></span>Online · 12 instances</span>
         </div>
       </div>
 
       <div class="demo">
-        <div class="demo-label">Tag / chip</div>
+        <div class="demo-label">Tag · removable · with avatar</div>
         <div class="demo-body">
           <span class="pill mono">env:prod</span>
           <span class="pill mono">region:us-east-1</span>
           <span class="pill mono info">service:api-gateway</span>
           <span class="pill mono">level:ERROR<button class="x">×</button></span>
-          <span class="pill lg"><span class="dotc" style="color:var(--ok)"></span>Online · 12 instances</span>
+          <span class="pill mono">tag:payments<button class="x">×</button></span>
+          <span class="pill"><span class="avatar sm c-azure" style="width:14px;height:14px;font-size:8px">MA</span>Maya<button class="x">×</button></span>
+          <span class="pill"><span class="avatar sm c-rose" style="width:14px;height:14px;font-size:8px">MR</span>Marco<button class="x">×</button></span>
         </div>
       </div>
 
       <div class="demo">
-        <div class="demo-label">Status dot</div>
-        <div class="demo-body" style="gap: 20px">
-          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot ok"></span> Operational</span>
-          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot warn"></span> Degraded</span>
-          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot err"></span> Outage</span>
-          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot"></span> Unknown</span>
+        <div class="demo-label">Counter · number badge</div>
+        <div class="demo-body">
+          <span class="count">3</span>
+          <span class="count accent">12</span>
+          <span class="count err">99+</span>
+          <span class="count dot"></span>
+          <button class="btn">Inbox <span class="count accent">8</span></button>
+          <button class="btn ghost">Alerts <span class="count err">2</span></button>
+          <span class="row" style="gap: 4px"><span class="avatar c-violet">JK</span><span class="count dot" style="margin-left: -8px; align-self: flex-end; background: var(--err); border: 2px solid var(--bg-elev)"></span></span>
         </div>
       </div>
     </section>
 
+    <!-- ========================================================== -->
+    <section id="status">
+      <h2 class="lib-section-title">Status &amp; counters</h2>
+      <p class="lib-section-sub">When you don't need a full pill — a 6-pixel dot, a small label, an unobtrusive line in a row. Used inline next to titles, in tables, and inside pill-less rows.</p>
+      <div class="demo">
+        <div class="demo-label">Inline status</div>
+        <div class="demo-body" style="gap: 22px">
+          <span class="status ok"><span class="glyph"></span>Operational</span>
+          <span class="status ok live"><span class="glyph"></span>Live · streaming</span>
+          <span class="status warn"><span class="glyph"></span>Degraded since 14:31</span>
+          <span class="status err live"><span class="glyph"></span>Outage · 42 min</span>
+          <span class="status"><span class="glyph"></span>Unknown</span>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-label">Dot · large · with surround</div>
+        <div class="demo-body" style="gap: 24px">
+          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot ok"></span>Online</span>
+          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot warn"></span>Limited</span>
+          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot err"></span>Down</span>
+          <span class="row" style="gap: 6px; font-size: var(--fs-sm)"><span class="dot"></span>Unknown</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
     <section id="avatars">
       <h2 class="lib-section-title">Avatars</h2>
+      <p class="lib-section-sub">Initials by default; switch to <code class="mono">&lt;img&gt;</code> only for hero contexts. Six brand gradients, three sizes, square shape for orgs and bots.</p>
 
       <div class="demo">
-        <div class="demo-label">Shapes, sizes, stack</div>
+        <div class="demo-label">Sizes &amp; shape</div>
         <div class="demo-body">
-          <div class="avatar sm">MC</div>
-          <div class="avatar">JP</div>
-          <div class="avatar lg">AP</div>
-          <div class="avatar sq">JK</div>
+          <div class="avatar sm c-azure">MA</div>
+          <div class="avatar c-azure">MA</div>
+          <div class="avatar lg c-azure">MA</div>
+          <div class="avatar sq c-azure">MA</div>
+          <div class="avatar sq lg c-azure">MA</div>
+          <span class="divider-v" style="height: 36px"></span>
+          <div class="avatar c-rose">MR</div>
+          <div class="avatar c-amber">JK</div>
+          <div class="avatar c-mint">AP</div>
+          <div class="avatar c-violet">SY</div>
+          <div class="avatar c-stone">ZM</div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Presence · status · stack</div>
+        <div class="demo-body">
+          <div class="avatar lg c-azure has-dot ok">MA</div>
+          <div class="avatar lg c-rose has-dot warn">MR</div>
+          <div class="avatar lg c-mint has-dot err">AP</div>
+          <div class="avatar lg c-violet has-dot">SY</div>
+          <span class="divider-v" style="height: 36px"></span>
           <div class="avatar-stack">
-            <div class="avatar" style="background: linear-gradient(135deg, oklch(0.78 0.08 40), oklch(0.55 0.12 10))">MC</div>
-            <div class="avatar" style="background: linear-gradient(135deg, oklch(0.78 0.08 180), oklch(0.55 0.12 210))">TW</div>
-            <div class="avatar" style="background: linear-gradient(135deg, oklch(0.78 0.08 280), oklch(0.55 0.12 310))">AP</div>
-            <div class="avatar" style="background: linear-gradient(135deg, oklch(0.78 0.08 120), oklch(0.55 0.12 150))">JK</div>
-            <div class="avatar" style="background: var(--bg-sunk); color: var(--text-muted); border: 1px solid var(--line)">+3</div>
+            <div class="avatar c-rose">MR</div>
+            <div class="avatar c-azure">MA</div>
+            <div class="avatar c-violet">AP</div>
+            <div class="avatar c-mint">JK</div>
+            <div class="avatar" style="background: var(--bg-sunk); color: var(--text-muted); border: 1px solid var(--line); font-size: 9.5px">+3</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">With image · square · org / bot · placeholder</div>
+        <div class="demo-body">
+          <div class="avatar lg sq" style="background: linear-gradient(135deg, oklch(0.74 0.10 230), oklch(0.5 0.12 250))">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          </div>
+          <div class="avatar lg sq" style="background: var(--text); color: var(--bg-elev)">CI</div>
+          <div class="avatar lg sq" style="background: linear-gradient(135deg, oklch(0.78 0.09 130), oklch(0.55 0.14 160))">@T</div>
+          <div class="avatar lg sq" style="background: var(--bg-sunk); color: var(--text-dim); border: 1px dashed var(--line-strong); font-size: 14px">?</div>
+          <div class="avatar lg" style="background: var(--bg-sunk); color: var(--text-dim); border: 1px dashed var(--line-strong); font-size: 14px">+</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="spinners">
+      <h2 class="lib-section-title">Spinners &amp; loaders</h2>
+      <p class="lib-section-sub">Three flavors. The ring spinner for buttons and inline saves. Dots for "thinking…". The bar for indeterminate progress at the top of a panel.</p>
+      <div class="demo">
+        <div class="demo-label">Ring · sizes</div>
+        <div class="demo-body">
+          <span class="spinner sm"></span>
+          <span class="spinner"></span>
+          <span class="spinner lg"></span>
+          <span class="spinner muted"></span>
+          <button class="btn primary loading">Saving</button>
+          <span class="row" style="gap: 8px; font-size: 12px; color: var(--text-muted)"><span class="spinner sm"></span>Connecting to <span class="mono">db-primary</span>…</span>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-label">Dots · text · pulsing</div>
+        <div class="demo-body">
+          <span class="dots-loader"><span></span><span></span><span></span></span>
+          <span class="row" style="gap: 8px; font-size: 12px; color: var(--text-muted)">Marco is typing<span class="dots-loader"><span></span><span></span><span></span></span></span>
+          <span class="row" style="gap: 8px; font-size: 12px"><span class="status ok live"><span class="glyph"></span>Recording</span></span>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-label">Bar · indeterminate</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="max-width: 460px">
+            <div class="bar-loader"></div>
+            <div class="row" style="gap: 10px; font-size: 12px; color: var(--text-muted)">
+              <span class="spinner sm"></span>
+              <span>Indexing 14 218 logs…</span>
+              <span class="mono" style="margin-left: auto">~30s</span>
+            </div>
+            <div class="bar-loader"></div>
+            <div class="progress" style="height: 4px"><span style="width: 62%"></span></div>
+            <span class="hint num">62 % · 4.8 MB / 7.7 MB</span>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="keyboard">
-      <h2 class="lib-section-title">Keyboard</h2>
+    <!-- ========================================================== -->
+    <section id="skeletons">
+      <h2 class="lib-section-title">Skeletons</h2>
+      <p class="lib-section-sub">A subtle shimmer over a sunk background. Match the shape and rhythm of the content that's about to load — rows, cards, avatars — never just a generic gray rectangle.</p>
       <div class="demo">
-        <div class="demo-label">Keys</div>
-        <div class="demo-body">
-          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>⌘</kbd><kbd>K</kbd> open palette</span>
-          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>⇧</kbd><kbd>/</kbd> shortcuts</span>
-          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>G</kbd> then <kbd>D</kbd> go to deployments</span>
-          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>↵</kbd> confirm</span>
-          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>Esc</kbd> dismiss</span>
+        <div class="demo-label">Lines · circle · block · row composition</div>
+        <div class="demo-body" style="display: block; padding: 24px">
+          <div class="demo-grid c2" style="gap: 18px">
+            <div class="card" style="padding: 14px">
+              <div class="row" style="gap: 10px; align-items: center; margin-bottom: 10px">
+                <span class="sk sk-circle"></span>
+                <div style="flex: 1"><span class="sk sk-line lg" style="width: 60%; display: block"></span><span class="sk sk-line sm" style="width: 35%; display: block; margin-top: 6px"></span></div>
+              </div>
+              <span class="sk sk-line" style="display: block"></span>
+              <span class="sk sk-line" style="display: block; margin-top: 6px; width: 80%"></span>
+              <span class="sk sk-line" style="display: block; margin-top: 6px; width: 65%"></span>
+            </div>
+            <div class="card" style="padding: 14px">
+              <span class="sk sk-block" style="margin-bottom: 10px"></span>
+              <span class="sk sk-line lg" style="display: block; width: 70%"></span>
+              <span class="sk sk-line" style="display: block; width: 45%; margin-top: 6px"></span>
+              <div class="row" style="gap: 6px; margin-top: 12px">
+                <span class="sk sk-line" style="width: 60px; height: 22px; border-radius: 999px"></span>
+                <span class="sk sk-line" style="width: 80px; height: 22px; border-radius: 999px"></span>
+                <span class="sk sk-line" style="width: 50px; height: 22px; border-radius: 999px"></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
+
+    <!-- ========================================================== -->
+    <section id="dividers">
+      <h2 class="lib-section-title">Dividers</h2>
+      <p class="lib-section-sub">A 1-pixel rule from the line token. With a label for "or"-style separators in auth screens.</p>
+      <div class="demo">
+        <div class="demo-label">Horizontal · vertical · with label</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="max-width: 480px; gap: 18px">
+            <div>
+              <div style="font-size: 12.5px; padding: 4px 0">Account</div>
+              <hr class="divider">
+              <div style="font-size: 12.5px; padding: 4px 0">Settings</div>
+            </div>
+            <div class="row" style="gap: 14px; align-items: center; height: 40px">
+              <span style="font-size: 12px; color: var(--text-muted)">Maya Patel</span>
+              <span class="divider-v"></span>
+              <span style="font-size: 12px; color: var(--text-muted)">Operator</span>
+              <span class="divider-v"></span>
+              <span style="font-size: 12px; color: var(--text-muted) ; font-family: var(--font-mono)">us-east-1</span>
+              <span class="divider-v"></span>
+              <span class="status ok"><span class="glyph"></span>online</span>
+            </div>
+            <div class="divider-label">or continue with</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="links">
+      <h2 class="lib-section-title">Links</h2>
+      <p class="lib-section-sub">Inline links carry an underline that intensifies on hover. Muted variant for secondary nav. Never blue-without-underline — it's invisible at body sizes.</p>
+      <div class="demo">
+        <div class="demo-label">Inline · muted · with arrow · external</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <p style="font-size: 13px; line-height: 1.7; max-width: 540px; margin: 0">
+            Read the <a class="lnk" href="#">migration runbook</a> before promoting to production.
+            For quick rollouts, prefer the <a class="lnk muted" href="#">canary strategy</a>.
+            Both are documented in the <a class="lnk" href="#">platform handbook →</a>
+            and follow the same approval flow as <a class="lnk" href="#">staging deploys</a>.
+            See <a class="lnk" href="#">third-party integrations <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a> for the full provider list.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="sliders">
+      <h2 class="lib-section-title">Sliders</h2>
+      <p class="lib-section-sub">Single-thumb for bounded numeric values, dual-thumb for ranges. Thumbs read as outlined circles so they stay visible on busy backgrounds; the fill carries the accent.</p>
+
+      <div class="demo">
+        <div class="demo-label">Single · with marks · with ticks · disabled</div>
+        <div class="demo-body" style="display: block; padding: 24px">
+          <div class="demo-grid c2" style="gap: 28px 32px">
+            <div class="field"><label>CPU limit · 4 vCPU</label>
+              <div class="slider" style="--val: 50%"><div class="track"><div class="fill"></div></div><div class="thumb" style="left: 50%"></div></div>
+            </div>
+            <div class="field"><label>Concurrency · 24</label>
+              <div class="slider" style="--val: 24%">
+                <div class="track">
+                  <div class="ticks"><span class="tick" style="left: 0%"></span><span class="tick" style="left: 25%"></span><span class="tick" style="left: 50%"></span><span class="tick" style="left: 75%"></span><span class="tick" style="left: 100%"></span></div>
+                  <div class="fill"></div>
+                </div>
+                <div class="thumb" style="left: 24%"></div>
+                <div class="marks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+              </div>
+            </div>
+            <div class="field"><label>Volume</label>
+              <div class="slider" style="--val: 78%"><div class="track"><div class="fill"></div></div><div class="thumb" style="left: 78%"></div></div>
+              <span class="hint">Affects CLI bell &amp; alert sounds.</span>
+            </div>
+            <div class="field"><label style="color: var(--text-dim)">Disabled</label>
+              <div class="slider disabled" style="--val: 35%"><div class="track"><div class="fill"></div></div><div class="thumb" style="left: 35%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-label">Range · dual-thumb</div>
+        <div class="demo-body" style="display: block; padding: 24px">
+          <div class="demo-grid c2" style="gap: 28px 32px">
+            <div class="field"><label>Latency window <span class="mono" style="color: var(--text-muted)">120 ms – 480 ms</span></label>
+              <div class="slider" style="--lo: 18%; --hi: 62%">
+                <div class="track"><div class="fill range"></div></div>
+                <div class="thumb" style="left: 18%"></div>
+                <div class="thumb" style="left: 62%"></div>
+              </div>
+            </div>
+            <div class="field"><label>Price · $24 – $96</label>
+              <div class="slider" style="--lo: 12%; --hi: 56%">
+                <div class="track"><div class="fill range"></div></div>
+                <div class="thumb" style="left: 12%"></div>
+                <div class="thumb" style="left: 56%"></div>
+                <div class="marks"><span>$0</span><span>$50</span><span>$100</span><span>$150</span><span>$200</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="dt">
+      <h2 class="lib-section-title">Date &amp; time</h2>
+      <p class="lib-section-sub">Native pickers when possible. The custom chip variant is for filter bars where we control the popover (page 06).</p>
+      <div class="demo">
+        <div class="demo-label">Native · chip · range · time</div>
+        <div class="demo-body">
+          <div class="field"><label>Native date</label><input type="date" class="input mono" value="2026-05-02" style="font-family: var(--font-mono)"></div>
+          <div class="field"><label>Date chip</label>
+            <button class="dt-input">
+              <svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              May 2, 2026
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 2px; color: var(--text-dim)"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="field"><label>Range</label>
+            <div class="row" style="gap: 4px; align-items: center">
+              <button class="dt-input">May 1</button>
+              <span style="color: var(--text-dim)">→</span>
+              <button class="dt-input on">May 14</button>
+            </div>
+          </div>
+          <div class="field"><label>Time</label><input type="time" class="input mono" value="14:32" style="font-family: var(--font-mono); width: 110px"></div>
+          <div class="field"><label>Quick range</label>
+            <div class="tog-group">
+              <button>1h</button><button class="on">24h</button><button>7d</button><button>30d</button><button>Custom</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="color">
+      <h2 class="lib-section-title">Color picker</h2>
+      <p class="lib-section-sub">Eight project colors, hex input, swatch group for tag colors. The big picker on page 06 wraps these in a popover.</p>
+      <div class="demo">
+        <div class="demo-label">Swatch group · with hex · selected</div>
+        <div class="demo-body">
+          <div class="row" style="gap: 6px">
+            <span class="color-swatch on" style="background: oklch(0.62 0.16 250)"></span>
+            <span class="color-swatch" style="background: oklch(0.62 0.18 30)"></span>
+            <span class="color-swatch" style="background: oklch(0.65 0.16 60)"></span>
+            <span class="color-swatch" style="background: oklch(0.62 0.16 145)"></span>
+            <span class="color-swatch" style="background: oklch(0.62 0.16 195)"></span>
+            <span class="color-swatch" style="background: oklch(0.55 0.18 290)"></span>
+            <span class="color-swatch" style="background: oklch(0.62 0.16 320)"></span>
+            <span class="color-swatch" style="background: oklch(0.45 0.02 250)"></span>
+          </div>
+          <div class="color-picker">
+            <span class="swatch" style="background: oklch(0.62 0.16 250)"></span>
+            <span style="font-family: var(--font-mono); font-size: 11px; padding: 0 4px 0 8px; color: var(--text-dim)">#</span>
+            <input value="3D7BF5">
+          </div>
+          <div class="row" style="gap: 0">
+            <span class="color-swatch round" style="background: oklch(0.78 0.10 20)"></span>
+            <span class="color-swatch round" style="background: oklch(0.74 0.13 60); margin-left: -6px"></span>
+            <span class="color-swatch round" style="background: oklch(0.62 0.16 145); margin-left: -6px"></span>
+            <span class="color-swatch round" style="background: oklch(0.55 0.18 250); margin-left: -6px"></span>
+            <span class="color-swatch round" style="background: oklch(0.55 0.18 290); margin-left: -6px"></span>
+          </div>
+          <div class="row" style="gap: 4px">
+            <span class="color-swatch sm" style="background: oklch(0.62 0.16 145)"></span>
+            <span class="color-swatch sm" style="background: oklch(0.62 0.18 30)"></span>
+            <span class="color-swatch sm" style="background: oklch(0.65 0.16 60)"></span>
+            <span class="color-swatch sm" style="background: oklch(0.55 0.18 250)"></span>
+          </div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-label">Tag color picker · with check</div>
+        <div class="demo-body">
+          <div class="row" style="gap: 6px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-elev)">
+            <span class="color-swatch lg check" style="background: oklch(0.62 0.18 30)"></span>
+            <span class="color-swatch lg" style="background: oklch(0.65 0.16 60)"></span>
+            <span class="color-swatch lg" style="background: oklch(0.62 0.16 145)"></span>
+            <span class="color-swatch lg" style="background: oklch(0.55 0.18 250)"></span>
+            <span class="color-swatch lg" style="background: oklch(0.55 0.18 290)"></span>
+            <span class="color-swatch lg" style="background: oklch(0.62 0.16 320)"></span>
+            <span class="color-swatch lg" style="background: var(--bg-sunk); border: 1px dashed var(--line-strong); cursor: pointer; display: grid; place-items: center; color: var(--text-dim); font-size: 14px">+</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="rating">
+      <h2 class="lib-section-title">Rating &amp; stars</h2>
+      <p class="lib-section-sub">Lightweight rating display. Used inline next to numbers or as standalone input. Half-star is approximated with two overlapping glyphs.</p>
+      <div class="demo">
+        <div class="demo-label">Display · interactive · sizes · with count</div>
+        <div class="demo-body">
+          <span class="stars" aria-label="4 of 5">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            <svg class="empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+          </span>
+          <span class="row" style="gap: 6px; font-size: 12px">
+            <span class="stars">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+              <svg class="empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            </span>
+            <span class="num" style="color: var(--text-muted)">4.2</span>
+            <span style="color: var(--text-dim)">· 1 248 reviews</span>
+          </span>
+          <span class="stars lg">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            <svg class="empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+            <svg class="empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12,2 15,9 22,10 17,15 18,22 12,18 6,22 7,15 2,10 9,9"/></svg>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="tooltip">
+      <h2 class="lib-section-title">Tooltips</h2>
+      <p class="lib-section-sub">A short label that appears above the host. Always visible-on-hover here for documentation; in product they fade in after 400 ms.</p>
+      <div class="demo">
+        <div class="demo-label">Plain · with shortcut · on icon · long</div>
+        <div class="demo-body" style="padding-top: 36px">
+          <span class="tt-host">
+            <button class="btn">Save</button>
+            <span class="tt">Save changes</span>
+          </span>
+          <span class="tt-host">
+            <button class="btn primary">Deploy</button>
+            <span class="tt">Promote to prod <kbd>⌘</kbd><kbd>↵</kbd></span>
+          </span>
+          <span class="tt-host">
+            <button class="btn icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+            <span class="tt">Comments · 3</span>
+          </span>
+          <span class="tt-host">
+            <span class="status warn"><span class="glyph"></span>Degraded</span>
+            <span class="tt">p99 latency 480 ms · since 14:31</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="code">
+      <h2 class="lib-section-title">Code chips</h2>
+      <p class="lib-section-sub">Inline mono runs for identifiers, paths, and short tokens. The accent variant calls out user input or active filters.</p>
+      <div class="demo">
+        <div class="demo-label">Inline · accent · in-text · with copy</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <p style="font-size: 13px; line-height: 1.8; max-width: 620px; margin: 0">
+            Run <span class="code-chip">nextcli deploy</span> to push the current branch.
+            Override the region with <span class="code-chip">--region us-west-2</span>,
+            or set <span class="code-chip accent">NEXTCLI_PROFILE=prod</span> in your shell.
+            Configuration lives at <span class="code-chip">~/.nextcli/config.toml</span>; full schema at
+            <a class="lnk" href="#">cli.linden.dev/config</a>.
+          </p>
+          <div class="row" style="gap: 8px; margin-top: 14px">
+            <span class="code-chip" style="display: inline-flex; align-items: center; gap: 6px">
+              api.linden.dev/v2/services/api-gateway
+              <button class="btn icon xs ghost" style="margin: -1px -3px -1px 2px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>
+            </span>
+            <span class="code-chip accent" style="display: inline-flex; align-items: center; gap: 6px">
+              sk_live_••••8a71
+              <button class="btn icon xs ghost" style="margin: -1px -3px -1px 2px; color: inherit"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/></svg></button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="tag-input">
+      <h2 class="lib-section-title">Tag input</h2>
+      <p class="lib-section-sub">Type, hit enter, get a chip. Used for any free-form multi-value field — labels, recipients, allowed origins, env-var keys.</p>
+      <div class="demo">
+        <div class="demo-label">Empty · filled · with autocomplete · invalid</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="demo-grid c2" style="gap: 14px 22px">
+            <div class="field"><label>Allowed origins</label>
+              <div class="tag-field">
+                <input placeholder="Add an origin and press ↵">
+              </div>
+            </div>
+            <div class="field"><label>Recipients</label>
+              <div class="tag-field">
+                <span class="pill" style="margin: 1px 0"><span class="avatar sm c-azure" style="width:14px;height:14px;font-size:8px">MA</span>maya@acme.io<button class="x">×</button></span>
+                <span class="pill" style="margin: 1px 0"><span class="avatar sm c-rose" style="width:14px;height:14px;font-size:8px">MR</span>marco@acme.io<button class="x">×</button></span>
+                <input placeholder="Add another">
+              </div>
+            </div>
+            <div class="field"><label>Tags</label>
+              <div class="tag-field">
+                <span class="pill mono" style="margin: 1px 0">env:prod<button class="x">×</button></span>
+                <span class="pill mono" style="margin: 1px 0">team:platform<button class="x">×</button></span>
+                <input value="region:" placeholder="">
+              </div>
+              <span class="hint">Suggestion: <span class="code-chip">region:us-east-1</span> · <span class="code-chip">region:eu-west-1</span></span>
+            </div>
+            <div class="field"><label>CIDR allowlist</label>
+              <div class="tag-field" style="border-color: var(--err); box-shadow: 0 0 0 3px color-mix(in oklch, var(--err) 18%, transparent)">
+                <span class="pill mono" style="margin: 1px 0">10.0.0.0/8<button class="x">×</button></span>
+                <span class="pill mono" style="margin: 1px 0; color: var(--err); border-color: color-mix(in oklch, var(--err) 30%, transparent); background: color-mix(in oklch, var(--err) 10%, transparent)">notvalid<button class="x">×</button></span>
+                <input>
+              </div>
+              <span class="err">"notvalid" is not a valid CIDR.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="mini-tabs">
+      <h2 class="lib-section-title">Mini tabs</h2>
+      <p class="lib-section-sub">Inline tabs for switching content within a panel. Underline on the active tab, neutral type otherwise. The page-level tabs in part 04 are heavier.</p>
+      <div class="demo">
+        <div class="demo-label">Default · with counts · with icons</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="gap: 22px">
+            <div class="mini-tabs">
+              <button class="on">Overview</button>
+              <button>Logs</button>
+              <button>Metrics</button>
+              <button>Settings</button>
+            </div>
+            <div class="mini-tabs">
+              <button>Active <span class="count">12</span></button>
+              <button class="on">Pending <span class="count accent">3</span></button>
+              <button>Failed <span class="count err">1</span></button>
+              <button>All <span class="count">248</span></button>
+            </div>
+            <div class="mini-tabs">
+              <button class="on">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 4px"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                Stream
+              </button>
+              <button>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 4px"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Chart
+              </button>
+              <button>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 4px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Table
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="stepper-ind">
+      <h2 class="lib-section-title">Form steps</h2>
+      <p class="lib-section-sub">A numbered indicator for multi-step forms. Done states fill green; the active step takes the accent. Connectors show progress between steps.</p>
+      <div class="demo">
+        <div class="demo-label">Default · long · vertical</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="gap: 24px">
+            <div class="steps">
+              <span class="step done"><span class="num">✓</span>Account</span>
+              <span class="conn done"></span>
+              <span class="step active"><span class="num">2</span>Workspace</span>
+              <span class="conn"></span>
+              <span class="step"><span class="num">3</span>Plan</span>
+              <span class="conn"></span>
+              <span class="step"><span class="num">4</span>Invite team</span>
+            </div>
+            <div class="steps">
+              <span class="step done"><span class="num">✓</span>Source</span>
+              <span class="conn done"></span>
+              <span class="step done"><span class="num">✓</span>Build</span>
+              <span class="conn done"></span>
+              <span class="step done"><span class="num">✓</span>Test</span>
+              <span class="conn done"></span>
+              <span class="step active"><span class="num">4</span>Deploy</span>
+              <span class="conn"></span>
+              <span class="step"><span class="num">5</span>Verify</span>
+            </div>
+            <div class="col" style="gap: 0; max-width: 280px">
+              <div class="row" style="gap: 8px"><span class="step done" style="gap: 10px"><span class="num">✓</span>Connect repository</span></div>
+              <div class="row" style="margin-left: 9px; height: 14px; border-left: 1px solid var(--ok)"></div>
+              <div class="row" style="gap: 8px"><span class="step done" style="gap: 10px"><span class="num">✓</span>Detect framework</span></div>
+              <div class="row" style="margin-left: 9px; height: 14px; border-left: 1px solid var(--ok)"></div>
+              <div class="row" style="gap: 8px"><span class="step active" style="gap: 10px"><span class="num">3</span>Configure environment</span></div>
+              <div class="row" style="margin-left: 9px; height: 14px; border-left: 1px dashed var(--line-strong)"></div>
+              <div class="row" style="gap: 8px"><span class="step" style="gap: 10px"><span class="num">4</span>Deploy preview</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="pgn">
+      <h2 class="lib-section-title">Pagination</h2>
+      <p class="lib-section-sub">Mono numbers, accent on the active page, ellipsis for skipped ranges. The compact variant is for dense tables.</p>
+      <div class="demo">
+        <div class="demo-label">Default · compact · with summary</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="gap: 22px">
+            <div class="row" style="justify-content: space-between">
+              <span style="font-size: 12px; color: var(--text-muted)">1–25 of 248 deployments</span>
+              <div class="pgn">
+                <button disabled>‹</button>
+                <button class="on">1</button><button>2</button><button>3</button><button>4</button>
+                <span class="ellipsis">…</span>
+                <button>10</button>
+                <button>›</button>
+              </div>
+            </div>
+            <div class="row" style="justify-content: space-between">
+              <span style="font-size: 12px; color: var(--text-muted)">Page 7 of 42</span>
+              <div class="pgn">
+                <button>‹</button>
+                <button>1</button>
+                <span class="ellipsis">…</span>
+                <button>5</button><button>6</button><button class="on">7</button><button>8</button><button>9</button>
+                <span class="ellipsis">…</span>
+                <button>42</button>
+                <button>›</button>
+              </div>
+            </div>
+            <div class="row" style="justify-content: space-between">
+              <div class="row" style="gap: 8px; font-size: 12px; color: var(--text-muted)">
+                <span>Show</span>
+                <select class="select sm" style="width: 64px"><option>25</option><option>50</option><option>100</option></select>
+                <span>per page</span>
+              </div>
+              <div class="row" style="gap: 14px">
+                <span style="font-size: 12px; color: var(--text-muted)">26–50 of 248</span>
+                <div class="pgn">
+                  <button>‹</button>
+                  <button>›</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="tree-caret">
+      <h2 class="lib-section-title">Tree caret</h2>
+      <p class="lib-section-sub">A 14-pixel disclosure triangle that rotates when open. Used by the file tree, the nav, and any nested list.</p>
+      <div class="demo">
+        <div class="demo-label">States · in context</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="gap: 4px; max-width: 320px; font-size: 12.5px">
+            <div class="row" style="gap: 6px; padding: 4px 6px; cursor: pointer">
+              <button class="caret-btn open"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="color: var(--text-muted)"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span>services</span>
+            </div>
+            <div class="row" style="gap: 6px; padding: 4px 6px 4px 22px; cursor: pointer">
+              <button class="caret-btn open"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="color: var(--text-muted)"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span>api-gateway</span>
+            </div>
+            <div class="row" style="gap: 6px; padding: 4px 6px 4px 38px; background: var(--accent-weak); border-radius: 4px; color: var(--accent-ink)">
+              <span style="width: 14px"></span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="mono">handler.ts</span>
+            </div>
+            <div class="row" style="gap: 6px; padding: 4px 6px 4px 38px; cursor: pointer; color: var(--text-muted)">
+              <span style="width: 14px"></span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="mono">routes.ts</span>
+            </div>
+            <div class="row" style="gap: 6px; padding: 4px 6px 4px 22px; cursor: pointer">
+              <button class="caret-btn"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="color: var(--text-muted)"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span>billing</span>
+              <span class="count" style="margin-left: auto">12</span>
+            </div>
+            <div class="row" style="gap: 6px; padding: 4px 6px 4px 22px; cursor: pointer">
+              <button class="caret-btn"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="color: var(--text-muted)"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span>workers</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="crumbs">
+      <h2 class="lib-section-title">Breadcrumbs</h2>
+      <p class="lib-section-sub">Path-style navigation. Slash separator for filesystem-like hierarchies; chevron for product navigation.</p>
+      <div class="demo">
+        <div class="demo-label">Slash · chevron · with menu · truncated</div>
+        <div class="demo-body" style="display: block; padding: 22px">
+          <div class="stack-v" style="gap: 14px; font-size: 12.5px">
+            <div class="row" style="gap: 4px; font-family: var(--font-mono); color: var(--text-muted)">
+              <a class="lnk muted" href="#">acme</a>
+              <span class="crumb-sep">/</span>
+              <a class="lnk muted" href="#">platform</a>
+              <span class="crumb-sep">/</span>
+              <a class="lnk muted" href="#">services</a>
+              <span class="crumb-sep">/</span>
+              <span style="color: var(--text); font-weight: 500">api-gateway</span>
+            </div>
+            <div class="row" style="gap: 6px; align-items: center">
+              <a class="lnk muted" href="#"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a>
+              <span class="crumb-sep"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+              <a class="lnk muted" href="#">Projects</a>
+              <span class="crumb-sep"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+              <a class="lnk muted" href="#">api-gateway</a>
+              <span class="crumb-sep"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+              <span style="font-weight: 500">Deployments</span>
+            </div>
+            <div class="row" style="gap: 6px">
+              <a class="lnk muted" href="#">acme</a>
+              <span class="crumb-sep">/</span>
+              <button class="btn xs ghost icon" style="margin: -2px 0">…</button>
+              <span class="crumb-sep">/</span>
+              <a class="lnk muted" href="#">services</a>
+              <span class="crumb-sep">/</span>
+              <span style="color: var(--text); font-weight: 500">api-gateway</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <section id="sparks">
+      <h2 class="lib-section-title">Sparklines</h2>
+      <p class="lib-section-sub">Tiny, inline trend lines. They sit next to a number, never on their own. Good for "last 24 hours at a glance" without spending a chart's worth of pixels.</p>
+      <div class="demo">
+        <div class="demo-label">Line · area · bar · inline with KPI</div>
+        <div class="demo-body" style="gap: 24px">
+          <svg class="spark" width="80" height="22" viewBox="0 0 80 22">
+            <polyline fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="0,16 8,14 16,17 24,12 32,15 40,10 48,12 56,7 64,9 72,4 80,6"/>
+          </svg>
+          <svg class="spark" width="80" height="22" viewBox="0 0 80 22">
+            <defs><linearGradient id="sf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity="0.4"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+            <path fill="url(#sf)" d="M0,16 L8,14 16,17 24,12 32,15 40,10 48,12 56,7 64,9 72,4 80,6 L80,22 L0,22 Z"/>
+            <polyline fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" points="0,16 8,14 16,17 24,12 32,15 40,10 48,12 56,7 64,9 72,4 80,6"/>
+          </svg>
+          <svg class="spark" width="80" height="22" viewBox="0 0 80 22">
+            <g fill="var(--accent)">
+              <rect x="2" y="14" width="4" height="8"/>
+              <rect x="9" y="10" width="4" height="12"/>
+              <rect x="16" y="12" width="4" height="10"/>
+              <rect x="23" y="6" width="4" height="16"/>
+              <rect x="30" y="9" width="4" height="13"/>
+              <rect x="37" y="13" width="4" height="9"/>
+              <rect x="44" y="4" width="4" height="18"/>
+              <rect x="51" y="11" width="4" height="11"/>
+              <rect x="58" y="7" width="4" height="15"/>
+              <rect x="65" y="3" width="4" height="19"/>
+              <rect x="72" y="8" width="4" height="14"/>
+            </g>
+          </svg>
+          <svg class="spark" width="80" height="22" viewBox="0 0 80 22">
+            <polyline fill="none" stroke="var(--err)" stroke-width="1.5" points="0,4 8,6 16,8 24,7 32,10 40,12 48,11 56,14 64,13 72,16 80,18"/>
+          </svg>
+          <span class="row" style="gap: 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-elev)">
+            <div class="col" style="gap: 0">
+              <span style="font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-family: var(--font-mono)">Requests · 24h</span>
+              <span class="num" style="font-size: 18px; font-weight: 600">14.2 K</span>
+            </div>
+            <svg class="spark" width="80" height="28" viewBox="0 0 80 28">
+              <defs><linearGradient id="sf2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity="0.4"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+              <path fill="url(#sf2)" d="M0,20 L8,18 16,22 24,15 32,18 40,13 48,15 56,8 64,10 72,4 80,6 L80,28 L0,28 Z"/>
+              <polyline fill="none" stroke="var(--accent)" stroke-width="1.5" points="0,20 8,18 16,22 24,15 32,18 40,13 48,15 56,8 64,10 72,4 80,6"/>
+            </svg>
+            <span class="status ok" style="align-self: flex-end"><span class="glyph"></span>+12 %</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+      <h2 class="lib-section-title">Keyboard</h2>
+      <p class="lib-section-sub">A typed key reads tighter than the surrounding text. Use sparingly — the cheatsheet on page 10 lists the full shortcut catalog.</p>
+      <div class="demo">
+        <div class="demo-label">Single · sequence · combo · in-text</div>
+        <div class="demo-body" style="gap: 22px">
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>⌘</kbd><kbd>K</kbd> open palette</span>
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>G</kbd> then <kbd>D</kbd> go to deployments</span>
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>P</kbd> promote to prod</span>
+          <span class="row" style="gap: 4px; font-size: var(--fs-sm)"><kbd>↵</kbd> confirm · <kbd>Esc</kbd> dismiss</span>
+        </div>
+      </div>
+    </section>
+
+    <div style="margin-top: 60px; padding: 16px 18px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-dim)">
+      <a class="lib-link" href="01-foundations.html" style="padding: 6px 10px; border-radius: 6px">← 01 · Foundations</a>
+      <a class="lib-link" href="03-data.html" style="padding: 6px 10px; border-radius: 6px">03 · Data display →</a>
+    </div>
+
   </main>
 </div>
 
@@ -307,6 +1514,58 @@
     document.body.dataset.theme = b.dataset.theme;
     document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
   }));
+
+  // Live char counter on bio
+  const bio = document.getElementById('bio-txt');
+  const cnt = document.getElementById('bio-cnt');
+  if (bio && cnt) {
+    const update = () => {
+      const n = bio.value.length;
+      cnt.textContent = n + ' / 160';
+      cnt.classList.toggle('warn', n > 130 && n <= 155);
+      cnt.classList.toggle('err',  n > 155);
+    };
+    bio.addEventListener('input', update);
+    update();
+  }
+
+  // OTP simple auto-advance (only the in-progress example)
+  document.querySelectorAll('.otp').forEach(grp => {
+    const inputs = [...grp.querySelectorAll('input')];
+    inputs.forEach((inp, i) => {
+      inp.addEventListener('input', () => {
+        if (inp.value && i < inputs.length - 1) inputs[i+1].focus();
+        if (inp.value) inp.classList.add('filled'); else inp.classList.remove('filled');
+      });
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i-1].focus();
+      });
+    });
+  });
+
+  // Tog-group click toggle (single-select within each group)
+  document.querySelectorAll('.tog-group').forEach(g => {
+    g.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b || !g.contains(b)) return;
+      g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    });
+  });
+
+  // Number stepper +/- min 0, max 100 demo
+  document.querySelectorAll('.num-stepper').forEach(s => {
+    const [minus, input, plus] = [s.children[0], s.querySelector('input'), s.children[2]];
+    if (!input) return;
+    const min = 0, max = parseInt(input.value, 10) >= 100 ? 100 : (parseInt(input.value, 10) > 1000 ? 16384 : 100);
+    const sync = () => {
+      const v = parseInt(input.value, 10) || 0;
+      if (minus && minus.tagName === 'BUTTON') minus.disabled = v <= min;
+      if (plus && plus.tagName === 'BUTTON') plus.disabled = v >= max;
+    };
+    if (minus && minus.tagName === 'BUTTON') minus.addEventListener('click', () => { input.value = Math.max(min, (parseInt(input.value, 10) || 0) - 1); sync(); });
+    if (plus  && plus.tagName  === 'BUTTON') plus.addEventListener('click',  () => { input.value = Math.min(max, (parseInt(input.value, 10) || 0) + 1); sync(); });
+    input.addEventListener('input', sync);
+  });
 </script>
 </body>
 </html>

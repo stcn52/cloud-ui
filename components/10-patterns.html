@@ -1,0 +1,1276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>10 · More patterns — NextCli</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* ============ Page-local component styles ============ */
+
+  /* Calendar */
+  .cal { width: 280px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-sm); padding: 12px; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .cal-head .m { font-size: 13px; font-weight: 600; }
+  .cal-head .nav { display: flex; gap: 2px; }
+  .cal-head .nav button { width: 22px; height: 22px; border-radius: 5px; color: var(--text-muted); display: grid; place-items: center; }
+  .cal-head .nav button:hover { background: var(--bg-sunk); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-grid .dn { text-align: center; font-size: 10px; color: var(--text-dim); padding: 4px 0; font-family: var(--font-mono); text-transform: uppercase; }
+  .cal-grid .d { aspect-ratio: 1; display: grid; place-items: center; font-size: 11.5px; border-radius: 5px; cursor: pointer; color: var(--text); position: relative; }
+  .cal-grid .d:hover { background: var(--bg-sunk); }
+  .cal-grid .d.muted { color: var(--text-dim); }
+  .cal-grid .d.today { box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .cal-grid .d.sel { background: var(--accent); color: white; font-weight: 600; }
+  .cal-grid .d.dot::after { content: ""; position: absolute; bottom: 3px; width: 3px; height: 3px; border-radius: 50%; background: var(--accent); }
+  .cal-grid .d.range { background: var(--accent-weak); color: var(--accent-ink); border-radius: 0; }
+  .cal-grid .d.range.start { border-radius: 5px 0 0 5px; background: var(--accent); color: white; }
+  .cal-grid .d.range.end   { border-radius: 0 5px 5px 0; background: var(--accent); color: white; }
+
+  /* Schedule day */
+  .sched { display: grid; grid-template-columns: 44px 1fr; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-elev); overflow: hidden; }
+  .sched .hours { display: flex; flex-direction: column; border-right: 1px solid var(--line); background: var(--panel); }
+  .sched .hours .h { height: 36px; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); padding: 2px 6px 0; text-align: right; border-bottom: 1px dashed var(--line); }
+  .sched .body { position: relative; }
+  .sched .row-l { height: 36px; border-bottom: 1px dashed var(--line); }
+  .sched .ev { position: absolute; left: 6px; right: 6px; border-radius: 5px; padding: 4px 8px; font-size: 11.5px; font-weight: 500; border-left: 2px solid; }
+  .sched .ev .t { font-family: var(--font-mono); font-size: 10px; opacity: 0.8; display: block; margin-top: 1px; }
+  .sched .ev.a { background: color-mix(in oklch, var(--accent) 14%, transparent); border-color: var(--accent); color: var(--accent-ink); }
+  .sched .ev.b { background: color-mix(in oklch, var(--ok) 14%, transparent); border-color: var(--ok); color: color-mix(in oklch, var(--ok) 75%, var(--text)); }
+  .sched .ev.c { background: color-mix(in oklch, var(--warn) 16%, transparent); border-color: var(--warn); color: color-mix(in oklch, var(--warn) 75%, var(--text)); }
+  .sched .now { position: absolute; left: 0; right: 0; height: 1px; background: var(--err); pointer-events: none; }
+  .sched .now::before { content: ""; position: absolute; left: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--err); }
+
+  /* Gauge */
+  .gauge { width: 140px; aspect-ratio: 2/1; position: relative; }
+  .gauge svg { width: 100%; height: auto; }
+  .gauge .v { position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; font-family: var(--font-mono); font-size: 22px; font-weight: 600; }
+  .gauge .l { position: absolute; bottom: -14px; left: 0; right: 0; text-align: center; font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Sparkline tile */
+  .spark-tile { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-elev); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .spark-tile .l { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); font-weight: 500; }
+  .spark-tile .v { font-family: var(--font-mono); font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .spark-tile .d { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+  .spark-tile .d .pos { color: var(--ok); font-family: var(--font-mono); }
+  .spark-tile .d .neg { color: var(--err); font-family: var(--font-mono); }
+  .spark-tile svg { display: block; width: 100%; height: 32px; }
+
+  /* JSON viewer */
+  .json { font-family: var(--font-mono); font-size: 11.5px; line-height: 1.65; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; white-space: pre; overflow-x: auto; }
+  .json .k { color: oklch(0.45 0.14 280); }
+  .json .s { color: oklch(0.45 0.14 155); }
+  .json .n { color: oklch(0.45 0.14 60); }
+  .json .b { color: oklch(0.45 0.18 22); }
+  .json .p { color: var(--text-dim); }
+  .json .indent { padding-left: 16px; }
+  .json .tw { color: var(--text-dim); user-select: none; cursor: pointer; display: inline-block; width: 10px; }
+  .json .col { color: var(--text-dim); }
+
+  /* File tree */
+  .tree { font-family: var(--font-mono); font-size: 11.5px; padding: 8px 10px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 6px; min-width: 240px; }
+  .tree .t-row { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border-radius: 4px; color: var(--text-muted); cursor: default; }
+  .tree .t-row:hover { background: var(--bg-sunk); color: var(--text); }
+  .tree .t-row.on { background: var(--accent-weak); color: var(--accent-ink); }
+  .tree .t-row .chev { color: var(--text-dim); width: 10px; display: inline-block; }
+  .tree .t-row svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.6; flex-shrink: 0; }
+  .tree .t-row .nm { flex: 1; }
+  .tree .t-row .meta { font-size: 10px; color: var(--text-dim); }
+  .tree .ind-1 { padding-left: 14px; }
+  .tree .ind-2 { padding-left: 28px; }
+  .tree .ind-3 { padding-left: 42px; }
+
+  /* Mention popover */
+  .mention-pop { width: 240px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); padding: 4px; font-size: 12px; }
+  .mention-pop .mr { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 5px; cursor: default; }
+  .mention-pop .mr.on { background: var(--accent-weak); }
+  .mention-pop .mr .h { font-weight: 500; }
+  .mention-pop .mr .h em { color: var(--accent-ink); font-style: normal; font-weight: 600; background: color-mix(in oklch, var(--accent) 18%, transparent); border-radius: 2px; padding: 0 1px; }
+  .mention-pop .mr .s { font-size: 10.5px; color: var(--text-dim); margin-left: auto; font-family: var(--font-mono); }
+
+  /* Query builder */
+  .qb { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 10px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; }
+  .qb .grp { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; background: var(--bg-sunk); border-radius: 6px; border: 1px solid var(--line); }
+  .qb .grp .key  { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+  .qb .grp .op   { font-size: 11px; color: var(--accent-ink); font-family: var(--font-mono); padding: 0 4px; background: var(--accent-weak); border-radius: 3px; }
+  .qb .grp .val  { font-size: 11.5px; font-weight: 500; }
+  .qb .grp button.x { color: var(--text-dim); padding: 0 2px; font-size: 12px; }
+  .qb .grp button.x:hover { color: var(--err); }
+  .qb .conj { font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 2px; }
+  .qb .add { color: var(--accent-ink); font-size: 11px; padding: 4px 8px; border-radius: 5px; border: 1px dashed var(--line-strong); }
+  .qb .add:hover { background: var(--accent-weak); border-color: var(--accent); }
+
+  /* Slider */
+  .range-row { display: flex; align-items: center; gap: 10px; }
+  .range {
+    appearance: none; -webkit-appearance: none;
+    width: 220px; height: 4px;
+    background: var(--bg-sunk);
+    border-radius: 2px;
+    border: 1px solid var(--line);
+    outline: none;
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bg-elev); border: 1.5px solid var(--accent);
+    box-shadow: var(--shadow-sm);
+    cursor: grab;
+  }
+  .range::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bg-elev); border: 1.5px solid var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+  .range-out { font-family: var(--font-mono); font-size: 12px; color: var(--text); min-width: 36px; text-align: right; }
+  .range-track {
+    position: relative; width: 240px; height: 24px;
+    display: flex; align-items: center;
+  }
+  .range-track .t { position: absolute; left: 0; right: 0; height: 4px; background: var(--bg-sunk); border-radius: 2px; border: 1px solid var(--line); }
+  .range-track .f { position: absolute; height: 4px; background: var(--accent); border-radius: 2px; }
+  .range-track .h { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--bg-elev); border: 1.5px solid var(--accent); margin-left: -7px; box-shadow: var(--shadow-sm); top: 50%; transform: translateY(-50%); }
+
+  /* Audit feed */
+  .audit { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .audit .a-row { display: grid; grid-template-columns: 130px 1fr 90px; gap: 12px; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 12px; }
+  .audit .a-row:last-child { border-bottom: 0; }
+  .audit .a-row:hover { background: var(--bg-sunk); }
+  .audit .a-row .ts { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); }
+  .audit .a-row .who { color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px; }
+  .audit .a-row .verb { font-family: var(--font-mono); font-size: 10.5px; padding: 1px 5px; border-radius: 3px; background: var(--bg-sunk); color: var(--text-muted); margin-right: 4px; }
+  .audit .a-row .verb.ok  { background: color-mix(in oklch, var(--ok) 10%, transparent);  color: var(--ok); }
+  .audit .a-row .verb.err { background: color-mix(in oklch, var(--err) 10%, transparent); color: var(--err); }
+  .audit .a-row .verb.warn{ background: color-mix(in oklch, var(--warn) 14%, transparent); color: oklch(0.42 0.13 75); }
+
+  /* Comments */
+  .cmt { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .cmt:last-child { border-bottom: 0; }
+  .cmt .body { flex: 1; min-width: 0; }
+  .cmt .head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .cmt .head b { font-size: 12.5px; }
+  .cmt .head .ts { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); }
+  .cmt .text { font-size: 13px; color: var(--text); line-height: 1.55; }
+  .cmt .text mark { background: var(--accent-weak); color: var(--accent-ink); border-radius: 3px; padding: 0 2px; font-weight: 500; }
+  .cmt .actions { display: flex; gap: 12px; margin-top: 6px; font-size: 11px; color: var(--text-dim); }
+  .cmt .actions a:hover { color: var(--accent-ink); }
+  .cmt-reply { padding-left: 36px; }
+
+  /* Notification list */
+  .notif { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-bottom: 1px solid var(--line); position: relative; }
+  .notif:last-child { border-bottom: 0; }
+  .notif:hover { background: var(--bg-sunk); }
+  .notif.unread::before { content: ""; position: absolute; left: 4px; top: 16px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .notif .ico { width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; flex-shrink: 0; background: var(--bg-sunk); color: var(--text-muted); }
+  .notif .ico.ok { background: color-mix(in oklch, var(--ok) 12%, transparent); color: var(--ok); }
+  .notif .ico.err{ background: color-mix(in oklch, var(--err) 12%, transparent); color: var(--err); }
+  .notif .ico.warn{ background: color-mix(in oklch, var(--warn) 14%, transparent); color: oklch(0.45 0.13 75); }
+  .notif .ico svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+  .notif .body { flex: 1; min-width: 0; }
+  .notif .body .ttl { font-size: 12.5px; font-weight: 500; }
+  .notif .body .sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.5; }
+  .notif .body .ts  { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); margin-top: 4px; display: block; }
+
+  /* Empty state */
+  .empty { padding: 40px 24px; text-align: center; color: var(--text-muted); }
+  .empty .glyph { width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 14px; background: var(--bg-sunk); border: 1px dashed var(--line-strong); display: grid; place-items: center; color: var(--text-dim); }
+  .empty h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 0 0 4px; }
+  .empty p  { font-size: 12.5px; max-width: 320px; margin: 0 auto 14px; line-height: 1.55; }
+
+  /* Donut breakdown */
+  .donut-row { display: flex; gap: 18px; align-items: center; }
+  .donut-row .legend { font-size: 12px; }
+  .donut-row .legend .lr { display: grid; grid-template-columns: 10px 1fr auto auto; gap: 8px; align-items: center; padding: 3px 0; }
+  .donut-row .legend .sw { width: 10px; height: 10px; border-radius: 2px; }
+  .donut-row .legend .v  { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+  .donut-row .legend .pc { font-family: var(--font-mono); font-size: 11px; color: var(--text); width: 36px; text-align: right; }
+
+  /* Resource health bar */
+  .health { display: flex; gap: 2px; }
+  .health span { width: 6px; height: 22px; border-radius: 1px; background: var(--bg-sunk); }
+  .health span.ok  { background: var(--ok); }
+  .health span.warn{ background: var(--warn); }
+  .health span.err { background: var(--err); }
+
+  /* Settings row */
+  .stg-row { display: grid; grid-template-columns: 1fr 220px; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: center; }
+  .stg-row:last-child { border-bottom: 0; }
+  .stg-row .lbl  { font-size: 13px; font-weight: 500; }
+  .stg-row .help { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; max-width: 480px; }
+  .stg-row .ctrl { justify-self: end; display: flex; gap: 8px; align-items: center; }
+
+  /* Status banner ribbon */
+  .ribbon { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; }
+  .ribbon.live { background: color-mix(in oklch, var(--ok) 10%, transparent); color: color-mix(in oklch, var(--ok) 75%, var(--text)); border: 1px solid color-mix(in oklch, var(--ok) 25%, transparent); }
+  .ribbon.deg  { background: color-mix(in oklch, var(--warn) 14%, transparent); color: color-mix(in oklch, var(--warn) 75%, var(--text)); border: 1px solid color-mix(in oklch, var(--warn) 30%, transparent); }
+  .ribbon.out  { background: color-mix(in oklch, var(--err) 10%, transparent); color: color-mix(in oklch, var(--err) 75%, var(--text)); border: 1px solid color-mix(in oklch, var(--err) 25%, transparent); }
+  .ribbon .pulse { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 0 currentColor; animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in oklch, currentColor 60%, transparent); } 70% { box-shadow: 0 0 0 8px transparent; } }
+
+  /* Color picker */
+  .cp { width: 220px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 10px; padding: 10px; box-shadow: var(--shadow-sm); }
+  .cp .grad { height: 80px; border-radius: 6px; background: linear-gradient(to right, white, oklch(0.62 0.18 230)), linear-gradient(to bottom, transparent, black); background-blend-mode: multiply; position: relative; margin-bottom: 6px; }
+  .cp .grad .pt { position: absolute; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,0.4); top: 30%; left: 60%; }
+  .cp .hue { height: 8px; border-radius: 4px; margin-bottom: 8px; background: linear-gradient(to right, oklch(0.7 0.2 0), oklch(0.7 0.2 60), oklch(0.7 0.2 120), oklch(0.7 0.2 180), oklch(0.7 0.2 240), oklch(0.7 0.2 300), oklch(0.7 0.2 360)); position: relative; }
+  .cp .hue .pt { position: absolute; width: 4px; height: 12px; background: white; box-shadow: 0 0 0 1px rgba(0,0,0,0.3); top: -2px; left: 70%; border-radius: 2px; }
+  .cp .swatches { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-bottom: 8px; }
+  .cp .swatches .sw { aspect-ratio: 1; border-radius: 3px; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06); }
+  .cp .vals { display: grid; grid-template-columns: 1fr 60px; gap: 6px; }
+
+  /* Resizable card preview */
+  .resize-wrap { resize: horizontal; overflow: auto; min-width: 300px; max-width: 720px; padding: 1px; border-radius: 8px; }
+
+  /* Cookie banner */
+  .cookies { display: flex; gap: 14px; align-items: center; padding: 14px 18px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-md); max-width: 640px; }
+  .cookies .body { flex: 1; font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
+  .cookies .body b { color: var(--text); display: block; margin-bottom: 2px; font-size: 13px; }
+
+  /* Press kbd */
+  .kbd { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; font-family: var(--font-mono); font-size: 10.5px; background: var(--bg-elev); color: var(--text-muted); }
+
+  /* Mini map */
+  .minimap { width: 120px; height: 80px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg-sunk); position: relative; overflow: hidden; }
+  .minimap .blk { position: absolute; background: var(--line-strong); border-radius: 1px; }
+  .minimap .vp  { position: absolute; border: 1.5px solid var(--accent); background: color-mix(in oklch, var(--accent) 14%, transparent); border-radius: 2px; }
+
+  /* Filter chips with counts */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip-c { display: inline-flex; align-items: center; gap: 6px; padding: 0 4px 0 10px; height: 24px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-elev); font-size: 11.5px; cursor: default; transition: border-color .12s; }
+  .chip-c:hover { border-color: var(--line-strong); }
+  .chip-c.on { background: var(--accent-weak); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+  .chip-c .c { font-family: var(--font-mono); font-size: 10px; padding: 1px 6px; background: var(--bg-sunk); border-radius: 999px; color: var(--text-dim); }
+  .chip-c.on .c { background: var(--bg-elev); color: var(--accent-ink); }
+
+  /* Resource gauge mini */
+  .meter { height: 4px; border-radius: 2px; background: var(--bg-sunk); overflow: hidden; }
+  .meter > span { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+  .meter.ok > span { background: var(--ok); }
+  .meter.warn > span { background: var(--warn); }
+  .meter.err > span { background: var(--err); }
+
+  /* Profile / handoff card */
+  .prof { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-elev); }
+  .prof .nm { font-size: 13px; font-weight: 600; }
+  .prof .role { font-size: 11.5px; color: var(--text-muted); }
+  .prof .meta { font-size: 10.5px; font-family: var(--font-mono); color: var(--text-dim); margin-top: 2px; }
+
+  /* Compact utilities */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .v-stack { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lib-tools">
+  <button data-theme="light" class="on">Light</button>
+  <button data-theme="dark">Dark</button>
+</div>
+
+<div class="lib">
+  <aside class="lib-nav">
+    <div class="lib-brand"><div class="lib-mark"></div><span class="name">NextCli</span><span class="tag">v0.9</span></div>
+    <div class="lib-section">
+      <div class="lib-title">Library</div>
+      <a class="lib-link" href="index.html">Overview</a>
+      <a class="lib-link" href="01-foundations.html">01 · Foundations</a>
+      <a class="lib-link" href="02-primitives.html">02 · Primitives</a>
+      <a class="lib-link" href="03-data.html">03 · Data display</a>
+      <a class="lib-link" href="04-navigation.html">04 · Navigation</a>
+      <a class="lib-link" href="05-overlays.html">05 · Overlays</a>
+      <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
+      <a class="lib-link" href="07-more.html">07 · More components</a>
+      <a class="lib-link" href="08-compositions.html">08 · Compositions</a>
+      <a class="lib-link" href="09-layouts.html">09 · App layouts</a>
+      <a class="lib-link active" href="10-patterns.html">10 · More patterns</a>
+      <a class="lib-link" href="11-tables.html">11 · Tables &amp; filters</a>
+    </div>
+    <div class="lib-section">
+      <div class="lib-title">This page</div>
+      <a class="lib-link" href="#calendar">Calendar / range</a>
+      <a class="lib-link" href="#schedule">Day schedule</a>
+      <a class="lib-link" href="#gauge">Gauges</a>
+      <a class="lib-link" href="#sparklines">Sparkline tiles</a>
+      <a class="lib-link" href="#donuts">Donut breakdown</a>
+      <a class="lib-link" href="#json">JSON viewer</a>
+      <a class="lib-link" href="#tree">File tree</a>
+      <a class="lib-link" href="#mention">@-mention</a>
+      <a class="lib-link" href="#qb">Query builder</a>
+      <a class="lib-link" href="#slider">Slider / range</a>
+      <a class="lib-link" href="#audit">Audit feed</a>
+      <a class="lib-link" href="#comments">Comments</a>
+      <a class="lib-link" href="#notif">Notification center</a>
+      <a class="lib-link" href="#empty">Empty states</a>
+      <a class="lib-link" href="#health">Resource health</a>
+      <a class="lib-link" href="#settings-rows">Settings rows</a>
+      <a class="lib-link" href="#ribbon">Status ribbon</a>
+      <a class="lib-link" href="#colorpicker">Color picker</a>
+      <a class="lib-link" href="#cookies">Cookie banner</a>
+      <a class="lib-link" href="#chips">Filter chips</a>
+      <a class="lib-link" href="#minimap">Mini map</a>
+      <a class="lib-link" href="#kbd-cheats">Shortcuts cheatsheet</a>
+    </div>
+  </aside>
+
+  <main class="lib-main">
+    <header class="lib-head">
+      <div class="lib-kicker">Part 10 · More patterns</div>
+      <h1 class="lib-h1">The shop floor.</h1>
+      <p class="lib-lede">
+        Calendars, gauges, JSON viewers, query builders, audit feeds, comments threads —
+        twenty-plus of the working components that fill out a real operator product. Same tokens,
+        same density, same monochrome-with-one-accent palette.
+      </p>
+    </header>
+
+    <!-- ============================================================= -->
+    <section id="calendar">
+      <h2 class="lib-section-title">Calendar &amp; date range</h2>
+      <p class="lib-section-sub">Single-pick, multi-event, and range selection. The accent stays — even for the range, where its weak tint covers the inner days.</p>
+      <div class="demo">
+        <div class="demo-label">Three states <span class="sub">single · events · range</span></div>
+        <div class="demo-body" style="gap: 24px; align-items: flex-start">
+
+          <!-- Single -->
+          <div class="cal">
+            <div class="cal-head">
+              <div class="m">May 2026</div>
+              <div class="nav">
+                <button>‹</button><button>›</button>
+              </div>
+            </div>
+            <div class="cal-grid">
+              <div class="dn">M</div><div class="dn">T</div><div class="dn">W</div><div class="dn">T</div><div class="dn">F</div><div class="dn">S</div><div class="dn">S</div>
+              <div class="d muted">27</div><div class="d muted">28</div><div class="d muted">29</div><div class="d muted">30</div><div class="d">1</div><div class="d">2</div><div class="d">3</div>
+              <div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div><div class="d">8</div><div class="d">9</div><div class="d">10</div>
+              <div class="d">11</div><div class="d today">12</div><div class="d">13</div><div class="d sel">14</div><div class="d">15</div><div class="d">16</div><div class="d">17</div>
+              <div class="d">18</div><div class="d">19</div><div class="d">20</div><div class="d">21</div><div class="d">22</div><div class="d">23</div><div class="d">24</div>
+              <div class="d">25</div><div class="d">26</div><div class="d">27</div><div class="d">28</div><div class="d">29</div><div class="d">30</div><div class="d">31</div>
+            </div>
+          </div>
+
+          <!-- Event dots -->
+          <div class="cal">
+            <div class="cal-head">
+              <div class="m">May 2026</div>
+              <div class="nav"><button>‹</button><button>›</button></div>
+            </div>
+            <div class="cal-grid">
+              <div class="dn">M</div><div class="dn">T</div><div class="dn">W</div><div class="dn">T</div><div class="dn">F</div><div class="dn">S</div><div class="dn">S</div>
+              <div class="d muted">27</div><div class="d muted">28</div><div class="d muted">29</div><div class="d muted">30</div><div class="d dot">1</div><div class="d">2</div><div class="d">3</div>
+              <div class="d dot">4</div><div class="d">5</div><div class="d dot">6</div><div class="d">7</div><div class="d dot">8</div><div class="d">9</div><div class="d">10</div>
+              <div class="d">11</div><div class="d today dot">12</div><div class="d dot">13</div><div class="d">14</div><div class="d dot">15</div><div class="d">16</div><div class="d">17</div>
+              <div class="d dot">18</div><div class="d">19</div><div class="d dot">20</div><div class="d">21</div><div class="d">22</div><div class="d dot">23</div><div class="d">24</div>
+              <div class="d">25</div><div class="d">26</div><div class="d">27</div><div class="d dot">28</div><div class="d">29</div><div class="d">30</div><div class="d">31</div>
+            </div>
+          </div>
+
+          <!-- Range -->
+          <div class="cal">
+            <div class="cal-head">
+              <div class="m">May 2026 · range</div>
+              <div class="nav"><button>‹</button><button>›</button></div>
+            </div>
+            <div class="cal-grid">
+              <div class="dn">M</div><div class="dn">T</div><div class="dn">W</div><div class="dn">T</div><div class="dn">F</div><div class="dn">S</div><div class="dn">S</div>
+              <div class="d muted">27</div><div class="d muted">28</div><div class="d muted">29</div><div class="d muted">30</div><div class="d">1</div><div class="d">2</div><div class="d">3</div>
+              <div class="d">4</div><div class="d">5</div><div class="d range start">6</div><div class="d range">7</div><div class="d range">8</div><div class="d range">9</div><div class="d range">10</div>
+              <div class="d range">11</div><div class="d range">12</div><div class="d range">13</div><div class="d range end">14</div><div class="d">15</div><div class="d">16</div><div class="d">17</div>
+              <div class="d">18</div><div class="d">19</div><div class="d">20</div><div class="d">21</div><div class="d">22</div><div class="d">23</div><div class="d">24</div>
+              <div class="d">25</div><div class="d">26</div><div class="d">27</div><div class="d">28</div><div class="d">29</div><div class="d">30</div><div class="d">31</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="schedule">
+      <h2 class="lib-section-title">Day schedule</h2>
+      <p class="lib-section-sub">Time-blocked events, color-coded by category, with a thin red "now" line. Two events overlapping are stacked side-by-side, never centered.</p>
+      <div class="demo">
+        <div class="demo-label">Operator on-call · Tuesday</div>
+        <div class="demo-body" style="display: block">
+          <div class="sched" style="max-width: 520px">
+            <div class="hours">
+              <div class="h">09</div><div class="h">10</div><div class="h">11</div><div class="h">12</div>
+              <div class="h">13</div><div class="h">14</div><div class="h">15</div><div class="h">16</div>
+            </div>
+            <div class="body" style="height: 288px">
+              <div class="row-l"></div><div class="row-l"></div><div class="row-l"></div><div class="row-l"></div>
+              <div class="row-l"></div><div class="row-l"></div><div class="row-l"></div><div class="row-l"></div>
+              <div class="ev a"   style="top: 18px;  height: 50px">Standup &amp; pager handoff<span class="t">09:30 → 10:20</span></div>
+              <div class="ev b"   style="top: 90px;  height: 70px; right: 50%; margin-right: 3px">Deploy v142 → staging<span class="t">11:00 → 12:10</span></div>
+              <div class="ev c"   style="top: 105px; height: 40px; left: 50%; margin-left: 3px">Lunch w/ Maya<span class="t">11:15 → 12:00</span></div>
+              <div class="ev a"   style="top: 175px; height: 36px">Migration dry-run<span class="t">12:55 → 13:30</span></div>
+              <div class="ev c"   style="top: 220px; height: 56px">Postmortem · ingest leak<span class="t">13:40 → 14:35</span></div>
+              <div class="now" style="top: 198px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="gauge">
+      <h2 class="lib-section-title">Gauges</h2>
+      <p class="lib-section-sub">Half-circle gauges for utilization. Single accent fill — don't bake the green/yellow/red rainbow into the dial; let the number tell the story.</p>
+      <div class="demo">
+        <div class="demo-label">Three resources</div>
+        <div class="demo-body" style="gap: 56px; padding-bottom: 44px">
+          <div class="gauge">
+            <svg viewBox="0 0 100 50">
+              <path d="M5 50 A 45 45 0 0 1 95 50" fill="none" stroke="var(--bg-sunk)" stroke-width="6"/>
+              <path d="M5 50 A 45 45 0 0 1 95 50" fill="none" stroke="var(--accent)" stroke-width="6"
+                    stroke-dasharray="141.4" stroke-dashoffset="42.4" stroke-linecap="round"/>
+            </svg>
+            <div class="v">70<span style="font-size:13px;color:var(--text-dim)">%</span></div>
+            <div class="l">CPU · api-gw</div>
+          </div>
+          <div class="gauge">
+            <svg viewBox="0 0 100 50">
+              <path d="M5 50 A 45 45 0 0 1 95 50" fill="none" stroke="var(--bg-sunk)" stroke-width="6"/>
+              <path d="M5 50 A 45 45 0 0 1 95 50" fill="none" stroke="var(--warn)" stroke-width="6"
+                    stroke-dasharray="141.4" stroke-dashoffset="20" stroke-linecap="round"/>
+            </svg>
+            <div class="v" style="color:oklch(0.42 0.13 75)">86<span style="font-size:13px;color:var(--text-dim)">%</span></div>
+            <div class="l">Memory · ingest-w</div>
+          </div>
+          <div class="gauge">
+            <svg viewBox="0 0 100 50">
+              <path d="M5 50 A 45 45 0 0 1 95 50" fill="none" stroke="var(--bg-sunk)" stroke-width="6"/>
+              <path d="M5 50 A 45 45 0 0 1 95 50" fill="none" stroke="var(--ok)" stroke-width="6"
+                    stroke-dasharray="141.4" stroke-dashoffset="103" stroke-linecap="round"/>
+            </svg>
+            <div class="v" style="color:color-mix(in oklch, var(--ok) 75%, var(--text))">27<span style="font-size:13px;color:var(--text-dim)">%</span></div>
+            <div class="l">Disk · db-primary</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="sparklines">
+      <h2 class="lib-section-title">Sparkline tiles</h2>
+      <p class="lib-section-sub">A tile combines a number, a delta, and a tiny shape so users can scan a row of metrics in under a second.</p>
+      <div class="demo">
+        <div class="demo-label">Six metrics · 24h</div>
+        <div class="demo-body" style="display: block; padding: 18px">
+          <div class="grid-3" style="grid-template-columns: repeat(3, 1fr); gap: 10px">
+            <div class="spark-tile">
+              <div class="l">Requests · 1h</div>
+              <div class="v num">142.6 K</div>
+              <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+                <polyline points="0,24 8,22 16,18 24,20 32,15 40,17 48,12 56,14 64,9 72,11 80,7 88,10 100,5"
+                  fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+                <polyline points="0,24 8,22 16,18 24,20 32,15 40,17 48,12 56,14 64,9 72,11 80,7 88,10 100,5 100,32 0,32"
+                  fill="color-mix(in oklch, var(--accent) 14%, transparent)" stroke="none"/>
+              </svg>
+              <div class="d"><span class="pos">▲ 8.2%</span> vs yesterday</div>
+            </div>
+            <div class="spark-tile">
+              <div class="l">P95 latency</div>
+              <div class="v num">214 ms</div>
+              <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+                <polyline points="0,12 10,14 20,18 30,16 40,22 50,20 60,24 70,21 80,26 90,24 100,28"
+                  fill="none" stroke="var(--ok)" stroke-width="1.5"/>
+              </svg>
+              <div class="d"><span class="pos">▼ 6.1%</span> better</div>
+            </div>
+            <div class="spark-tile">
+              <div class="l">5xx rate</div>
+              <div class="v num" style="color:var(--err)">0.42%</div>
+              <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+                <polyline points="0,28 10,26 20,28 30,22 40,24 50,18 60,20 70,12 80,14 90,8 100,6"
+                  fill="none" stroke="var(--err)" stroke-width="1.5"/>
+              </svg>
+              <div class="d"><span class="neg">▲ 220%</span> spike at 14:30</div>
+            </div>
+            <div class="spark-tile">
+              <div class="l">Active users</div>
+              <div class="v num">8 412</div>
+              <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+                <polyline points="0,28 8,26 16,22 24,24 32,20 40,18 48,16 56,18 64,14 72,12 80,14 88,10 100,8"
+                  fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+              </svg>
+              <div class="d"><span class="pos">▲ 142</span> in 5 min</div>
+            </div>
+            <div class="spark-tile">
+              <div class="l">Queue depth</div>
+              <div class="v num">38</div>
+              <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+                <polyline points="0,8 10,12 20,10 30,16 40,14 50,20 60,18 70,22 80,20 90,24 100,22"
+                  fill="none" stroke="var(--text-muted)" stroke-width="1.5"/>
+              </svg>
+              <div class="d"><span class="pos">▼ 11</span> draining</div>
+            </div>
+            <div class="spark-tile">
+              <div class="l">Cost · MTD</div>
+              <div class="v num">$ 2 480</div>
+              <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+                <rect x="0"  y="22" width="6" height="10" fill="var(--accent)" opacity="0.5"/>
+                <rect x="10" y="20" width="6" height="12" fill="var(--accent)" opacity="0.55"/>
+                <rect x="20" y="18" width="6" height="14" fill="var(--accent)" opacity="0.6"/>
+                <rect x="30" y="20" width="6" height="12" fill="var(--accent)" opacity="0.65"/>
+                <rect x="40" y="14" width="6" height="18" fill="var(--accent)" opacity="0.7"/>
+                <rect x="50" y="16" width="6" height="16" fill="var(--accent)" opacity="0.75"/>
+                <rect x="60" y="12" width="6" height="20" fill="var(--accent)" opacity="0.8"/>
+                <rect x="70" y="10" width="6" height="22" fill="var(--accent)" opacity="0.85"/>
+                <rect x="80" y="8"  width="6" height="24" fill="var(--accent)" opacity="0.9"/>
+                <rect x="90" y="6"  width="6" height="26" fill="var(--accent)"/>
+              </svg>
+              <div class="d"><span class="neg">▲ $342</span> projected over budget</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="donuts">
+      <h2 class="lib-section-title">Donut breakdown</h2>
+      <p class="lib-section-sub">Used for a small set of categories (≤6) where each share matters. Same accent ramped through opacity — no rainbow.</p>
+      <div class="demo">
+        <div class="demo-label">Cost by service · April</div>
+        <div class="demo-body" style="display: block; padding: 24px">
+          <div class="donut-row">
+            <svg width="140" height="140" viewBox="0 0 42 42">
+              <circle cx="21" cy="21" r="15.91" fill="none" stroke="var(--bg-sunk)" stroke-width="6"/>
+              <circle cx="21" cy="21" r="15.91" fill="none" stroke="var(--accent)" stroke-width="6"
+                stroke-dasharray="38 100" stroke-dashoffset="25" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.91" fill="none" stroke="var(--accent)" stroke-width="6" opacity="0.7"
+                stroke-dasharray="24 100" stroke-dashoffset="-13" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.91" fill="none" stroke="var(--accent)" stroke-width="6" opacity="0.45"
+                stroke-dasharray="18 100" stroke-dashoffset="-37" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.91" fill="none" stroke="var(--accent)" stroke-width="6" opacity="0.25"
+                stroke-dasharray="12 100" stroke-dashoffset="-55" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.91" fill="none" stroke="var(--accent)" stroke-width="6" opacity="0.12"
+                stroke-dasharray="8 100" stroke-dashoffset="-67" transform="rotate(-90 21 21)"/>
+              <text x="21" y="20" text-anchor="middle" font-family="JetBrains Mono" font-size="6" font-weight="600" fill="var(--text)">$2 480</text>
+              <text x="21" y="26" text-anchor="middle" font-family="JetBrains Mono" font-size="3" fill="var(--text-dim)">total</text>
+            </svg>
+            <div class="legend" style="flex: 1; max-width: 360px">
+              <div class="lr"><span class="sw" style="background:var(--accent)"></span><span>Compute · EC2</span><span class="v">$ 942</span><span class="pc">38%</span></div>
+              <div class="lr"><span class="sw" style="background:var(--accent); opacity:0.7"></span><span>Storage · S3</span><span class="v">$ 595</span><span class="pc">24%</span></div>
+              <div class="lr"><span class="sw" style="background:var(--accent); opacity:0.45"></span><span>Database</span><span class="v">$ 446</span><span class="pc">18%</span></div>
+              <div class="lr"><span class="sw" style="background:var(--accent); opacity:0.25"></span><span>Network egress</span><span class="v">$ 298</span><span class="pc">12%</span></div>
+              <div class="lr"><span class="sw" style="background:var(--accent); opacity:0.12"></span><span>Other</span><span class="v">$ 199</span><span class="pc">8%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="json">
+      <h2 class="lib-section-title">JSON viewer</h2>
+      <p class="lib-section-sub">Collapsible by section. Keys, strings, numbers, and booleans are tinted but stay close to the page's neutral palette — no traffic-light syntax theme.</p>
+      <div class="demo">
+        <div class="demo-label">Webhook payload · order.created</div>
+        <div class="demo-body plain" style="padding: 16px">
+<div class="json"><span class="p">{</span>
+<span class="tw">▾</span>  <span class="k">"event"</span><span class="col">:</span> <span class="s">"order.created"</span><span class="p">,</span>
+<span class="tw">▾</span>  <span class="k">"id"</span><span class="col">:</span> <span class="s">"evt_3kQ7n2Lw8XaB"</span><span class="p">,</span>
+<span class="tw">▾</span>  <span class="k">"created_at"</span><span class="col">:</span> <span class="n">1714663812</span><span class="p">,</span>
+<span class="tw">▾</span>  <span class="k">"livemode"</span><span class="col">:</span> <span class="b">true</span><span class="p">,</span>
+<span class="tw">▾</span>  <span class="k">"data"</span><span class="col">:</span> <span class="p">{</span>
+<span class="tw">▾</span>    <span class="k">"order_id"</span><span class="col">:</span> <span class="s">"ord_8kQ2Lw"</span><span class="p">,</span>
+<span class="tw">▾</span>    <span class="k">"customer"</span><span class="col">:</span> <span class="p">{</span>
+       <span class="k">"id"</span><span class="col">:</span> <span class="s">"cus_4Ke9X2"</span><span class="p">,</span>
+       <span class="k">"email"</span><span class="col">:</span> <span class="s">"maya@acme.io"</span><span class="p">,</span>
+       <span class="k">"verified"</span><span class="col">:</span> <span class="b">true</span>
+     <span class="p">},</span>
+<span class="tw">▸</span>    <span class="k">"items"</span><span class="col">:</span> <span class="p">[ … </span><span class="col">3 items</span><span class="p"> ]</span><span class="p">,</span>
+     <span class="k">"total_cents"</span><span class="col">:</span> <span class="n">42 800</span><span class="p">,</span>
+     <span class="k">"currency"</span><span class="col">:</span> <span class="s">"USD"</span><span class="p">,</span>
+     <span class="k">"refunded"</span><span class="col">:</span> <span class="b">false</span>
+   <span class="p">}</span>
+<span class="p">}</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="tree">
+      <h2 class="lib-section-title">File tree</h2>
+      <p class="lib-section-sub">For source code, S3 buckets, config repos. Indent steps in 14px, monospace, with a faint chevron column on the left.</p>
+      <div class="demo">
+        <div class="demo-label">Project · web/</div>
+        <div class="demo-body" style="display: block">
+          <div class="tree" style="max-width: 360px">
+            <div class="t-row"><span class="chev">▾</span><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg><span class="nm">web</span><span class="meta">22 files</span></div>
+            <div class="t-row ind-1"><span class="chev">▾</span><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg><span class="nm">src</span></div>
+            <div class="t-row ind-2"><span class="chev">▸</span><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg><span class="nm">components</span><span class="meta">14</span></div>
+            <div class="t-row ind-2"><span class="chev">▾</span><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg><span class="nm">routes</span></div>
+            <div class="t-row ind-3"><span class="chev"></span><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nm">index.tsx</span><span class="meta">2.4 KB</span></div>
+            <div class="t-row ind-3 on"><span class="chev"></span><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nm">deploy.tsx</span><span class="meta">8.1 KB</span></div>
+            <div class="t-row ind-3"><span class="chev"></span><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nm">settings.tsx</span><span class="meta">5.7 KB</span></div>
+            <div class="t-row ind-2"><span class="chev"></span><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nm">app.tsx</span><span class="meta">1.2 KB</span></div>
+            <div class="t-row ind-1"><span class="chev">▸</span><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg><span class="nm">public</span><span class="meta">4</span></div>
+            <div class="t-row ind-1"><span class="chev"></span><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nm">package.json</span><span class="meta">1.8 KB</span></div>
+            <div class="t-row ind-1"><span class="chev"></span><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nm">tsconfig.json</span><span class="meta">412 B</span></div>
+            <div class="t-row ind-1"><span class="chev"></span><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nm">README.md</span><span class="meta">3.1 KB</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="mention">
+      <h2 class="lib-section-title">@-mention popover</h2>
+      <p class="lib-section-sub">Anchored to a textarea caret. Highlights the typed query inside each name, never as a full-row background.</p>
+      <div class="demo">
+        <div class="demo-label">Composing a comment</div>
+        <div class="demo-body" style="display: block">
+          <div style="position: relative; max-width: 480px">
+            <textarea class="textarea" rows="3" style="font-family: var(--font-ui); font-size: 13px">Loop in @ma — looks like the same regression as last week.</textarea>
+            <div class="mention-pop" style="margin-top: 8px">
+              <div class="mr on"><span class="avatar sm">MA</span><span class="h"><em>Ma</em>ya Patel</span><span class="s">@maya</span></div>
+              <div class="mr"><span class="avatar sm" style="background:linear-gradient(135deg,oklch(.7 .12 80),oklch(.5 .14 50))">MR</span><span class="h"><em>Ma</em>rco Reyes</span><span class="s">@marco</span></div>
+              <div class="mr"><span class="avatar sm" style="background:linear-gradient(135deg,oklch(.7 .12 320),oklch(.5 .14 290))">MA</span><span class="h"><em>Ma</em>ddie Chen</span><span class="s">@maddie</span></div>
+              <div class="mr"><span class="avatar sm" style="background:linear-gradient(135deg,oklch(.74 .1 160),oklch(.5 .14 180))">@T</span><span class="h"><em>@</em>team-platform</span><span class="s">12 ppl</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="qb">
+      <h2 class="lib-section-title">Query builder</h2>
+      <p class="lib-section-sub">Filter chips with field, operator, and value as separate visual tokens, joined by AND/OR conjunctions, with a dashed "+ rule" affordance.</p>
+      <div class="demo">
+        <div class="demo-label">Where clause</div>
+        <div class="demo-body" style="display: block">
+          <div class="qb">
+            <div class="grp">
+              <span class="key">status</span><span class="op">in</span><span class="val">running, queued</span>
+              <button class="x">×</button>
+            </div>
+            <span class="conj">and</span>
+            <div class="grp">
+              <span class="key">region</span><span class="op">=</span><span class="val">us-east-1</span>
+              <button class="x">×</button>
+            </div>
+            <span class="conj">and</span>
+            <div class="grp">
+              <span class="key">cpu</span><span class="op">&gt;</span><span class="val">70%</span>
+              <button class="x">×</button>
+            </div>
+            <span class="conj">or</span>
+            <div class="grp">
+              <span class="key">tag</span><span class="op">~</span><span class="val">payments</span>
+              <button class="x">×</button>
+            </div>
+            <button class="add">+ rule</button>
+          </div>
+          <div class="mono" style="font-size: 11px; color: var(--text-dim); margin-top: 10px; padding: 0 4px">
+            (status IN ['running','queued'] AND region = 'us-east-1' AND cpu &gt; 70%) OR tag ~ 'payments'
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="slider">
+      <h2 class="lib-section-title">Slider &amp; range</h2>
+      <p class="lib-section-sub">A 4px track, a 14px circular thumb, no per-tick numbers. The current value lives to the right of the track in mono.</p>
+      <div class="demo">
+        <div class="demo-label">Single &amp; dual-handle</div>
+        <div class="demo-body" style="display: block; gap: 22px">
+          <div class="v-stack" style="gap: 18px; max-width: 420px">
+            <div class="field">
+              <label>Memory limit</label>
+              <div class="range-row">
+                <input class="range" type="range" min="0" max="100" value="64">
+                <span class="range-out num">64 GB</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Auto-scale window</label>
+              <div class="range-row">
+                <div class="range-track">
+                  <span class="t"></span>
+                  <span class="f" style="left: 25%; width: 45%"></span>
+                  <span class="h" style="left: 25%"></span>
+                  <span class="h" style="left: 70%"></span>
+                </div>
+                <span class="range-out num" style="min-width:80px">2 → 12</span>
+              </div>
+              <div class="hint">Cluster scales between 2 and 12 nodes based on CPU pressure.</div>
+            </div>
+            <div class="field">
+              <label>Quality</label>
+              <div class="range-row">
+                <input class="range" type="range" min="0" max="100" value="92">
+                <span class="range-out num">92</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="audit">
+      <h2 class="lib-section-title">Audit feed</h2>
+      <p class="lib-section-sub">Three columns: timestamp, action, who. The verb token (created / deleted / approved) carries the only color, so the eye lands there first.</p>
+      <div class="demo">
+        <div class="demo-label">Last 30 minutes · org/clound</div>
+        <div class="demo-body plain" style="padding: 14px">
+          <div class="audit">
+            <div class="a-row">
+              <span class="ts">14:42:18</span>
+              <span><span class="verb ok">created</span> Service <span class="mono" style="color:var(--text)">api-gateway</span> in <span class="mono" style="color:var(--text)">us-east-1</span></span>
+              <span class="who"><span class="avatar sm">MA</span>maya</span>
+            </div>
+            <div class="a-row">
+              <span class="ts">14:39:02</span>
+              <span><span class="verb">updated</span> Secret <span class="mono" style="color:var(--text)">stripe.api_key</span> rotated</span>
+              <span class="who"><span class="avatar sm" style="background:linear-gradient(135deg,oklch(.7 .12 80),oklch(.5 .14 50))">MR</span>marco</span>
+            </div>
+            <div class="a-row">
+              <span class="ts">14:35:54</span>
+              <span><span class="verb warn">scaled</span> ReplicaSet <span class="mono" style="color:var(--text)">ingest-w</span> 4 → 12</span>
+              <span class="who"><span class="avatar sm" style="background:linear-gradient(135deg,oklch(.7 .1 160),oklch(.5 .14 180))">SY</span>autoscaler</span>
+            </div>
+            <div class="a-row">
+              <span class="ts">14:21:09</span>
+              <span><span class="verb err">denied</span> IAM grant <span class="mono" style="color:var(--text)">db.write</span> for <span class="mono" style="color:var(--text)">@contractor-3</span></span>
+              <span class="who"><span class="avatar sm" style="background:linear-gradient(135deg,oklch(.7 .12 320),oklch(.5 .14 290))">MA</span>maddie</span>
+            </div>
+            <div class="a-row">
+              <span class="ts">14:14:33</span>
+              <span><span class="verb ok">approved</span> Pull request <span class="mono" style="color:var(--text)">#482 · patch rate-limit regression</span></span>
+              <span class="who"><span class="avatar sm">MA</span>maya</span>
+            </div>
+            <div class="a-row">
+              <span class="ts">14:08:21</span>
+              <span><span class="verb">deployed</span> <span class="mono" style="color:var(--text)">api-gateway@v142</span> to staging</span>
+              <span class="who"><span class="avatar sm" style="background:linear-gradient(135deg,oklch(.7 .1 160),oklch(.5 .14 180))">CI</span>github-ci</span>
+            </div>
+            <div class="a-row">
+              <span class="ts">14:03:00</span>
+              <span><span class="verb err">deleted</span> Database snapshot <span class="mono" style="color:var(--text)">db-2026-04-30</span></span>
+              <span class="who"><span class="avatar sm" style="background:linear-gradient(135deg,oklch(.7 .12 80),oklch(.5 .14 50))">MR</span>marco</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="comments">
+      <h2 class="lib-section-title">Comments thread</h2>
+      <p class="lib-section-sub">Avatar, name, timestamp, body. Replies indent once. Highlight @-mentions with the accent — never with a full-row background.</p>
+      <div class="demo">
+        <div class="demo-label">Incident #INC-482 · timeline</div>
+        <div class="demo-body plain" style="padding: 4px 18px">
+          <div class="cmt">
+            <span class="avatar">MA</span>
+            <div class="body">
+              <div class="head"><b>Maya Patel</b><span class="ts">14:21 · 8 min ago</span></div>
+              <div class="text">Same signature as last week — <mark>@marco</mark> is this the rate-limit middleware again? I can repro on canary in &lt;30s.</div>
+              <div class="actions"><a href="#">Reply</a><a href="#">React</a><a href="#">Resolve</a></div>
+            </div>
+          </div>
+          <div class="cmt cmt-reply">
+            <span class="avatar" style="background:linear-gradient(135deg,oklch(.7 .12 80),oklch(.5 .14 50))">MR</span>
+            <div class="body">
+              <div class="head"><b>Marco Reyes</b><span class="ts">14:24 · 5 min ago</span></div>
+              <div class="text">Yep, regression from <span class="mono" style="background:var(--bg-sunk);padding:1px 4px;border-radius:3px;font-size:11.5px">#479</span>. Patch coming, will hold the deploy.</div>
+              <div class="actions"><a href="#">Reply</a><a href="#">React 👀 2</a></div>
+            </div>
+          </div>
+          <div class="cmt">
+            <span class="avatar" style="background:linear-gradient(135deg,oklch(.7 .12 320),oklch(.5 .14 290))">MA</span>
+            <div class="body">
+              <div class="head"><b>Maddie Chen</b><span class="ts">14:30 · 1 min ago</span></div>
+              <div class="text">Status page updated — degraded for checkout, ETA 15 min. Following up.</div>
+              <div class="actions"><a href="#">Reply</a><a href="#">React</a></div>
+            </div>
+          </div>
+          <div class="cmt" style="border-bottom: 0; padding-bottom: 16px">
+            <span class="avatar sm" style="background: var(--bg-sunk); color: var(--text-dim); border: 1px dashed var(--line-strong)">+</span>
+            <div class="body" style="border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--bg-elev)">
+              <textarea class="textarea" rows="2" placeholder="Reply… use @ to mention" style="border: 0; padding: 0; min-height: 0; font-size: 13px"></textarea>
+              <div class="spread" style="margin-top: 4px">
+                <div class="row" style="gap: 4px; color: var(--text-dim); font-size: 11px">
+                  <button class="btn xs ghost" title="Code"><span class="mono">{ }</span></button>
+                  <button class="btn xs ghost" title="Attach">＠</button>
+                </div>
+                <div class="row" style="gap: 6px"><span class="kbd">⌘</span><span class="kbd">↵</span><button class="btn xs primary">Comment</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="notif">
+      <h2 class="lib-section-title">Notification center</h2>
+      <p class="lib-section-sub">A right-side dropdown from the bell icon. Unread items get a blue dot and a slightly heavier title — never a colored background.</p>
+      <div class="demo">
+        <div class="demo-label">Bell · all events</div>
+        <div class="demo-body" style="display: block">
+          <div style="max-width: 380px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-md); overflow: hidden">
+            <div class="spread" style="padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--panel)">
+              <b style="font-size: 13px">Notifications</b>
+              <div class="row" style="gap: 4px">
+                <button class="btn xs ghost">Mark all read</button>
+                <button class="btn xs ghost icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-7-7"/></svg></button>
+              </div>
+            </div>
+            <div class="seg" style="margin: 8px 10px 0">
+              <button class="on">All <span class="mono" style="opacity:.7;margin-left:4px">14</span></button>
+              <button>Mentions <span class="mono" style="opacity:.7;margin-left:4px">3</span></button>
+              <button>Alerts <span class="mono" style="opacity:.7;margin-left:4px">2</span></button>
+            </div>
+            <div style="padding: 8px 0 0">
+              <div class="notif unread">
+                <div class="ico err"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 4 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/></svg></div>
+                <div class="body">
+                  <div class="ttl">P1 · 5xx spike in <span class="mono">api-gateway</span></div>
+                  <div class="sub">Error rate 0.42% · breached 0.20% threshold for 4 min</div>
+                  <span class="ts">2 min ago</span>
+                </div>
+              </div>
+              <div class="notif unread">
+                <div class="ico"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                <div class="body">
+                  <div class="ttl"><b>@maya</b> mentioned you in <span class="mono">INC-482</span></div>
+                  <div class="sub">"…is this the rate-limit middleware again?"</div>
+                  <span class="ts">8 min ago</span>
+                </div>
+              </div>
+              <div class="notif unread">
+                <div class="ico ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="body">
+                  <div class="ttl">Deploy succeeded · <span class="mono">api-gateway@v142</span></div>
+                  <div class="sub">Staging · 1 m 12 s · all health checks passing</div>
+                  <span class="ts">14 min ago</span>
+                </div>
+              </div>
+              <div class="notif">
+                <div class="ico warn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div>
+                <div class="body">
+                  <div class="ttl">Budget at 84% for May</div>
+                  <div class="sub">Compute · projected to exceed by $342 if usage holds</div>
+                  <span class="ts">an hour ago</span>
+                </div>
+              </div>
+              <div class="notif">
+                <div class="ico"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+                <div class="body">
+                  <div class="ttl">Marco invited you to <span class="mono">platform/staging</span></div>
+                  <div class="sub">Role: Operator · expires in 30 days</div>
+                  <span class="ts">3 hours ago</span>
+                </div>
+              </div>
+            </div>
+            <div class="spread" style="padding: 10px 14px; border-top: 1px solid var(--line); background: var(--bg-sunk)">
+              <a href="#" style="font-size: 11.5px; color: var(--accent-ink)">See all notifications →</a>
+              <span class="mono" style="font-size: 10.5px; color: var(--text-dim)">Press G then N</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="empty">
+      <h2 class="lib-section-title">Empty states</h2>
+      <p class="lib-section-sub">Three flavors — no data yet, filtered to nothing, and an error. Each leads with one primary action; nothing speculative.</p>
+      <div class="demo">
+        <div class="demo-label">Three flavors</div>
+        <div class="demo-body" style="display: block; padding: 18px">
+          <div class="grid-3">
+            <div class="empty card" style="padding: 32px 24px">
+              <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+              <h3>No services yet</h3>
+              <p>Spin up the first service to see traffic, logs, and resource metrics here.</p>
+              <div class="row" style="justify-content: center; gap: 8px">
+                <button class="btn primary">+ New service</button>
+                <button class="btn ghost">Read docs</button>
+              </div>
+            </div>
+            <div class="empty card" style="padding: 32px 24px">
+              <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+              <h3>No matches</h3>
+              <p>No services match <span class="mono" style="background:var(--bg-sunk);padding:1px 4px;border-radius:3px">"checkou"</span> in <span class="mono">us-east-1</span>.</p>
+              <div class="row" style="justify-content: center; gap: 8px">
+                <button class="btn">Clear filters</button>
+                <button class="btn ghost">Search all regions</button>
+              </div>
+            </div>
+            <div class="empty card" style="padding: 32px 24px">
+              <div class="glyph" style="border-color: color-mix(in oklch, var(--err) 40%, transparent); color: var(--err)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.3 4 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+              </div>
+              <h3>Couldn't load metrics</h3>
+              <p>The metrics endpoint timed out after 8 s. Last successful fetch was 3 min ago.</p>
+              <div class="row" style="justify-content: center; gap: 8px">
+                <button class="btn primary">Retry</button>
+                <button class="btn ghost">Status page →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="health">
+      <h2 class="lib-section-title">Resource health</h2>
+      <p class="lib-section-sub">Two ways to summarize a service's last hour: a tiny multi-bar history, or a row of meters per resource.</p>
+      <div class="demo">
+        <div class="demo-label">Bar history · last 24 h</div>
+        <div class="demo-body" style="display: block">
+          <div class="grid-2" style="grid-template-columns: 1fr 1fr; align-items: stretch">
+            <div class="card" style="padding: 14px 16px">
+              <div class="spread" style="margin-bottom: 10px">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600">api-gateway</div>
+                  <div style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono)">99.94% · 1 m 12 s downtime</div>
+                </div>
+                <span class="pill ok"><span class="dotc"></span>healthy</span>
+              </div>
+              <div class="health">
+                <span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+                <span class="ok"></span><span class="warn"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+                <span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+                <span class="ok"></span><span class="ok"></span><span class="warn"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+              </div>
+              <div class="spread" style="margin-top: 6px; font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">
+                <span>24h ago</span><span>now</span>
+              </div>
+            </div>
+            <div class="card" style="padding: 14px 16px">
+              <div class="spread" style="margin-bottom: 10px">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600">ingest-worker</div>
+                  <div style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono)">98.12% · ongoing memory pressure</div>
+                </div>
+                <span class="pill warn"><span class="dotc"></span>degraded</span>
+              </div>
+              <div class="health">
+                <span class="ok"></span><span class="ok"></span><span class="warn"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+                <span class="ok"></span><span class="warn"></span><span class="warn"></span><span class="ok"></span><span class="ok"></span><span class="ok"></span>
+                <span class="ok"></span><span class="ok"></span><span class="warn"></span><span class="err"></span><span class="warn"></span><span class="ok"></span>
+                <span class="ok"></span><span class="warn"></span><span class="warn"></span><span class="warn"></span><span class="warn"></span><span class="warn"></span>
+              </div>
+              <div class="spread" style="margin-top: 6px; font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono)">
+                <span>24h ago</span><span>now</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-label">Per-resource meters</div>
+        <div class="demo-body" style="display: block">
+          <div class="card" style="padding: 14px 16px; max-width: 520px">
+            <div class="spread" style="margin-bottom: 10px">
+              <div style="font-size: 13px; font-weight: 600">db-primary</div>
+              <span class="mono" style="font-size: 10.5px; color: var(--text-dim)">us-east-1c · m6i.4xlarge</span>
+            </div>
+            <div class="grid-2" style="gap: 10px 24px">
+              <div>
+                <div class="spread" style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px"><span>CPU</span><span class="mono num">42%</span></div>
+                <div class="meter ok"><span style="width: 42%"></span></div>
+              </div>
+              <div>
+                <div class="spread" style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px"><span>Memory</span><span class="mono num">68%</span></div>
+                <div class="meter"><span style="width: 68%"></span></div>
+              </div>
+              <div>
+                <div class="spread" style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px"><span>Disk</span><span class="mono num">27%</span></div>
+                <div class="meter ok"><span style="width: 27%"></span></div>
+              </div>
+              <div>
+                <div class="spread" style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px"><span>Connections</span><span class="mono num">88%</span></div>
+                <div class="meter warn"><span style="width: 88%"></span></div>
+              </div>
+              <div>
+                <div class="spread" style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px"><span>Replication lag</span><span class="mono num">12ms</span></div>
+                <div class="meter ok"><span style="width: 8%"></span></div>
+              </div>
+              <div>
+                <div class="spread" style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px"><span>IOPS</span><span class="mono num">94%</span></div>
+                <div class="meter err"><span style="width: 94%"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="settings-rows">
+      <h2 class="lib-section-title">Settings rows</h2>
+      <p class="lib-section-sub">A title + helper on the left, control on the right. Switches sit right of the helper text — never above the title.</p>
+      <div class="demo">
+        <div class="demo-label">Account · security</div>
+        <div class="demo-body" style="display: block">
+          <div class="card" style="padding: 0 18px; max-width: 720px">
+            <div class="stg-row">
+              <div>
+                <div class="lbl">Two-factor authentication</div>
+                <div class="help">Required for production-environment access. We support TOTP, hardware keys, and Apple/Google passkeys.</div>
+              </div>
+              <div class="ctrl">
+                <span class="pill ok"><span class="dotc"></span>Enabled · TOTP</span>
+                <button class="btn sm">Manage</button>
+              </div>
+            </div>
+            <div class="stg-row">
+              <div>
+                <div class="lbl">Session inactivity timeout</div>
+                <div class="help">Sign you out after this many minutes of no activity. Org policy mandates ≤ 60.</div>
+              </div>
+              <div class="ctrl">
+                <select class="select sm" style="width: auto"><option>15 min</option><option selected>30 min</option><option>60 min</option></select>
+              </div>
+            </div>
+            <div class="stg-row">
+              <div>
+                <div class="lbl">Approve risky actions in Slack</div>
+                <div class="help">Destructive deploys and IAM changes get a one-click approval card in <span class="mono">#platform-ops</span>.</div>
+              </div>
+              <div class="ctrl">
+                <input type="checkbox" class="switch" checked>
+              </div>
+            </div>
+            <div class="stg-row">
+              <div>
+                <div class="lbl">Trusted devices</div>
+                <div class="help">Devices that bypass the second factor for 30 days. Revoke any time.</div>
+              </div>
+              <div class="ctrl">
+                <span style="font-size: 12px; color: var(--text-muted)">3 active</span>
+                <button class="btn sm">Review</button>
+              </div>
+            </div>
+            <div class="stg-row" style="grid-template-columns: 1fr auto">
+              <div>
+                <div class="lbl" style="color: var(--err)">Delete account</div>
+                <div class="help">Permanent. Removes all 14 environments and 218 services. Cannot be undone.</div>
+              </div>
+              <div class="ctrl">
+                <button class="btn sm danger">Delete…</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="ribbon">
+      <h2 class="lib-section-title">Status ribbon</h2>
+      <p class="lib-section-sub">A persistent strip — at the top of a region detail page or service summary — that conveys live operational state. The dot pulses on live, holds steady on resolved.</p>
+      <div class="demo">
+        <div class="demo-label">Three states</div>
+        <div class="demo-body" style="display: block">
+          <div class="v-stack" style="max-width: 580px">
+            <div class="ribbon live"><span class="pulse"></span><b>All systems operational</b><span style="margin-left: auto; font-family: var(--font-mono); font-size: 11px; opacity: 0.8">99.94% over 30d</span></div>
+            <div class="ribbon deg"><span class="pulse"></span><b>Degraded performance · checkout</b><span style="margin-left: auto; font-family: var(--font-mono); font-size: 11px; opacity: 0.8">since 14:31 · investigating</span></div>
+            <div class="ribbon out"><span class="pulse"></span><b>Major outage · payments / EU-west</b><span style="margin-left: auto; font-family: var(--font-mono); font-size: 11px; opacity: 0.8">42 min · ETA &lt; 15 min</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="colorpicker">
+      <h2 class="lib-section-title">Color picker</h2>
+      <p class="lib-section-sub">Used for branding controls — service color tags, dashboard widget tints. Always shows the current value as both swatch and hex.</p>
+      <div class="demo">
+        <div class="demo-label">Picker · with recent swatches</div>
+        <div class="demo-body" style="display: block">
+          <div class="cp">
+            <div class="grad"><div class="pt"></div></div>
+            <div class="hue"><div class="pt"></div></div>
+            <div class="swatches">
+              <div class="sw" style="background: oklch(0.62 0.18 22)"></div>
+              <div class="sw" style="background: oklch(0.70 0.16 60)"></div>
+              <div class="sw" style="background: oklch(0.74 0.15 95)"></div>
+              <div class="sw" style="background: oklch(0.66 0.16 145)"></div>
+              <div class="sw" style="background: oklch(0.62 0.14 200)"></div>
+              <div class="sw" style="background: oklch(0.62 0.16 230); box-shadow: 0 0 0 1.5px var(--accent), inset 0 0 0 1px white"></div>
+              <div class="sw" style="background: oklch(0.55 0.18 280)"></div>
+              <div class="sw" style="background: oklch(0.60 0.16 320)"></div>
+            </div>
+            <div class="vals">
+              <div class="input-group" style="height: 26px">
+                <span class="affix">#</span>
+                <input class="input mono sm" value="3B82C9" style="border:0;background:transparent">
+              </div>
+              <div style="display: grid; place-items: center; border: 1px solid var(--line); border-radius: 6px; background: oklch(0.62 0.16 230); height: 26px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="cookies">
+      <h2 class="lib-section-title">Cookie / consent banner</h2>
+      <p class="lib-section-sub">Honest, brief, and never blocks the page. Essential cookies don't ask for permission; everything else does.</p>
+      <div class="demo">
+        <div class="demo-label">Bottom-anchored card</div>
+        <div class="demo-body" style="display: block; padding: 24px">
+          <div class="cookies">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.4"><circle cx="12" cy="12" r="10"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="11" r="1"/><circle cx="11" cy="15" r="1"/></svg>
+            <div class="body">
+              <b>We use minimal cookies</b>
+              Essential for sign-in and preferences. Optional analytics help us tune the console — never sold, never shared.
+              <a href="#" style="color: var(--accent-ink); margin-left: 4px">Read what we collect →</a>
+            </div>
+            <div class="row" style="gap: 6px">
+              <button class="btn sm ghost">Reject</button>
+              <button class="btn sm">Settings</button>
+              <button class="btn sm primary">Accept all</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="chips">
+      <h2 class="lib-section-title">Filter chips with counts</h2>
+      <p class="lib-section-sub">Each chip carries the value and the matching-row count. A click toggles it; the active chip flips to the accent.</p>
+      <div class="demo">
+        <div class="demo-label">Filter strip · over 1 218 services</div>
+        <div class="demo-body" style="display: block">
+          <div class="chips">
+            <button class="chip-c on">All<span class="c">1218</span></button>
+            <button class="chip-c">Healthy<span class="c">1172</span></button>
+            <button class="chip-c">Degraded<span class="c">38</span></button>
+            <button class="chip-c">Down<span class="c">8</span></button>
+            <button class="chip-c">Production<span class="c">412</span></button>
+            <button class="chip-c">Staging<span class="c">348</span></button>
+            <button class="chip-c">us-east-1<span class="c">514</span></button>
+            <button class="chip-c">eu-west-1<span class="c">288</span></button>
+            <button class="chip-c">Has alerts<span class="c">14</span></button>
+            <button class="chip-c">Recently deployed<span class="c">22</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="minimap">
+      <h2 class="lib-section-title">Mini map</h2>
+      <p class="lib-section-sub">For long timelines, dense canvases, or scrollable diagrams — a tiny overview with a draggable viewport rectangle. Reuses the same accent.</p>
+      <div class="demo">
+        <div class="demo-label">Architecture canvas overview</div>
+        <div class="demo-body" style="gap: 18px; align-items: flex-start">
+          <div class="minimap">
+            <div class="blk" style="left: 8%;  top: 14%; width: 18%; height: 16%"></div>
+            <div class="blk" style="left: 32%; top: 12%; width: 22%; height: 18%"></div>
+            <div class="blk" style="left: 60%; top: 16%; width: 14%; height: 14%"></div>
+            <div class="blk" style="left: 12%; top: 42%; width: 26%; height: 12%"></div>
+            <div class="blk" style="left: 44%; top: 48%; width: 18%; height: 14%"></div>
+            <div class="blk" style="left: 68%; top: 44%; width: 22%; height: 16%"></div>
+            <div class="blk" style="left: 16%; top: 70%; width: 22%; height: 12%"></div>
+            <div class="blk" style="left: 46%; top: 72%; width: 16%; height: 12%"></div>
+            <div class="vp" style="left: 35%; top: 35%; width: 36%; height: 38%"></div>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); max-width: 320px; line-height: 1.55">
+            The dimmed blocks represent service nodes anywhere in the canvas. The accent rectangle is the visible viewport — drag it to pan, or click anywhere to recenter.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <section id="kbd-cheats">
+      <h2 class="lib-section-title">Shortcuts cheatsheet</h2>
+      <p class="lib-section-sub">Press <span class="kbd">?</span> anywhere. A two-column cheatsheet listed by area, monospace verbs and accent-tinted section headers.</p>
+      <div class="demo">
+        <div class="demo-label">Cheatsheet sheet</div>
+        <div class="demo-body" style="display: block">
+          <div class="card" style="padding: 18px 22px; max-width: 720px">
+            <div class="grid-2" style="gap: 28px 48px">
+              <div>
+                <div style="font-size: 10px; color: var(--accent-ink); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--line); margin-bottom: 6px">Global</div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Open command palette</span><div class="row" style="gap:3px"><span class="kbd">⌘</span><span class="kbd">K</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Search anything</span><div class="row" style="gap:3px"><span class="kbd">/</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Go to deployments</span><div class="row" style="gap:3px"><span class="kbd">G</span><span class="kbd">D</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Go to logs</span><div class="row" style="gap:3px"><span class="kbd">G</span><span class="kbd">L</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Notifications</span><div class="row" style="gap:3px"><span class="kbd">G</span><span class="kbd">N</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>This cheatsheet</span><div class="row" style="gap:3px"><span class="kbd">?</span></div></div>
+              </div>
+              <div>
+                <div style="font-size: 10px; color: var(--accent-ink); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--line); margin-bottom: 6px">In a service</div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Tail logs</span><div class="row" style="gap:3px"><span class="kbd">L</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Open shell</span><div class="row" style="gap:3px"><span class="kbd">⇧</span><span class="kbd">S</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Restart</span><div class="row" style="gap:3px"><span class="kbd">⌘</span><span class="kbd">R</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Promote to prod</span><div class="row" style="gap:3px"><span class="kbd">⌘</span><span class="kbd">⇧</span><span class="kbd">P</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Rollback</span><div class="row" style="gap:3px"><span class="kbd">⌘</span><span class="kbd">⇧</span><span class="kbd">←</span></div></div>
+                <div class="spread" style="font-size: 12.5px; padding: 5px 0"><span>Snapshot DB</span><div class="row" style="gap:3px"><span class="kbd">⌘</span><span class="kbd">B</span></div></div>
+              </div>
+            </div>
+            <div class="spread" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 11px; color: var(--text-dim)">
+              <span>Press <span class="kbd">esc</span> to close</span>
+              <span class="mono">v0.9 · 18 shortcuts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div style="margin-top: 60px; padding: 16px 18px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-dim)">
+      <span>End of part 10.</span>
+      <a class="lib-link" href="index.html" style="padding: 6px 10px; border-radius: 6px">↑ Back to overview</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.lib-tools button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.theme = b.dataset.theme;
+    document.querySelectorAll('.lib-tools button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+
+  // Range output sync
+  document.querySelectorAll('.range').forEach(r => {
+    const out = r.parentElement.querySelector('.range-out');
+    if (!out) return;
+    const fmt = out.textContent.trim();
+    const suffix = fmt.replace(/[\d.,\s-]+/g, '').trim();
+    r.addEventListener('input', () => {
+      out.textContent = r.value + (suffix ? ' ' + suffix : '');
+    });
+  });
+
+  // Mention popover · live filter as user types after @
+  const ta = document.querySelector('#mention textarea');
+  const pop = document.querySelector('#mention .mention-pop');
+  if (ta && pop) {
+    ta.addEventListener('input', () => {
+      const m = ta.value.match(/@([\w-]*)$/);
+      const q = m ? m[1].toLowerCase() : '';
+      pop.querySelectorAll('.mr').forEach(r => {
+        const h = r.querySelector('.h').textContent.toLowerCase();
+        const s = r.querySelector('.s').textContent.toLowerCase();
+        const show = !q || h.includes(q) || s.includes(q);
+        r.style.display = show ? '' : 'none';
+      });
+      pop.querySelectorAll('.mr').forEach(r => r.classList.remove('on'));
+      const first = pop.querySelector('.mr:not([style*="display: none"])');
+      if (first) first.classList.add('on');
+    });
+  }
+</script>
+</body>
+</html>

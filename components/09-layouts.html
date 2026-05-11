@@ -238,10 +238,16 @@
       <a class="lib-link" href="06-advanced.html">06 · Advanced controls</a>
       <a class="lib-link" href="07-more.html">07 · More components</a>
       <a class="lib-link" href="08-compositions.html">08 · Compositions</a>
+
+      <a class="lib-link" href="09-layouts.html">09 · App layouts</a>
+
+      <a class="lib-link" href="10-patterns.html">10 · More patterns</a>
+      <a class="lib-link" href="11-tables.html">11 · Tables &amp; filters</a>
       <a class="lib-link active" href="09-layouts.html">09 · App layouts</a>
     </div>
     <div class="lib-section">
       <div class="lib-title">This page</div>
+      <a class="lib-link" href="#shell">Workspace shell</a>
       <a class="lib-link" href="#cmd-center">Command center</a>
       <a class="lib-link" href="#three-pane">Three-pane app</a>
       <a class="lib-link" href="#ide">IDE shell</a>
@@ -370,6 +376,168 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- ──────── Workspace shell ──────── -->
+    <style>
+      /* Workspace shell — outer 3-layer scaffold (rail + bar + optional side) */
+      .ws { display: grid; grid-template-columns: 44px 1fr; min-height: 540px; background: var(--bg); font-size: 12.5px; position: relative; }
+      .ws-rail { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 1px; }
+      .ws-rail .lg { width: 26px; height: 26px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), var(--accent-ink)); display: grid; place-items: center; color: white; font-family: var(--font-mono); font-weight: 600; font-size: 10.5px; margin-bottom: 6px; flex-shrink: 0; }
+      .ws-rail .rbtn { width: 30px; height: 30px; display: grid; place-items: center; border: 0; background: transparent; border-radius: 6px; color: var(--text-muted); cursor: pointer; position: relative; }
+      .ws-rail .rbtn:hover { background: var(--bg-sunk); color: var(--text); }
+      .ws-rail .rbtn.on { background: color-mix(in oklch, var(--accent) 14%, transparent); color: var(--accent-ink); }
+      .ws-rail .rbtn svg { width: 14px; height: 14px; stroke-width: 1.6; }
+      .ws-rail .rbtn .dot { position: absolute; top: 6px; right: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--err); }
+      .ws-rail .sp { flex: 1; }
+
+      .ws-body { display: grid; grid-template-rows: auto auto 1fr; min-width: 0; }
+      .ws-bar { display: flex; align-items: stretch; gap: 3px; padding: 0 10px; border-bottom: 1px solid var(--line); background: var(--bg-elev); height: 40px; }
+      .ws-bar .app { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 12.5px; padding-right: 10px; margin-right: 4px; border-right: 1px solid var(--line); }
+      .ws-bar .app .ic { width: 19px; height: 19px; display: grid; place-items: center; border-radius: 4px; color: white; flex-shrink: 0; }
+      .ws-bar .app .ic svg { width: 11px; height: 11px; }
+      .ws-bar .nav-tabs { display: flex; gap: 0; align-self: stretch; }
+      .ws-bar .nav-tabs a { display: flex; align-items: center; padding: 0 11px; font-size: 12.5px; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+      .ws-bar .nav-tabs a:hover { color: var(--text); }
+      .ws-bar .nav-tabs a.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+      .ws-bar .right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+      .ws-bar .right .fab-new { width: 24px; height: 24px; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--accent); color: white; cursor: pointer; }
+      .ws-bar .right .fab-new svg { width: 12px; height: 12px; }
+      .ws-bar .right .av-btn { width: 24px; height: 24px; border: 0; padding: 0; background: transparent; cursor: pointer; position: relative; }
+      .ws-bar .right .nbtn { width: 24px; height: 24px; border: 0; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; position: relative; display: grid; place-items: center; }
+      .ws-bar .right .nbtn svg { width: 13px; height: 13px; }
+      .ws-bar .right .nbtn:hover { background: var(--bg-sunk); color: var(--text); }
+      .ws-bar .right .nbtn .badge { position: absolute; top: 1px; right: 0; font-size: 9px; padding: 1px 4px; border-radius: 6px; background: var(--err); color: white; line-height: 1.2; font-weight: 600; }
+
+      .ws-sub { display: flex; align-items: center; gap: 18px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--bg-elev); height: 34px; position: relative; }
+      .ws-sub a { font-size: 12.5px; color: var(--text-muted); cursor: pointer; padding: 0; }
+      .ws-sub a:hover { color: var(--text); }
+      .ws-sub a.on { color: var(--accent); font-weight: 500; position: relative; }
+      .ws-sub a.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -10px; height: 2px; background: var(--accent); border-radius: 1px; }
+      .ws-sub .grow { flex: 1; }
+
+      .ws-main { display: grid; grid-template-columns: 196px 1fr; min-height: 0; }
+      .ws-main.no-side { grid-template-columns: 1fr; }
+      .ws-side { border-right: 1px solid var(--line); background: var(--bg-elev); padding: 8px 6px; overflow: auto; }
+      .ws-side .grp { font-size: 11px; color: var(--text-dim); padding: 8px 8px 3px; display: flex; align-items: center; justify-content: space-between; font-weight: 500; }
+      .ws-side .grp svg { width: 10px; height: 10px; opacity: 0.6; cursor: pointer; }
+      .ws-side .nv { display: flex; align-items: center; gap: 7px; padding: 5px 8px; border-radius: 4px; color: var(--text-muted); cursor: pointer; font-size: 12.5px; line-height: 1.4; }
+      .ws-side .nv:hover { background: var(--bg-sunk); color: var(--text); }
+      .ws-side .nv.on { background: color-mix(in oklch, var(--accent) 12%, transparent); color: var(--accent-ink); font-weight: 500; }
+      .ws-side .nv svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; flex-shrink: 0; }
+      .ws-side .nv .cnt { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); }
+      .ws-side .greet { padding: 4px 6px 10px; }
+      .ws-side .greet .ln { display: flex; align-items: center; gap: 8px; }
+      .ws-side .greet .nm b { display: block; font-size: 12.5px; color: var(--text); font-weight: 500; }
+      .ws-side .greet .nm .d { font-size: 10.5px; color: var(--text-dim); font-family: var(--font-mono); margin-top: 1px; }
+      .ws-side .greet .pills { display: flex; gap: 5px; margin-top: 8px; }
+      .ws-side .greet .pills .p { flex: 1; height: 22px; border: 1px solid var(--line); border-radius: 11px; font-size: 10.5px; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+      .ws-side .greet .pills .p b { color: var(--text); font-family: var(--font-mono); }
+
+      .ws-content { padding: 18px 22px; overflow: auto; min-width: 0; background: var(--bg); }
+      .ws-content h3 { font-size: 15px; font-weight: 600; margin: 0 0 12px; letter-spacing: -0.01em; }
+      .ws-content .sec { margin-bottom: 22px; }
+      .ws-content .empty-art { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 28px 0; color: var(--text-dim); font-size: 11.5px; }
+      .ws-content .empty-art .ill { width: 76px; height: 60px; opacity: 0.7; }
+      .ws-fab { position: absolute; right: 18px; bottom: 14px; height: 32px; padding: 0 13px; border-radius: 16px; background: var(--accent); color: white; font-size: 12px; border: 0; display: inline-flex; align-items: center; gap: 6px; box-shadow: var(--shadow-lg); cursor: pointer; font-weight: 500; }
+      .ws-fab svg { width: 12px; height: 12px; stroke-width: 2; }
+      .ws-bot-l { position: absolute; left: 7px; bottom: 10px; display: flex; flex-direction: column; gap: 1px; align-items: center; }
+      .ws-bot-l .rbtn { width: 30px; height: 30px; }
+      .ws-search { width: 200px; height: 26px; padding: 0 7px 0 26px; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 5px; font: inherit; font-size: 12px; color: var(--text); position: relative; }
+      .ws-search-wrap { position: relative; margin-right: 3px; }
+      .ws-search-wrap > svg { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--text-dim); width: 11px; height: 11px; pointer-events: none; }
+      .ws-search-wrap .kfn { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 9.5px; color: var(--text-dim); font-family: var(--font-mono); }
+    </style>
+
+    <section id="shell">
+      <h2 class="lib-section-title">Workspace shell</h2>
+      <p class="lib-section-sub">Three-layer outer scaffold seen across most product apps: a slim 52px icon rail (workspace switcher) + an app bar (icon · name · in-app tabs · global tools) + an optional 232px side panel for the app's own navigation. The three layers compose — each app turns side / sub-tab on or off based on its information depth, but the rail and bar stay identical.</p>
+
+      <!-- Admin console — Role maintenance (1:1 structural reference using our tokens) -->
+      <div class="demo">
+        <div class="demo-label">Admin console · members tab — rail + bar(tabs) + side(grouped) + table</div>
+        <div class="demo-body page">
+          <div class="ws">
+            <div class="ws-rail">
+              <div class="lg">NC</div>
+              <button class="rbtn" title="工作台"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></button>
+              <button class="rbtn on" title="管理后台"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a4 4 0 1 0-5 5l-7.4 7.4a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0L12.7 14a4 4 0 0 0 5-5z"/></svg></button>
+              <button class="rbtn" title="文档"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
+              <button class="rbtn" title="实验室"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 2v6L4 20a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-6-12V2"/></svg></button>
+              <button class="rbtn" title="应用"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="5" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="19" cy="5" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="19" r="1.5"/><circle cx="12" cy="19" r="1.5"/><circle cx="19" cy="19" r="1.5"/></svg></button>
+              <div class="sp"></div>
+            </div>
+            <div class="ws-bot-l">
+              <button class="rbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 4.5 1.5c-1 .8-2 1.5-2 3"/></svg></button>
+              <button class="rbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="15 18 9 12 15 6"/></svg></button>
+            </div>
+
+            <div class="ws-body">
+              <div class="ws-bar">
+                <div class="app"><div class="ic" style="background: linear-gradient(135deg, oklch(0.74 0.14 55), oklch(0.58 0.16 50))"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 1 0-5 5l-7.4 7.4a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0L12.7 14a4 4 0 0 0 5-5z"/></svg></div>管理后台</div>
+                <div class="nav-tabs">
+                  <a>概览</a><a>成员</a><a>组织</a><a>应用</a><a class="on">产品</a>
+                </div>
+                <div class="right">
+                  <div class="ws-search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                    <input class="ws-search" placeholder="搜索  (Ctrl+K)">
+                    <span class="kfn">⌘K</span>
+                  </div>
+                  <button class="fab-new"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
+                  <button class="nbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><polygon points="10 8 16 12 10 16" fill="currentColor"/></svg><span class="badge">New</span></button>
+                  <button class="nbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button>
+                  <button class="av-btn"><span class="avatar c-violet sm">CH</span></button>
+                </div>
+              </div>
+              <div></div>
+              <div class="ws-main">
+                <aside class="ws-side">
+                  <div class="grp" style="padding-top: 4px">通用 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                  <a class="nv on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/></svg>角色维护</a>
+                  <a class="nv"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>工时设置</a>
+                  <a class="nv"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12h4M18 12h4M12 2v4M12 18v4"/></svg>可见范围设置</a>
+                  <a class="nv"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>模型管理</a>
+                  <div class="grp">产品 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+                  <a class="nv"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>产品管理</a>
+                  <a class="nv"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h12"/></svg>项目管理</a>
+                  <a class="nv"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>测试管理</a>
+                  <a class="nv"><svg viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/></svg>知识管理</a>
+                  <a class="nv"><svg viewBox="0 0 24 24"><path d="M3 12l4-4 3 4 5-7 6 11"/></svg>效能度量</a>
+                </aside>
+                <div class="ws-content">
+                  <h3 style="margin-bottom: 6px">角色维护</h3>
+                  <div class="banner info" style="margin-bottom: 18px"><svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg><span><b>Tips:</b> 管理系统中成员角色,每个角色可以配置不同的权限</span></div>
+                  <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px">
+                    <label class="input-search sm" style="width: 260px">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                      <input type="search" placeholder="搜索  (Ctrl+G)">
+                    </label>
+                    <button class="btn sm">+ 新建</button>
+                    <span style="color: var(--text-dim); font-size: 12.5px; margin-left: 6px">3 个角色</span>
+                    <div style="flex: 1"></div>
+                    <button class="btn sm">译 翻译</button>
+                    <button class="btn sm primary">+ 新建</button>
+                  </div>
+                  <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+                    <thead><tr style="text-align: left; color: var(--text-dim); font-size: 12px; font-weight: 500"><th style="padding: 8px 4px; border-bottom: 1px solid var(--line)">名称</th><th style="padding: 8px 4px; border-bottom: 1px solid var(--line)">描述</th><th style="padding: 8px 4px; border-bottom: 1px solid var(--line); width: 80px">操作</th></tr></thead>
+                    <tbody>
+                      <tr><td style="padding: 12px 4px; border-bottom: 1px solid var(--line)"><span class="avatar c-amber sm" style="margin-right: 8px">管</span>管理员 <span class="pill" style="margin-left: 6px">系统</span></td><td style="color: var(--text-muted); padding: 12px 4px; border-bottom: 1px solid var(--line)">具备管理项目、产品等相关设置权限</td><td style="color: var(--text-dim); padding: 12px 4px; border-bottom: 1px solid var(--line)">—</td></tr>
+                      <tr><td style="padding: 12px 4px; border-bottom: 1px solid var(--line)"><span class="avatar c-azure sm" style="margin-right: 8px">普</span>普通成员 <span class="pill" style="margin-left: 6px">系统</span></td><td style="color: var(--text-muted); padding: 12px 4px; border-bottom: 1px solid var(--line)">支持对产品进行新建、编辑等基本功能操作</td><td style="color: var(--text-dim); padding: 12px 4px; border-bottom: 1px solid var(--line)">—</td></tr>
+                      <tr><td style="padding: 12px 4px"><span class="avatar c-rose sm" style="margin-right: 8px">只</span>只读成员 <span class="pill" style="margin-left: 6px">系统</span></td><td style="color: var(--text-muted); padding: 12px 4px">仅可查看相关数据信息,不可进行增删改等操作</td><td style="color: var(--text-dim); padding: 12px 4px">—</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <button class="ws-fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>快速开始</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="lib-section-sub" style="margin-top: 18px; max-width: 720px">
+        <b>设计原则</b> · 三层都是可选组合。<b>Rail</b> 是工作区切换器(跨 app 不变);<b>Bar</b> 承载当前 app 的身份、内部 tab、和全局工具;<b>Side</b> 只在需要承载 app 内部多层导航时才出现 —— 否则直接让 sub-tab 接管,把空间还给内容。
+      </p>
     </section>
 
     <!-- ──────── Three-pane ──────── -->

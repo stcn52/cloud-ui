@@ -5,7 +5,7 @@ const badgeStyles = tv({
   base: [
     'inline-flex items-center justify-center select-none',
     'font-mono [font-variant-numeric:tabular-nums] leading-none',
-    'rounded-full text-white',
+    'rounded-full text-on-solid',
   ],
   variants: {
     tone: {

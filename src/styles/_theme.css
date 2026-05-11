@@ -23,6 +23,11 @@
   --color-err:  oklch(0.62 0.18 22);
   --color-info: oklch(0.62 0.14 230);
 
+  /* Readable foreground for *solid* status/accent fills (Button danger/success/
+     warning, FormSteps check, …). White in light; flips to a near-black in dark
+     because the dark status hues are bright. Use `text-on-solid`. */
+  --color-on-solid: oklch(1 0 0);
+
   --font-ui:   "Inter", system-ui, -apple-system, Helvetica, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
@@ -72,41 +77,40 @@
   --text-2xl: 32px;
 }
 
-/* Dark-mode overrides.
-   Palette is tuned against the NextCli dark reference (components/ui-kit-theme.html):
-   - deeper, slightly more saturated page background with clearer elevation steps
-     so cards/panels read as raised rather than flat;
-   - calmer hairlines (the previous --color-line was bright enough to compete with text);
-   - status colours get explicit dark variants so `text-ok/warn/err/info` stay legible
-     on dark surfaces — the light-mode hues are too dim for foreground text here. */
+/* Dark-mode overrides — kept in lockstep with `components/tokens.css`
+   (the NextCli design handoff). Page backgrounds stay where they were; text
+   tiers, hairlines, and status hues are pushed brighter so secondary text and
+   `text-ok/warn/err/info` stay legible on the dark surface. Light theme unchanged. */
 [data-theme="dark"] {
-  --color-bg:          oklch(0.165 0.018 255);
-  --color-bg-elev:     oklch(0.215 0.02 255);
-  --color-bg-sunk:     oklch(0.135 0.016 255);
-  --color-panel:       oklch(0.195 0.019 255);
-  --color-line:        oklch(0.285 0.022 255);
-  --color-line-strong: oklch(0.37 0.024 255);
-  --color-text:        oklch(0.95 0.006 255);
-  --color-text-muted:  oklch(0.74 0.018 255);
-  --color-text-dim:    oklch(0.6 0.016 255);
+  --color-bg:          oklch(0.18 0.015 250);
+  --color-bg-elev:     oklch(0.22 0.018 250);
+  --color-bg-sunk:     oklch(0.15 0.014 250);
+  --color-panel:       oklch(0.21 0.017 250);
+  --color-line:        oklch(0.34 0.022 250);
+  --color-line-strong: oklch(0.44 0.024 250);
+  --color-text:        oklch(0.97 0.005 250);
+  --color-text-muted:  oklch(0.82 0.012 250);
+  --color-text-dim:    oklch(0.68 0.014 250);
 
-  --color-accent:      oklch(0.66 0.15 255);
-  --color-accent-weak: oklch(0.3 0.07 255);
-  --color-accent-ink:  oklch(0.82 0.11 255);
+  /* Brighter, more legible status colors against the dark surface.
+     (Note: this favours status-as-text; `bg-err text-white` on Button danger /
+     Toast bar sits at AA-large rather than AA — matches the design handoff.) */
+  --color-ok:   oklch(0.78 0.16 155);
+  --color-warn: oklch(0.84 0.16 80);
+  --color-err:  oklch(0.74 0.18 22);
+  --color-info: oklch(0.78 0.14 230);
 
-  /* Status hues sit a touch brighter than the light theme: bright enough that
-     `text-ok/warn/err/info` is legible on dark surfaces, still dark enough that
-     `bg-err text-white` (Button danger, Toast bar, FormSteps check) keeps usable
-     contrast. */
-  --color-ok:   oklch(0.7 0.15 158);
-  --color-warn: oklch(0.78 0.14 78);
-  --color-err:  oklch(0.68 0.18 22);
-  --color-info: oklch(0.7 0.14 255);
+  --color-accent:      oklch(0.72 0.13 230);
+  --color-accent-weak: oklch(0.32 0.08 230);
+  --color-accent-ink:  oklch(0.88 0.10 230);
 
-  --shadow-xs: 0 1px 0 rgba(0,0,0,0.25);
-  --shadow-sm: 0 1px 0 rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.4);
+  /* Dark status fills are bright → put dark text on them. */
+  --color-on-solid: oklch(0.16 0.012 250);
+
+  --shadow-xs: 0 1px 0 rgba(0,0,0,0.3);
+  --shadow-sm: 0 1px 0 rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.4);
   --shadow-md: 0 2px 6px rgba(0,0,0,0.45), 0 12px 28px rgba(0,0,0,0.55);
-  --shadow-lg: 0 4px 12px rgba(0,0,0,0.5), 0 24px 56px rgba(0,0,0,0.6);
+  --shadow-lg: 0 4px 10px rgba(0,0,0,0.5), 0 24px 56px rgba(0,0,0,0.65);
 }
 
 /* Base reset. */

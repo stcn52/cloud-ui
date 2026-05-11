@@ -6,6 +6,85 @@ All notable changes will be documented here. Format loosely follows
 Story links below point at the live Storybook:
 <https://stcn52.github.io/cloud-ui/storybook/>.
 
+## [1.4.0] — 2026-05-08
+
+Seven new components — `NxTable`, `JsonViewer`, `NotificationCenter`,
+`QueryBuilder`, `Donut`, `Gauge`, `MentionPopover` — built from the refreshed
+NextCli design handoff (`components/`), plus a follow-up dark-theme pass that
+makes solid status fills (`Button danger/success/warning`, `Badge`, the
+`FormSteps` check) legible again. No breaking changes — drop-in from 1.3.x.
+
+### Added — data table
+
+- **`NxTable`** — enterprise data table. Column resize & pin (left/right),
+  sortable headers, per-column filters (text / select / range), global search,
+  pagination with a page-size picker, multi/single row selection with a bulk
+  action bar, expandable rows, density switch, column show/hide, CSV export,
+  and optional `persistKey` to save UI state to `localStorage`. Cell `type`s:
+  `text` / `number` / `money` / `status` / `date` / `bar` / `custom`, plus
+  per-column `render` / `formatter`.
+  Stories: [Full featured](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11---tables-nxtable--full-featured) ·
+  [Minimal](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11---tables-nxtable--minimal) ·
+  [Single-select compact](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11---tables-nxtable--single-select-compact)
+
+### Added — data display
+
+- **`Donut`** — multi-segment ring chart with an auto or custom centre label
+  and an optional legend; segments normalise against the sum or an explicit
+  `total`.
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-donut--playground) ·
+  [With total](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-donut--with-total) ·
+  [No legend](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-donut--no-legend) ·
+  [Status breakdown](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-donut--status-breakdown)
+- **`Gauge`** — arc gauge with optional threshold bands; the value text picks
+  up the active band's colour. Configurable `sweep`, `min`/`max`, custom
+  centre, caption.
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--playground) ·
+  [Thresholds](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--thresholds) ·
+  [Flat arc](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--flat-arc) ·
+  [Custom center](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--custom-center) ·
+  [Sizes](https://stcn52.github.io/cloud-ui/storybook/?path=/story/03---data-display-gauge--sizes)
+
+### Added — more
+
+- **`JsonViewer`** — collapsible JSON tree. Parses strings (with a warning on
+  invalid input), `defaultExpandDepth` (incl. `Infinity`), syntax colours that
+  flip with the theme, optional copy button.
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-json-viewer--playground) ·
+  [Fully expanded](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-json-viewer--fully-expanded) ·
+  [From string](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-json-viewer--from-string) ·
+  [Primitive](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-json-viewer--primitive)
+- **`NotificationCenter`** — notification panel: grouped buckets, unread
+  highlight + count, per-item `icon` / `tone` / `actions`, "mark all read",
+  footer slot, empty state.
+  Stories: [Default](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-notification-center--default) ·
+  [With item actions](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-notification-center--with-item-actions) ·
+  [Empty](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-notification-center--empty) ·
+  [In a user menu](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-notification-center--in-a-user-menu)
+- **`QueryBuilder`** — visual filter builder: per-rule field / operator / value
+  (operators adapt to the field `type`), nested AND/OR groups up to `maxDepth`,
+  add/remove rows & groups. Ships `queryToString(tree, fields)` for a readable
+  expression and `emptyGroup()` helper.
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-query-builder--playground) ·
+  [With nested groups](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-query-builder--with-nested-groups) ·
+  [Flat only](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-query-builder--flat-only)
+- **`MentionPopover`** — textarea with `@`-mention autocomplete: detects the
+  active mention from the caret, filters items, keyboard navigation
+  (↑/↓/Enter/Tab/Esc), inserts `@handle `. Configurable `trigger` char and
+  filter; exposes a `MentionPopoverHandle` ref.
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-mention-popover--playground) ·
+  [Custom trigger](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-mention-popover--custom-trigger) ·
+  [Uncontrolled](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---more-mention-popover--uncontrolled)
+
+### Changed — theme
+
+- Dark tokens re-aligned with the design handoff's `components/tokens.css`:
+  brighter text tiers, hairlines, and status hues so secondary text and
+  `text-ok/warn/err/info` stay legible. New `--color-on-solid` token (white in
+  light, near-black in dark) used by `Button` (primary/danger/success/warning),
+  `FormSteps`, and `Badge` so text on *solid* status/accent fills stays
+  readable now that the dark status hues are bright. Light theme unchanged.
+
 ## [1.3.0] — 2026-05-08
 
 Three new components — `Accordion`, `Badge`, `PromptInput` — plus richer
