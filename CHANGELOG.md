@@ -3,6 +3,77 @@
 All notable changes will be documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+Story links below point at the live Storybook:
+<https://stcn52.github.io/cloud-ui/storybook/>.
+
+## [1.3.0] — 2026-05-08
+
+Three new components — `Accordion`, `Badge`, `PromptInput` — plus richer
+`Select` options (grouping, per-row icon/description, a sticky footer slot) and
+a dark-theme palette refresh tuned against the NextCli reference. No breaking
+changes — drop-in upgrade from 1.2.x.
+
+### Added — new components
+
+- **`Accordion` + `AccordionItem`** — collapsible sections. `type="single"`
+  (default, with `collapsible`) or `"multiple"`; controlled via `value` /
+  `onValueChange` or uncontrolled via `defaultValue`. Each item header takes an
+  `extra` slot for a count / `Pill` / `Badge`, and supports `disabled`.
+  Stories: [Default](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-accordion--default) ·
+  [Multiple](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-accordion--multiple) ·
+  [Controlled](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-accordion--controlled)
+- **`Badge`** — count / `max+` overflow / bare `dot` mode, six tones, two
+  sizes. Renders standalone or, when given `children`, anchors to their
+  top-right corner (icon buttons, avatars, …).
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--playground) ·
+  [Counts](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--counts) ·
+  [Tones](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--tones) ·
+  [Dot](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--dot) ·
+  [On icons](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-badge--on-icons)
+- **`PromptInput`** — chat/composer input: auto-growing textarea (`minRows` /
+  `maxRows`) inside a focus-ring shell, with `leading` / `trailing` toolbar
+  slots for icon buttons, attachment chips, status text, and the send/stop
+  button. `submitOn="enter"` (Enter sends, Shift+Enter newline) or
+  `"cmd-enter"`. Controlled or uncontrolled; exposes a `PromptInputHandle` ref
+  with `focus()` / `clear()` / `textarea`.
+  Stories: [Playground](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-prompt-input--playground) ·
+  [Queue composer](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-prompt-input--queue-composer) ·
+  [Cmd+Enter](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-prompt-input--cmd-enter) ·
+  [With mic](https://stcn52.github.io/cloud-ui/storybook/?path=/story/06---advanced-prompt-input--with-mic)
+
+### Added — Select option enrichment
+
+- `SelectOption.group` is now actually rendered — consecutive options sharing a
+  `group` collect under an uppercase heading (the field existed since 1.0 but
+  was inert). Works alongside `searchable` and `multiple`.
+- `SelectOption.icon` — leading element on the option row (avatar, status dot,
+  glyph); also shown in the trigger for the selected single value.
+- `SelectOption.description` — trailing dim text on the option row (a role, a
+  hint).
+- New `Select.footer` slot — sticky element at the bottom of the panel, e.g. a
+  persistent "+ Add new…" action.
+- Stories: [Grouped](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-select--grouped) ·
+  [Rich options](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-select--rich-options) ·
+  [With footer](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02---primitives-select--with-footer)
+
+### Changed — dark theme
+
+- Reworked `[data-theme="dark"]` tokens against `components/ui-kit-theme.html`:
+  deeper page background with clearer elevation steps (`bg` / `bg-elev` /
+  `bg-sunk` / `panel`), calmer hairlines, and — most importantly — explicit
+  dark variants for `--color-ok/warn/err/info` so `text-ok/warn/err/info` stays
+  legible on dark surfaces (the light-mode hues were too dim for foreground
+  text). Also added a dark `--shadow-xs` / `--shadow-lg`. Light theme
+  unchanged.
+
+### Added — composition example
+
+- **`07 · Compositions/Ticket detail`** — a support-ticket detail page built
+  entirely from primitives (header strip, thread, reply box, metadata
+  sidebar), doubling as a dark-mode contrast reference. Flip the Storybook
+  theme toolbar to compare.
+  [Story](https://stcn52.github.io/cloud-ui/storybook/?path=/story/07---compositions-ticket-detail--default)
+
 ## [1.2.0] — 2026-05-07
 
 Form-validation primitives plus a multi-step form wrapper, on top of new

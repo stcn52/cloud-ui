@@ -89,7 +89,8 @@ only, no runtime components).
 
 **02 · Primitives** — `Button`, `ButtonGroup`, `Input`, `InputGroup`, `Affix`,
 `Field`, `Checkbox`, `CheckRow`, `Radio`, `RadioRow`, `Switch`, `Select`,
-`Textarea`, `Pill`, `Dot`, `Avatar`, `AvatarStack`, `Kbd`.
+`Textarea`, `Pill`, `Dot`, `Badge`, `Avatar`, `AvatarStack`, `Kbd`, `Form`,
+`FormField`, `useForm`, `StepForm`, `FormSteps`.
 
 **03 · Data display** — `Card`, `CardHead`, `CardFoot`, `Kpi`, `Delta`,
 `Table`, `Progress`, `Ring`, `Skeleton`, `Pipeline`, `PipeStep`, `LogLine`.
@@ -104,7 +105,7 @@ only, no runtime components).
 
 **06 · Advanced** — `Dropdown`, `DropdownItem`, `DropdownGroup`,
 `DropdownSeparator`, `DropdownSearch`, `Tree`, `Cascader`, `DatePicker`,
-`TagInput`, `CopyField`.
+`TagInput`, `CopyField`, `Accordion`, `AccordionItem`, `PromptInput`.
 
 ## Theming via CSS variables
 

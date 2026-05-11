@@ -1,4 +1,5 @@
 import {
+  Fragment,
   forwardRef,
   useEffect,
   useMemo,
@@ -14,8 +15,12 @@ export interface SelectOption<V extends string = string> {
   value: V
   label: ReactNode
   disabled?: boolean
-  /** Optional group heading — consecutive options with the same group are collected. */
+  /** Group heading — consecutive options sharing the same `group` render under one heading. */
   group?: string
+  /** Secondary text shown right-aligned on the option row (e.g. a role or hint). */
+  description?: ReactNode
+  /** Leading element rendered before the label — an avatar, a status dot, an icon. */
+  icon?: ReactNode
 }
 
 interface SelectBase<V extends string = string> {
@@ -26,6 +31,8 @@ interface SelectBase<V extends string = string> {
   searchable?: boolean
   /** Show a small × button to clear the value(s). */
   clearable?: boolean
+  /** Sticky element rendered at the bottom of the panel — e.g. an "+ Add new…" action. */
+  footer?: ReactNode
   disabled?: boolean
   invalid?: boolean
   size?: 'sm' | 'md'
@@ -129,6 +136,7 @@ export const Select = forwardRef(function Select<V extends string = string>(
     placeholder = 'Select…',
     searchable = false,
     clearable = false,
+    footer,
     disabled = false,
     invalid = false,
     size = 'md',
@@ -339,8 +347,13 @@ export const Select = forwardRef(function Select<V extends string = string>(
               )}
             </>
           ) : (
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', width: '100%' }}>
-              {selectedOptions[0]?.label}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, width: '100%' }}>
+              {selectedOptions[0]?.icon !== undefined && (
+                <span style={{ display: 'inline-flex', flexShrink: 0 }}>{selectedOptions[0]!.icon}</span>
+              )}
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {selectedOptions[0]?.label}
+              </span>
             </span>
           )}
         </span>
@@ -402,59 +415,85 @@ export const Select = forwardRef(function Select<V extends string = string>(
               )}
               {filtered.map((opt, i) => {
                 const isSelected = selectedSet.has(opt.value)
+                // Emit a group heading whenever the group changes between consecutive options.
+                const prevGroup = i > 0 ? filtered[i - 1].group : undefined
+                const showHeading = opt.group !== undefined && opt.group !== prevGroup
                 return (
-                  <div
-                    key={opt.value}
-                    role="option"
-                    aria-selected={isSelected}
-                    className={optionStyles({
-                      active: i === activeIdx,
-                      selected: isSelected,
-                      disabled: !!opt.disabled,
-                    })}
-                    onMouseEnter={() => setActiveIdx(i)}
-                    onClick={() => commit(opt)}
-                  >
-                    {multiple ? (
+                  <Fragment key={opt.value}>
+                    {showHeading && (
+                      <div
+                        role="presentation"
+                        style={{
+                          padding: '6px 10px 2px',
+                          fontSize: 10.5,
+                          fontWeight: 500,
+                          letterSpacing: '0.05em',
+                          textTransform: 'uppercase',
+                          color: 'var(--color-text-dim)',
+                        }}
+                      >
+                        {opt.group}
+                      </div>
+                    )}
+                    <div
+                      role="option"
+                      aria-selected={isSelected}
+                      className={optionStyles({
+                        active: i === activeIdx,
+                        selected: isSelected,
+                        disabled: !!opt.disabled,
+                      })}
+                      onMouseEnter={() => setActiveIdx(i)}
+                      onClick={() => commit(opt)}
+                    >
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
-                        <span
-                          aria-hidden
-                          style={{
-                            width: 14,
-                            height: 14,
-                            border: '1px solid var(--color-line-strong)',
-                            borderRadius: 3,
-                            background: isSelected ? 'var(--color-accent)' : 'transparent',
-                            color: 'white',
-                            display: 'inline-grid',
-                            placeItems: 'center',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {isSelected && (
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} aria-hidden>
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          )}
-                        </span>
+                        {multiple && (
+                          <span
+                            aria-hidden
+                            style={{
+                              width: 14,
+                              height: 14,
+                              border: '1px solid var(--color-line-strong)',
+                              borderRadius: 3,
+                              background: isSelected ? 'var(--color-accent)' : 'transparent',
+                              color: 'white',
+                              display: 'inline-grid',
+                              placeItems: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            {isSelected && (
+                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} aria-hidden>
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            )}
+                          </span>
+                        )}
+                        {opt.icon !== undefined && (
+                          <span style={{ display: 'inline-flex', flexShrink: 0 }}>{opt.icon}</span>
+                        )}
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {opt.label}
                         </span>
                       </span>
-                    ) : (
-                      <>
-                        <span>{opt.label}</span>
-                        {isSelected && (
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden>
-                            <polyline points="5 12.5 10 17.5 19 7.5" />
-                          </svg>
-                        )}
-                      </>
-                    )}
-                  </div>
+                      {opt.description !== undefined && (
+                        <span style={{ fontSize: 11, color: 'var(--color-text-dim)', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                          {opt.description}
+                        </span>
+                      )}
+                      {!multiple && isSelected && (
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden style={{ flexShrink: 0 }}>
+                          <polyline points="5 12.5 10 17.5 19 7.5" />
+                        </svg>
+                      )}
+                    </div>
+                  </Fragment>
                 )
               })}
             </div>
+            {footer !== undefined && (
+              <div style={{ borderTop: '1px solid var(--color-line)' }}>{footer}</div>
+            )}
           </div>
         </Portal>
       )}

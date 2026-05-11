@@ -1,0 +1,1752 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Talon Pilot · UI Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg-app:#F6F7F9; --bg-surface:#FFFFFF; --bg-subtle:#F1F3F7; --bg-inverse:#0E1116;
+    --border-default:#E6E8EE; --border-strong:#D5D9E0;
+    --text-primary:#0F172A; --text-secondary:#475569; --text-tertiary:#94A3B8;
+
+    --primary-50:#EEF2FF; --primary-100:#E0E7FF; --primary-200:#C7D2FE;
+    --primary-500:#4F60FF; --primary-600:#3B4DE6; --primary-700:#2E3DBF;
+
+    --st-prog-fg:#2E5BFF; --st-prog-bg:#E8EEFF;
+    --st-wait-fg:#B26B00; --st-wait-bg:#FFF1DB;
+    --st-done-fg:#0E8A55; --st-done-bg:#DCF5E8;
+    --st-block-fg:#C8322B; --st-block-bg:#FCE3E1;
+    --st-idle-fg:#64748B; --st-idle-bg:#EEF1F5;
+
+    --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px;
+    --sh-card:0 1px 2px rgba(15,23,42,.04), 0 1px 0 rgba(15,23,42,.02);
+    --sh-pop:0 12px 32px -12px rgba(15,23,42,.18);
+    --sh-focus:0 0 0 3px rgba(79,96,255,.18);
+
+    --font-sans:"Inter","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    --font-mono:"JetBrains Mono","SF Mono","Menlo",monospace;
+  }
+
+  /* ---------- dark theme ---------- */
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg-app:#0B1220; --bg-surface:#131A2A; --bg-subtle:#1B2438; --bg-inverse:#F1F3F7;
+    --border-default:#25324B; --border-strong:#2F3D5C;
+    --text-primary:#E6E9F2; --text-secondary:#A2ADC2; --text-tertiary:#6B7790;
+
+    --primary-50:rgba(79,96,255,.12); --primary-100:rgba(79,96,255,.2); --primary-200:#3A4BC2;
+    --primary-500:#4F60FF; --primary-600:#6A79FF; --primary-700:#94A6FF;
+
+    --st-prog-fg:#A8B5FF; --st-prog-bg:rgba(79,96,255,.16);
+    --st-wait-fg:#F4C57B; --st-wait-bg:rgba(244,167,73,.14);
+    --st-done-fg:#6CD89F; --st-done-bg:rgba(60,200,130,.14);
+    --st-block-fg:#F09B96; --st-block-bg:rgba(232,138,133,.14);
+    --st-idle-fg:#A4AEC2; --st-idle-bg:rgba(255,255,255,.06);
+
+    --sh-card:0 1px 0 rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.32);
+    --sh-pop:0 16px 40px -12px rgba(0,0,0,.6);
+    --sh-focus:0 0 0 3px rgba(129,140,248,.32);
+  }
+  :root[data-theme="dark"] .hero-card{
+    background:linear-gradient(180deg, rgba(79,96,255,.10) 0%, rgba(79,96,255,.04) 100%);
+    border-color:rgba(79,96,255,.28);
+  }
+  :root[data-theme="dark"] .brand-mark{box-shadow:0 6px 18px -8px rgba(79,96,255,.8)}
+
+  /* ---------- theme toggle ---------- */
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:4px;
+    height:var(--tp-control-h-md,36px);padding:3px;
+    background:var(--bg-subtle);border:1px solid var(--border-default);
+    border-radius:var(--tp-radius-pill,999px);
+  }
+  .theme-toggle button{
+    width:30px;height:28px;border:0;background:transparent;border-radius:999px;
+    display:inline-grid;place-items:center;color:var(--text-tertiary);
+    transition:background .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1)),
+               color .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1));
+  }
+  .theme-toggle button:hover{color:var(--text-secondary)}
+  .theme-toggle button[aria-pressed="true"]{
+    background:var(--bg-surface);color:var(--primary-600);
+    box-shadow:0 1px 2px rgba(15,23,42,.08);
+  }
+  :root[data-theme="dark"] .theme-toggle button[aria-pressed="true"]{
+    background:rgba(255,255,255,.08);color:var(--primary-700);
+    box-shadow:none;
+  }
+  .theme-toggle svg{width:14px;height:14px}
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg-app);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+
+  /* ---------- layout ---------- */
+  .shell{max-width:1240px;margin:0 auto;padding:48px 32px 96px}
+  .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#5b6cff,#3b4de6);display:grid;place-items:center;color:#fff;box-shadow:0 6px 16px -8px rgba(79,96,255,.6)}
+  .brand-name{font-weight:700;font-size:16px;letter-spacing:-.01em}
+  .brand-sub{color:var(--text-tertiary);font-size:12px}
+  .meta{display:flex;gap:20px;font-size:12px;color:var(--text-tertiary);align-items:center}
+  .meta b{color:var(--text-primary);font-weight:600;margin-right:6px}
+
+  .hero{
+    background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-xl);
+    padding:32px;display:grid;grid-template-columns:1.4fr 1fr;gap:32px;margin-bottom:48px;
+    box-shadow:var(--sh-card);
+  }
+  .hero h1{font-size:32px;line-height:1.2;letter-spacing:-.02em;margin:0 0 12px;font-weight:600}
+  .hero p{color:var(--text-secondary);max-width:520px;margin:0 0 20px}
+  .hero .tagrow{display:flex;flex-wrap:wrap;gap:8px}
+  .hero-card{
+    background:linear-gradient(180deg, var(--primary-50), var(--bg-surface));
+    border:1px solid var(--primary-100);border-radius:var(--r-lg);padding:20px;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .hero-card .row{display:flex;align-items:center;justify-content:space-between}
+
+  section{margin-bottom:64px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:20px}
+  .sec-num{font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary);letter-spacing:.04em}
+  .sec-title{font-size:20px;font-weight:600;letter-spacing:-.01em}
+  .sec-desc{color:var(--text-secondary);font-size:13px;margin-left:auto}
+
+  .grid{display:grid;gap:16px}
+  .g-2{grid-template-columns:repeat(2,1fr)}
+  .g-3{grid-template-columns:repeat(3,1fr)}
+  .g-4{grid-template-columns:repeat(4,1fr)}
+  .g-6{grid-template-columns:repeat(6,1fr)}
+
+  .panel{
+    background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-lg);
+    padding:24px;box-shadow:var(--sh-card);
+  }
+  .panel-title{font-size:13px;color:var(--text-tertiary);font-weight:500;margin:0 0 16px;text-transform:uppercase;letter-spacing:.06em}
+
+  /* ---------- color tokens ---------- */
+  .swatch{display:flex;flex-direction:column;gap:8px}
+  .swatch .chip{height:64px;border-radius:var(--r-md);border:1px solid var(--border-default)}
+  .swatch .name{font-size:13px;font-weight:500}
+  .swatch .hex{font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary)}
+
+  .ramp{display:grid;grid-template-columns:repeat(6,1fr);border-radius:var(--r-md);overflow:hidden;border:1px solid var(--border-default)}
+  .ramp .step{padding:14px 12px;display:flex;flex-direction:column;gap:4px;font-size:11px}
+  .ramp .step .lbl{font-weight:600}
+  .ramp .step .v{font-family:var(--font-mono);opacity:.7}
+
+  /* ---------- typography ---------- */
+  .typo-row{display:grid;grid-template-columns:120px 1fr 200px;gap:16px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--border-default)}
+  .typo-row:last-child{border-bottom:0}
+  .typo-tag{font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em}
+  .typo-spec{font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)}
+
+  /* ---------- pagination ---------- */
+  .pagination{display:inline-flex;align-items:center;gap:var(--tp-pagination-gap,4px);flex-wrap:wrap}
+  .pg-item{
+    display:inline-flex;align-items:center;justify-content:center;
+    height:var(--tp-pagination-item-size,36px);
+    min-width:var(--tp-pagination-item-min-w,36px);
+    padding:0 8px;
+    border:1px solid transparent;background:transparent;
+    border-radius:var(--tp-pagination-item-radius,8px);
+    font-size:var(--tp-pagination-fs,14px);
+    font-weight:var(--tp-pagination-fw,500);
+    color:var(--text-secondary);
+    font-variant-numeric:tabular-nums;font-family:var(--font-mono);
+    cursor:pointer;line-height:1;
+    transition:background .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1)),
+               color .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1)),
+               border-color .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1));
+  }
+  .pg-item > svg{width:var(--tp-pagination-icon,14px);height:var(--tp-pagination-icon,14px)}
+  .pg-item:hover{background:var(--bg-subtle);color:var(--text-primary)}
+  .pg-item:focus-visible{outline:none;box-shadow:var(--sh-focus, var(--tp-shadow-focus))}
+  .pg-item.is-active{
+    background:var(--primary-500);color:#fff;border-color:transparent;
+  }
+  .pg-item.is-active:hover{background:var(--primary-600)}
+  .pg-item:disabled,.pg-item[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
+  .pg-ellipsis{
+    display:inline-flex;align-items:center;justify-content:center;
+    height:var(--tp-pagination-item-size,36px);
+    width:var(--tp-pagination-ellipsis-w,28px);
+    color:var(--text-tertiary);user-select:none;
+  }
+  .pg-size{
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    height:var(--tp-pagination-item-size,36px);
+    min-width:var(--tp-pagination-size-select-w,96px);
+    padding:0 10px;margin-left:4px;
+    border:1px solid var(--border-strong);background:var(--bg-surface,#fff);
+    border-radius:var(--tp-pagination-item-radius,8px);
+    font-size:var(--tp-pagination-fs,14px);
+    color:var(--text-primary);line-height:1;cursor:pointer;
+    font-variant-numeric:tabular-nums;font-family:var(--font-mono);
+    transition:background .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1));
+  }
+  .pg-size > svg{width:14px;height:14px;color:var(--text-tertiary)}
+  .pg-size:hover{background:var(--bg-subtle)}
+
+  /* ---------- buttons (token-driven, line-height locked to 1) ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    gap:var(--tp-btn-gap-md, 6px);
+    height:var(--tp-btn-h-md, 36px);
+    padding:0 var(--tp-btn-px-md, 14px);
+    font-size:var(--tp-btn-fs-md, 14px);
+    line-height:1;            /* 锁定文字行高，三档保持一致 */
+    font-weight:var(--tp-btn-fw, 500);
+    border:1px solid transparent;
+    border-radius:var(--tp-btn-radius, 8px);
+    background:transparent;color:inherit;
+    white-space:nowrap;cursor:pointer;
+    transition:background .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1)),
+               color .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1)),
+               border-color .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1)),
+               box-shadow .15s var(--tp-ease,cubic-bezier(.2,.8,.2,1));
+  }
+  .btn > svg{width:var(--tp-btn-icon-size-md,16px);height:var(--tp-btn-icon-size-md,16px);flex:none}
+  .btn:focus-visible{outline:none;box-shadow:var(--sh-focus, var(--tp-shadow-focus))}
+  .btn:disabled,.btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
+
+  .btn-primary{background:var(--primary-500);color:#fff;border-color:transparent}
+  .btn-primary:hover{background:var(--primary-600)}
+  .btn-secondary{background:var(--bg-surface,#fff);border-color:var(--border-strong);color:var(--text-primary)}
+  .btn-secondary:hover{background:var(--bg-subtle)}
+  .btn-ghost{background:transparent;color:var(--text-secondary)}
+  .btn-ghost:hover{background:var(--bg-subtle);color:var(--text-primary)}
+  .btn-danger{background:#DC2626;color:#fff}
+  .btn-danger:hover{background:#B91C1C}
+
+  .btn-sm{
+    height:var(--tp-btn-h-sm,28px);
+    padding:0 var(--tp-btn-px-sm,10px);
+    font-size:var(--tp-btn-fs-sm,12px);
+    gap:var(--tp-btn-gap-sm,4px);
+    border-radius:var(--tp-btn-radius-sm, var(--tp-btn-radius, 6px));
+  }
+  .btn-sm > svg{width:var(--tp-btn-icon-size-sm,14px);height:var(--tp-btn-icon-size-sm,14px)}
+
+  .btn-lg{
+    height:var(--tp-btn-h-lg,44px);
+    padding:0 var(--tp-btn-px-lg,18px);
+    font-size:var(--tp-btn-fs-lg,15px);
+    gap:var(--tp-btn-gap-lg,8px);
+  }
+  .btn-lg > svg{width:var(--tp-btn-icon-size-lg,18px);height:var(--tp-btn-icon-size-lg,18px)}
+
+  /* icon-only：保证方形、与文字按钮同高、内部图标居中 */
+  .btn-icon{width:var(--tp-btn-h-md,36px);padding:0;gap:0}
+  .btn-icon.btn-sm{width:var(--tp-btn-h-sm,28px)}
+  .btn-icon.btn-lg{width:var(--tp-btn-h-lg,44px)}
+  .btn svg{width:16px;height:16px}
+
+  /* ---------- inputs ---------- */
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:13px;font-weight:500;color:var(--text-primary)}
+  .field .hint{font-size:12px;color:var(--text-tertiary)}
+  .input{
+    height:36px;border:1px solid var(--border-strong);border-radius:var(--r-md);
+    background:var(--bg-surface);padding:0 12px;font-family:inherit;font-size:14px;color:var(--text-primary);
+    transition:all .15s; width:100%;
+  }
+  .input::placeholder{color:var(--text-tertiary)}
+  .input:focus{outline:none;border-color:var(--primary-500);box-shadow:var(--sh-focus)}
+  .input-wrap{position:relative}
+  .input-wrap .lead{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);width:16px;height:16px}
+  .input-wrap .input{padding-left:36px}
+  .input-wrap .trail{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary)}
+
+  .switch{position:relative;width:36px;height:20px;background:#CBD5E1;border-radius:999px;cursor:pointer;transition:background .15s;flex-shrink:0}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:var(--bg-surface);border-radius:50%;transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .switch.on{background:var(--primary-500)}
+  .switch.on::after{left:18px}
+
+  .check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border-strong);background:var(--bg-surface);display:inline-grid;place-items:center;flex-shrink:0}
+  .check.on{background:var(--primary-500);border-color:var(--primary-500);color:#fff}
+  .check.on svg{width:10px;height:10px}
+
+  .radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:var(--bg-surface);display:inline-grid;place-items:center;flex-shrink:0}
+  .radio.on{border-color:var(--primary-500)}
+  .radio.on::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--primary-500)}
+
+  /* ---------- tags / chips / status ---------- */
+  .tag{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;font-weight:500;line-height:1}
+  .tag-neutral{background:var(--bg-subtle);color:var(--text-secondary)}
+  .tag .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+  .st-prog{background:var(--st-prog-bg);color:var(--st-prog-fg)}
+  .st-wait{background:var(--st-wait-bg);color:var(--st-wait-fg)}
+  .st-done{background:var(--st-done-bg);color:var(--st-done-fg)}
+  .st-block{background:var(--st-block-bg);color:var(--st-block-fg)}
+  .st-idle{background:var(--st-idle-bg);color:var(--st-idle-fg)}
+
+  /* ---------- avatars ---------- */
+  .avatar{width:32px;height:32px;border-radius:50%;background:#E0E7FF;color:#3B4DE6;display:inline-grid;place-items:center;font-weight:600;font-size:13px;position:relative;flex-shrink:0;border:2px solid var(--bg-surface)}
+  .avatar.sm{width:24px;height:24px;font-size:11px}
+  .avatar.lg{width:40px;height:40px;font-size:15px}
+  .avatar .pulse{position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:#10B981;border:2px solid var(--bg-surface)}
+  .avatar .pulse.off{background:#94A3B8}
+  .avatar.c-violet{background:#EDE9FE;color:#6D28D9}
+  .avatar.c-orange{background:#FFEDD5;color:#C2410C}
+  .avatar.c-green{background:#D1FAE5;color:#047857}
+  .avatar.c-cyan{background:#CFFAFE;color:#0E7490}
+  .avatar.c-pink{background:#FCE7F3;color:#BE185D}
+  .avatar-group{display:inline-flex}
+  .avatar-group .avatar{margin-left:-8px}
+  .avatar-group .avatar:first-child{margin-left:0}
+  .avatar-more{margin-left:-8px;height:32px;min-width:32px;padding:0 8px;border-radius:999px;background:var(--bg-surface);border:2px solid var(--bg-surface);display:inline-grid;place-items:center;font-size:11px;color:var(--text-secondary);font-weight:600;box-shadow:0 0 0 1px var(--border-default)}
+
+  /* ---------- progress ---------- */
+  .progress{height:6px;background:var(--bg-subtle);border-radius:999px;overflow:hidden;position:relative}
+  .progress > i{display:block;height:100%;border-radius:999px;background:var(--primary-500)}
+  .progress.green > i{background:#10B981}
+  .progress.amber > i{background:#F59E0B}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex;gap:24px;border-bottom:1px solid var(--border-default);align-items:flex-end}
+  .tabs .tab{padding:10px 0;font-size:14px;font-weight:500;color:var(--text-secondary);border-bottom:2px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .tabs .tab.active{color:var(--primary-600);border-color:var(--primary-500);font-weight:600}
+  .tabs .tab .num{background:var(--bg-subtle);color:var(--text-secondary);padding:1px 6px;border-radius:999px;font-size:11px;font-weight:600}
+  .tabs .tab.active .num{background:var(--primary-50);color:var(--primary-600)}
+
+  /* ---------- segmented ---------- */
+  .seg{display:inline-flex;background:var(--bg-subtle);border-radius:var(--r-md);padding:3px;gap:2px}
+  .seg .opt{padding:5px 12px;font-size:12px;font-weight:500;color:var(--text-secondary);border-radius:7px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+  .seg .opt.active{background:var(--bg-surface);color:var(--text-primary);box-shadow:0 1px 2px rgba(15,23,42,.06)}
+
+  /* ---------- card / project ---------- */
+  .pcard{padding:16px;border:1px solid var(--border-default);border-radius:var(--r-lg);background:var(--bg-surface);display:flex;flex-direction:column;gap:12px;transition:all .15s}
+  .pcard:hover{border-color:var(--primary-200);box-shadow:var(--sh-card)}
+  .pcard.active{border-color:var(--primary-500);box-shadow:var(--sh-focus)}
+  .pcard .top{display:flex;align-items:flex-start;gap:12px}
+  .pcard .icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+  .pcard .ttl{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+  .pcard .desc{color:var(--text-secondary);font-size:13px;margin-top:2px}
+  .pcard .foot{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-tertiary)}
+
+  /* ---------- task / kanban ---------- */
+  .kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .kcol{background:var(--bg-app);border:1px dashed var(--border-default);border-radius:var(--r-lg);padding:14px;display:flex;flex-direction:column;gap:10px;min-height:0}
+  .kcol-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+  .kcol-h .count{color:var(--text-tertiary);font-weight:500}
+  .kcard{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;gap:8px;cursor:grab;transition:all .15s}
+  .kcard:hover{border-color:var(--primary-200);box-shadow:var(--sh-card)}
+  .kcard .num{font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)}
+  .kcard .title{font-weight:500;font-size:13.5px;line-height:1.4}
+  .kcard .meta{display:flex;align-items:center;justify-content:space-between;color:var(--text-tertiary);font-size:11px;font-family:var(--font-mono)}
+
+  /* ---------- stepper ---------- */
+  .stepper{display:flex;align-items:center;gap:0}
+  .step{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+  .step .num{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:600;flex-shrink:0;border:1.5px solid var(--border-strong);background:var(--bg-surface);color:var(--text-tertiary)}
+  .step.done .num{background:var(--primary-100);border-color:var(--primary-100);color:var(--primary-600)}
+  .step.done .num svg{width:14px;height:14px}
+  .step.cur .num{background:var(--primary-500);border-color:var(--primary-500);color:#fff}
+  .step .lbl{font-size:13px;font-weight:500;color:var(--text-secondary);white-space:nowrap}
+  .step.cur .lbl,.step.done .lbl{color:var(--text-primary)}
+  .step .bar{flex:1;height:1px;background:var(--border-default);margin:0 12px}
+  .step.done .bar,.step.cur .bar{background:var(--primary-200)}
+  .step:last-child .bar{display:none}
+
+  /* ---------- banner ---------- */
+  .banner{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:var(--r-md);position:relative;font-size:13px}
+  .banner svg{width:18px;height:18px;flex-shrink:0;margin-top:1px}
+  .banner-info{background:#E5EFFD;color:#1F4FB8}
+  :root[data-theme="dark"] .banner-info{background:rgba(79,140,255,.14);color:#9CC2FF}
+  .banner-warn{background:var(--st-wait-bg);color:var(--st-wait-fg)}
+  .banner-success{background:var(--st-done-bg);color:var(--st-done-fg)}
+  .banner-error{background:var(--st-block-bg);color:var(--st-block-fg)}
+  .banner b{font-weight:600}
+
+  /* ---------- list / row ---------- */
+  .row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-default)}
+  .row:last-child{border-bottom:0}
+  .row .ic{width:32px;height:32px;border-radius:8px;background:var(--bg-subtle);display:grid;place-items:center;flex-shrink:0;color:var(--text-secondary)}
+  .row .body{flex:1;min-width:0}
+  .row .body .t{font-weight:500;font-size:14px}
+  .row .body .s{color:var(--text-tertiary);font-size:12px;font-family:var(--font-mono)}
+
+  /* ---------- terminal ---------- */
+  .term{background:#0E1116;color:#E2E8F0;border-radius:var(--r-lg);padding:18px 20px;font-family:var(--font-mono);font-size:12.5px;line-height:1.7;border:1px solid transparent}
+  .term .ln{display:flex;gap:14px}
+  .term .nu{color:#3B4252;width:18px;text-align:right;flex-shrink:0;user-select:none}
+  .term .k{color:#A5B4FC}
+  .term .s{color:#86EFAC}
+  .term .c{color:#64748B}
+  .term .bar{display:flex;gap:6px;margin-bottom:14px}
+  .term .bar i{width:12px;height:12px;border-radius:50%;display:block}
+  .term .bar i:nth-child(1){background:#FF5F57}
+  .term .bar i:nth-child(2){background:#FEBC2E}
+  .term .bar i:nth-child(3){background:#28C840}
+
+  /* ---------- skeleton ---------- */
+  @keyframes pulse{0%{opacity:1}50%{opacity:.5}100%{opacity:1}}
+  .skel{background:var(--bg-subtle);border-radius:6px;animation:pulse 1.4s ease-in-out infinite}
+
+  /* ---------- nav ---------- */
+  .nav-demo{display:grid;grid-template-columns:240px 1fr;gap:0;border:1px solid var(--border-default);border-radius:var(--r-lg);overflow:hidden;background:var(--bg-surface)}
+  .sidebar{background:var(--bg-surface);border-right:1px solid var(--border-default);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
+  .nav-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
+  .nav-brand .mk{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#5b6cff,#3b4de6);display:grid;place-items:center;color:#fff}
+  .nav-brand b{font-weight:700;font-size:14px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-md);font-size:13px;color:var(--text-secondary);cursor:pointer}
+  .nav-item:hover{background:var(--bg-subtle);color:var(--text-primary)}
+  .nav-item.active{background:var(--primary-50);color:var(--primary-700);font-weight:600}
+  .nav-item svg{width:18px;height:18px}
+  .nav-section{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.08em;padding:14px 10px 4px}
+  .preview-pane{padding:24px;background:var(--bg-app)}
+
+  /* ---------- footer ---------- */
+  .footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border-default);display:flex;justify-content:space-between;color:var(--text-tertiary);font-size:12px}
+
+  /* svg helper */
+  .ic-sm{width:14px;height:14px}
+  /* ---------- dark adapt for stubborn inline pieces ---------- */
+  :root[data-theme="dark"] .switch{background:#3A4258}
+  :root[data-theme="dark"] .switch.on{background:var(--primary-500)}
+  :root[data-theme="dark"] .switch::after{background:#E6E9F2}
+  :root[data-theme="dark"] [style*="background:#FEF3C7"]{background:rgba(244,167,73,.16) !important;color:#F4C57B !important}
+  :root[data-theme="dark"] [style*="background:#E0E7FF"]{background:rgba(79,96,255,.18) !important;color:#A8B5FF !important}
+  :root[data-theme="dark"] [style*="background:#D1FAE5"]{background:rgba(60,200,130,.16) !important;color:#6CD89F !important}
+  :root[data-theme="dark"] [style*="background:#FEE2E2"]{background:rgba(232,138,133,.16) !important;color:#F09B96 !important}
+  :root[data-theme="dark"] [style*="background:#FFEDD5"]{background:rgba(244,167,73,.16) !important;color:#F4B570 !important}
+  :root[data-theme="dark"] [style*="background:#EDE9FE"]{background:rgba(139,124,255,.16) !important;color:#B9AAFF !important}
+  :root[data-theme="dark"] [style*="background:#DCFCE7"]{background:rgba(60,200,130,.16) !important;color:#6CD89F !important}
+  :root[data-theme="dark"] [style*="background:#FCE7F3"]{background:rgba(232,121,176,.16) !important;color:#F0A7CB !important}
+  :root[data-theme="dark"] [style*="background:#CFFAFE"]{background:rgba(56,189,210,.16) !important;color:#7BD4E0 !important}
+  :root[data-theme="dark"] [style*="background:#DCF5E8"]{background:rgba(60,200,130,.16) !important}
+  :root[data-theme="dark"] [style*="background:#0F172A"]{background:#1F2940 !important;border:0 !important;box-shadow:0 8px 24px -8px rgba(0,0,0,.6) !important}
+  :root[data-theme="dark"] [style*="border-top-color:#0F172A"]{border-top-color:#1F2940 !important}
+  :root[data-theme="dark"] [style*="background:var(--bg-surface)"][style*="box-shadow:var(--sh-pop)"]{border:1px solid var(--border-default) !important}
+  :root[data-theme="dark"] .avatar.c-violet{background:#2A2A55;color:#B9AAFF}
+  :root[data-theme="dark"] .avatar.c-orange{background:#3D2E1E;color:#F4B570}
+  :root[data-theme="dark"] .avatar.c-green {background:#1A3329;color:#6CD89F}
+  :root[data-theme="dark"] .avatar.c-cyan  {background:#163240;color:#7BD4E0}
+  :root[data-theme="dark"] .avatar.c-pink  {background:#3A1F32;color:#F0A7CB}
+  :root[data-theme="dark"] .avatar-group .avatar{box-shadow:0 0 0 2px var(--bg-surface)}
+  :root[data-theme="dark"] .avatar-group .avatar-more{box-shadow:0 0 0 2px var(--bg-surface)}
+  :root[data-theme="dark"] .avatar .pulse{border-color:var(--bg-surface)}
+  :root[data-theme="dark"] .seg .opt.active{background:rgba(255,255,255,.08);color:var(--text-primary);box-shadow:none}
+  :root[data-theme="dark"] .avatar-more{background:var(--bg-subtle);border-color:var(--bg-surface);color:var(--text-secondary)}
+  :root[data-theme="dark"] .check{background:var(--bg-surface)}
+  :root[data-theme="dark"] .radio{background:var(--bg-surface)}
+  :root[data-theme="dark"] .input{background:var(--bg-surface);color:var(--text-primary)}
+  :root[data-theme="dark"] .input::placeholder{color:var(--text-tertiary)}
+  :root[data-theme="dark"] .step .num{background:var(--bg-surface);color:var(--text-secondary)}
+  :root[data-theme="dark"] .step.done .num{background:rgba(79,96,255,.18);border-color:transparent;color:var(--primary-700)}
+  :root[data-theme="dark"] .ramp{border-color:var(--border-default)}
+  :root[data-theme="dark"] .typo-row{border-color:var(--border-default)}
+  :root[data-theme="dark"] pre,
+  :root[data-theme="dark"] code{color:var(--text-primary)}
+  /* ---------- code & diff dark adapt ---------- */
+  :root[data-theme="dark"] .term{color:#E2E8F0;border-color:rgba(255,255,255,.08)}
+  :root[data-theme="dark"] pre{color:var(--text-primary)}
+  :root[data-theme="dark"] .diff-add,
+  :root[data-theme="dark"] [style*="background:#DCFCE7"],
+  :root[data-theme="dark"] [style*="background:#E6F8EC"]{background:rgba(60,200,130,.14) !important;color:var(--text-primary) !important}
+  :root[data-theme="dark"] .diff-del,
+  :root[data-theme="dark"] [style*="background:#FEE2E2"],
+  :root[data-theme="dark"] [style*="background:#FDECEA"]{background:rgba(232,138,133,.14) !important;color:var(--text-primary) !important}
+  :root[data-theme="dark"] .diff-add *,
+  :root[data-theme="dark"] .diff-del *,
+  :root[data-theme="dark"] [style*="background:#E6F8EC"] *{color:inherit !important}
+  :root[data-theme="dark"] [style*="background:#E6F8EC"] [style*="color:#0E8A55"]{color:#6CD89F !important;font-weight:600}
+  /* slider track — bg-subtle 在深色下与 surface 太近，独立提亮 */
+  :root[data-theme="dark"] [style*="height:4px"][style*="background:var(--bg-subtle)"]{background:rgba(255,255,255,.10) !important}
+  /* Code chrome card on dark — invert to dark surface so syntax tokens read */
+  :root[data-theme="dark"] .panel pre,
+  :root[data-theme="dark"] [style*="border-radius:var(--r-md)"][style*="background:var(--bg-subtle)"] pre{
+    color:var(--text-primary);
+  }
+
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- HEAD -->
+  <header class="head">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">Talon Pilot · UI Kit</div>
+        <div class="brand-sub">v1.0 · 设计系统组件库</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="theme-toggle" role="group" aria-label="主题切换">
+        <button id="theme-light" aria-pressed="false" title="亮色">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+        <button id="theme-system" aria-pressed="true" title="跟随系统">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+        </button>
+        <button id="theme-dark" aria-pressed="false" title="暗色">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+      <div><b>14</b>组件</div>
+      <div><b>6</b>状态</div>
+      <div><b>2026.05</b></div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div style="display:flex;gap:8px;margin-bottom:14px"><span class="tag st-prog"><span class="dot" style="background:currentColor"></span>设计 · 进行中</span><span class="tag tag-neutral">Internal</span></div>
+      <h1>让 AI 协作的产品<br/>有一套统一的语言。</h1>
+      <p>这是 Talon Pilot 的视觉与组件规范。所有页面、看板、配置向导都构建在下列 token 与组件之上。该文档随产品迭代持续更新。</p>
+      <div class="tagrow">
+        <button class="btn btn-primary">查看 design.md →</button>
+        <button class="btn btn-secondary">下载 Figma 包</button>
+        <button class="btn btn-ghost">变更日志</button>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="row" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:600;font-size:14px">@talon · 控制总管</div>
+        <span class="tag st-done"><span class="dot" style="background:currentColor"></span>在线</span>
+      </div>
+      <div style="color:var(--text-secondary);font-size:13px">理解你的需求、拆解任务、调度同事。本套组件用于呈现这个过程的每一步。</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-neutral">React</span><span class="tag tag-neutral">Node.js</span><span class="tag tag-neutral">Codex</span><span class="tag tag-neutral">Claude</span><span class="tag tag-neutral">Gemini</span>
+      </div>
+      <div class="progress"><i style="width:62%"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-tertiary);font-family:var(--font-mono)"><span>整体进度</span><span style="font-weight:600;color:var(--primary-600)">62%</span></div>
+    </div>
+  </div>
+
+  <!-- COLORS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">01</div><div class="sec-title">色彩 Tokens</div><div class="sec-desc">中性、主色与状态色</div></div>
+
+    <div class="grid g-4" style="margin-bottom:16px">
+      <div class="swatch"><div class="chip" style="background:var(--bg-app)"></div><div class="name">bg / app</div><div class="hex" data-light="#F6F7F9" data-dark="#0B1220">#F6F7F9</div></div>
+      <div class="swatch"><div class="chip" style="background:var(--bg-surface)"></div><div class="name">bg / surface</div><div class="hex" data-light="#FFFFFF" data-dark="#131A2A">#FFFFFF</div></div>
+      <div class="swatch"><div class="chip" style="background:var(--bg-subtle)"></div><div class="name">bg / subtle</div><div class="hex" data-light="#F1F3F7" data-dark="#1B2438">#F1F3F7</div></div>
+      <div class="swatch"><div class="chip" style="background:var(--bg-inverse)"></div><div class="name">bg / inverse</div><div class="hex" data-light="#0E1116" data-dark="#F1F3F7">#0E1116</div></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px">
+      <div class="panel-title">Primary · Indigo</div>
+      <div class="ramp">
+        <div class="step" style="background:#EEF2FF;color:#3B4DE6"><span class="lbl">50</span><span class="v">#EEF2FF</span></div>
+        <div class="step" style="background:#E0E7FF;color:#3B4DE6"><span class="lbl">100</span><span class="v">#E0E7FF</span></div>
+        <div class="step" style="background:#C7D2FE;color:#2E3DBF"><span class="lbl">200</span><span class="v">#C7D2FE</span></div>
+        <div class="step" style="background:#4F60FF;color:#fff"><span class="lbl">500 · brand</span><span class="v">#4F60FF</span></div>
+        <div class="step" style="background:#3B4DE6;color:#fff"><span class="lbl">600</span><span class="v">#3B4DE6</span></div>
+        <div class="step" style="background:#2E3DBF;color:#fff"><span class="lbl">700</span><span class="v">#2E3DBF</span></div>
+      </div>
+    </div>
+
+    <div class="grid g-5" style="grid-template-columns:repeat(5,1fr)">
+      <div class="panel" style="padding:16px">
+        <div class="tag st-prog" style="margin-bottom:10px"><span class="dot" style="background:currentColor"></span>进行中</div>
+        <div class="hex" style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)">#2E5BFF / #E8EEFF</div>
+      </div>
+      <div class="panel" style="padding:16px">
+        <div class="tag st-wait" style="margin-bottom:10px"><span class="dot" style="background:currentColor"></span>等待验收</div>
+        <div class="hex" style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)">#B26B00 / #FFF1DB</div>
+      </div>
+      <div class="panel" style="padding:16px">
+        <div class="tag st-done" style="margin-bottom:10px"><span class="dot" style="background:currentColor"></span>已完成</div>
+        <div class="hex" style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)">#0E8A55 / #DCF5E8</div>
+      </div>
+      <div class="panel" style="padding:16px">
+        <div class="tag st-block" style="margin-bottom:10px"><span class="dot" style="background:currentColor"></span>阻塞</div>
+        <div class="hex" style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)">#C8322B / #FCE3E1</div>
+      </div>
+      <div class="panel" style="padding:16px">
+        <div class="tag st-idle" style="margin-bottom:10px"><span class="dot" style="background:currentColor"></span>未开始</div>
+        <div class="hex" style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)">#64748B / #EEF1F5</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section>
+    <div class="sec-head"><div class="sec-num">02</div><div class="sec-title">字体</div><div class="sec-desc">Inter · PingFang SC · JetBrains Mono</div></div>
+    <div class="panel" style="padding:8px 24px">
+      <div class="typo-row"><div class="typo-tag">display</div><div style="font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1.2">让 AI 写的代码，真正通过验收。</div><div class="typo-spec">32 / 40 · 600</div></div>
+      <div class="typo-row"><div class="typo-tag">h1</div><div style="font-size:24px;font-weight:600;letter-spacing:-.01em">Todo 应用开发</div><div class="typo-spec">24 / 32 · 600</div></div>
+      <div class="typo-row"><div class="typo-tag">h2</div><div style="font-size:20px;font-weight:600">项目动态</div><div class="typo-spec">20 / 28 · 600</div></div>
+      <div class="typo-row"><div class="typo-tag">h3</div><div style="font-size:16px;font-weight:600">基本信息</div><div class="typo-spec">16 / 24 · 600</div></div>
+      <div class="typo-row"><div class="typo-tag">body</div><div>开发一个现代化的全栈待办应用，包含用户系统、任务管理、团队协作等功能。</div><div class="typo-spec">14 / 22 · 400</div></div>
+      <div class="typo-row"><div class="typo-tag">caption</div><div style="font-size:12px;color:var(--text-tertiary)">更新于 2 小时前 · @talon</div><div class="typo-spec">12 / 18 · 400</div></div>
+      <div class="typo-row"><div class="typo-tag">mono</div><div style="font-family:var(--font-mono);font-size:12px;font-weight:500">tp_9f8a7b6c5d4e3f2g1h0i</div><div class="typo-spec">12 / 18 · 500</div></div>
+    </div>
+  </section>
+
+  <!-- BUTTONS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">03</div><div class="sec-title">按钮 Button</div><div class="sec-desc">primary / secondary / ghost / danger · sm md lg</div></div>
+    <div class="panel">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px">
+        <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>新建任务</button>
+        <button class="btn btn-secondary">取消</button>
+        <button class="btn btn-ghost">查看更多</button>
+        <button class="btn btn-danger">删除节点</button>
+        <button class="btn btn-primary btn-lg">下一步：资源配置 →</button>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px">
+        <button class="btn btn-secondary btn-sm">连接测试</button>
+        <button class="btn btn-secondary btn-sm">编辑</button>
+        <button class="btn btn-primary btn-sm">启用</button>
+        <button class="btn btn-secondary btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+        <button class="btn btn-secondary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>刷新</button>
+      </div>
+      <div class="seg">
+        <div class="opt active"><svg class="ic-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>看板</div>
+        <div class="opt"><svg class="ic-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>列表</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INPUTS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">04</div><div class="sec-title">表单控件</div><div class="sec-desc">输入 / 选择 / 开关 / 单选 / 多选</div></div>
+    <div class="grid g-2">
+      <div class="panel">
+        <div class="grid" style="gap:14px">
+          <div class="field">
+            <label>容器名称</label>
+            <input class="input" value="codex-node-shanghai-01" />
+            <div class="hint">为该节点设置一个易识别的名称</div>
+          </div>
+          <div class="field">
+            <label>搜索</label>
+            <div class="input-wrap">
+              <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input class="input" placeholder="搜索任务..." />
+            </div>
+          </div>
+          <div class="field">
+            <label>API Key</label>
+            <div class="input-wrap">
+              <input class="input" type="password" value="••••••••••••••••" />
+              <svg class="trail" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-weight:500">自动换行</div><div style="font-size:12px;color:var(--text-tertiary)">在代码和日志视图中启用自动换行</div></div><div class="switch on"></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-weight:500">匿名使用数据</div><div style="font-size:12px;color:var(--text-tertiary)">允许我们收集匿名使用数据</div></div><div class="switch"></div></div>
+          <div style="border-top:1px solid var(--border-default);padding-top:14px;display:flex;flex-direction:column;gap:10px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><span class="radio on"></span><span>自动回退 — 首选不可用时使用下一个</span></label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><span class="radio"></span><span>严格遵循优先级</span></label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><span class="radio"></span><span>仅使用首选类型</span></label>
+          </div>
+          <div style="border-top:1px solid var(--border-default);padding-top:14px;display:flex;flex-direction:column;gap:10px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><span class="check on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>后端工程师 Jackson</span></label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><span class="check on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span>测试工程师 Mia</span></label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><span class="check"></span><span>前端工程师 Lina</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAGS, AVATARS, PROGRESS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">05</div><div class="sec-title">标签 · 头像 · 进度</div><div class="sec-desc">原子组件</div></div>
+    <div class="grid g-3">
+      <div class="panel">
+        <div class="panel-title">Tag · 状态</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+          <span class="tag st-prog"><span class="dot" style="background:currentColor"></span>进行中</span>
+          <span class="tag st-wait"><span class="dot" style="background:currentColor"></span>等待验收</span>
+          <span class="tag st-done"><span class="dot" style="background:currentColor"></span>已完成</span>
+          <span class="tag st-block"><span class="dot" style="background:currentColor"></span>阻塞</span>
+          <span class="tag st-idle"><span class="dot" style="background:currentColor"></span>未开始</span>
+        </div>
+        <div class="panel-title" style="margin-top:8px">Tag · 中性</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <span class="tag tag-neutral">全栈</span>
+          <span class="tag tag-neutral">React</span>
+          <span class="tag tag-neutral">Node.js</span>
+          <span class="tag tag-neutral">用户系统</span>
+          <span class="tag tag-neutral">基础设施</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Avatar · 单个</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+          <div class="avatar sm c-violet">A</div>
+          <div class="avatar c-orange">B<span class="pulse"></span></div>
+          <div class="avatar lg c-green">J<span class="pulse"></span></div>
+          <div class="avatar lg c-cyan">M<span class="pulse off"></span></div>
+        </div>
+        <div class="panel-title">Avatar · 群组</div>
+        <div class="avatar-group">
+          <div class="avatar c-violet">A</div>
+          <div class="avatar c-orange">B</div>
+          <div class="avatar c-green">J</div>
+          <div class="avatar-more">+3</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Progress</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>用户认证系统</span><span style="font-family:var(--font-mono);color:var(--primary-600);font-weight:600">72%</span></div>
+            <div class="progress"><i style="width:72%"></i></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>基础架构搭建</span><span style="font-family:var(--font-mono);color:#0E8A55;font-weight:600">100%</span></div>
+            <div class="progress green"><i style="width:100%"></i></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>前端待办列表页面</span><span style="font-family:var(--font-mono);color:#B26B00;font-weight:600">40%</span></div>
+            <div class="progress amber"><i style="width:40%"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABS / STEPPER -->
+  <section>
+    <div class="sec-head"><div class="sec-num">06</div><div class="sec-title">导航控件</div><div class="sec-desc">Tabs · Stepper</div></div>
+    <div class="grid g-2">
+      <div class="panel">
+        <div class="panel-title">Tabs</div>
+        <div class="tabs">
+          <div class="tab">概览</div>
+          <div class="tab active">任务<span class="num">12</span></div>
+          <div class="tab">验收标准<span class="num">8</span></div>
+          <div class="tab">交付物</div>
+          <div class="tab">成员<span class="num">6</span></div>
+          <div class="tab">设置</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Stepper</div>
+        <div class="stepper">
+          <div class="step done"><div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="lbl">基本信息</div><div class="bar"></div></div>
+          <div class="step cur"><div class="num">2</div><div class="lbl">节点配置</div><div class="bar"></div></div>
+          <div class="step"><div class="num">3</div><div class="lbl">资源</div><div class="bar"></div></div>
+          <div class="step"><div class="num">4</div><div class="lbl">完成</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANNERS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">07</div><div class="sec-title">提示 Banner</div><div class="sec-desc">info / success / warn / error</div></div>
+    <div class="grid" style="gap:12px">
+      <div class="banner banner-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <div><b>系统不会绑定具体机器</b>，执行时将从可用的执行节点池中动态分配最合适的节点。</div>
+      </div>
+      <div class="banner banner-success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <div><b>API Key 已加密存储</b>，仅在容器内使用，不会泄露给其他服务。</div>
+      </div>
+      <div class="banner banner-warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div><b>ThinkPad X1 已离线 3 小时</b>。请检查节点连通性，或在节点管理页中重新连接。</div>
+      </div>
+      <div class="banner banner-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <div><b>支付模块重构被阻塞</b>。依赖：第三方支付接口确认中，已阻塞 2 天。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARDS / KANBAN -->
+  <section>
+    <div class="sec-head"><div class="sec-num">08</div><div class="sec-title">卡片与看板</div><div class="sec-desc">Project Card · Kanban</div></div>
+
+    <div class="grid g-3" style="margin-bottom:20px">
+      <div class="pcard active">
+        <div class="top">
+          <div class="icon" style="background:#EEF2FF;color:var(--primary-600)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2zM9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M15 9a1 1 0 100-2 1 1 0 000 2z"/></svg></div>
+          <div style="flex:1;min-width:0">
+            <div class="ttl">Todo 应用开发<span class="tag st-prog">进行中</span></div>
+            <div class="desc">现代化全栈待办应用</div>
+          </div>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="#F59E0B" stroke="#F59E0B"><polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.8 5.8 21 7 14 2 9.3 9 8.5 12 2"/></svg>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--text-tertiary)">进度</span><span style="font-family:var(--font-mono);color:var(--primary-600);font-weight:600">62%</span></div>
+          <div class="progress"><i style="width:62%"></i></div>
+        </div>
+        <div class="foot"><div class="avatar-group"><div class="avatar sm c-violet">A</div><div class="avatar sm c-orange">B</div><div class="avatar sm c-green">J</div></div><span>更新于 2 小时前</span></div>
+      </div>
+
+      <div class="pcard">
+        <div class="top">
+          <div class="icon" style="background:#FFEDD5;color:#C2410C"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg></div>
+          <div style="flex:1;min-width:0">
+            <div class="ttl">数据分析平台<span class="tag st-wait">等待验收</span></div>
+            <div class="desc">企业级数据分析和可视化</div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--text-tertiary)">进度</span><span style="font-family:var(--font-mono);color:#B26B00;font-weight:600">89%</span></div>
+          <div class="progress amber"><i style="width:89%"></i></div>
+        </div>
+        <div class="foot"><div class="avatar-group"><div class="avatar sm c-cyan">M</div><div class="avatar sm c-pink">L</div></div><span>更新于 5 小时前</span></div>
+      </div>
+
+      <div class="pcard">
+        <div class="top">
+          <div class="icon" style="background:#D1FAE5;color:#047857"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div style="flex:1;min-width:0">
+            <div class="ttl">文档协作工具<span class="tag st-done">已完成</span></div>
+            <div class="desc">多人实时协作文档</div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--text-tertiary)">进度</span><span style="font-family:var(--font-mono);color:#0E8A55;font-weight:600">100%</span></div>
+          <div class="progress green"><i style="width:100%"></i></div>
+        </div>
+        <div class="foot"><div class="avatar-group"><div class="avatar sm c-violet">A</div><div class="avatar sm c-green">J</div></div><span>3 天前完成</span></div>
+      </div>
+    </div>
+
+    <!-- KANBAN -->
+    <div class="kanban">
+      <div class="kcol">
+        <div class="kcol-h"><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2E5BFF"></span>进行中<span class="count">4</span></div>
+        <div class="kcard">
+          <div style="display:flex;justify-content:space-between"><span class="num">#1842</span><span class="tag st-block" style="font-size:11px">高</span></div>
+          <div class="title">用户认证系统实现</div>
+          <span class="tag tag-neutral" style="align-self:flex-start">用户系统</span>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div class="avatar sm c-orange" style="border:0">B</div><span style="color:var(--text-secondary)">@backend-dev</span></div>
+          <div class="progress"><i style="width:72%"></i></div>
+          <div class="meta"><span>72%</span><span>更新于 2 小时前</span></div>
+        </div>
+        <div class="kcard">
+          <div style="display:flex;justify-content:space-between"><span class="num">#1843</span><span class="tag st-wait" style="font-size:11px">中</span></div>
+          <div class="title">待办 CRUD 接口开发</div>
+          <span class="tag tag-neutral" style="align-self:flex-start">任务管理</span>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div class="avatar sm c-orange" style="border:0">B</div><span style="color:var(--text-secondary)">@backend-dev</span></div>
+          <div class="progress"><i style="width:65%"></i></div>
+          <div class="meta"><span>65%</span><span>更新于 15 分钟前</span></div>
+        </div>
+      </div>
+
+      <div class="kcol">
+        <div class="kcol-h"><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B"></span>等待验收<span class="count">2</span></div>
+        <div class="kcard">
+          <div style="display:flex;justify-content:space-between"><span class="num">#1839</span><span class="tag st-wait" style="font-size:11px">中</span></div>
+          <div class="title">项目初始化与环境搭建</div>
+          <span class="tag tag-neutral" style="align-self:flex-start">基础设施</span>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div class="avatar sm c-violet" style="border:0">@</div><span style="color:var(--text-secondary)">@talon</span></div>
+          <div class="progress green"><i style="width:100%"></i></div>
+          <div class="meta"><span>100%</span><span>提交于 1 天前</span></div>
+        </div>
+      </div>
+
+      <div class="kcol">
+        <div class="kcol-h"><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981"></span>已完成<span class="count">5</span></div>
+        <div class="kcard">
+          <div style="display:flex;justify-content:space-between"><span class="num">#1837</span><span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="title">PRD 与技术选型</div>
+          <span class="tag tag-neutral" style="align-self:flex-start">文档</span>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div class="avatar sm c-violet" style="border:0">@</div><span style="color:var(--text-secondary)">@talon</span></div>
+          <div class="meta"><span>完成于 6 月 18 日</span><span>100%</span></div>
+        </div>
+        <div class="kcard">
+          <div style="display:flex;justify-content:space-between"><span class="num">#1836</span><span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="title">数据库设计与建表</div>
+          <span class="tag tag-neutral" style="align-self:flex-start">数据</span>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div class="avatar sm c-orange" style="border:0">B</div><span style="color:var(--text-secondary)">@backend-dev</span></div>
+          <div class="meta"><span>完成于 6 月 18 日</span><span>100%</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABLE ROW + TERMINAL -->
+  <section>
+    <div class="sec-head"><div class="sec-num">09</div><div class="sec-title">数据条目 · 终端</div><div class="sec-desc">List Row · Terminal block</div></div>
+    <div class="grid" style="grid-template-columns:1.2fr 1fr;gap:16px">
+      <div class="panel" style="padding:8px 24px">
+        <div class="row">
+          <div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+          <div class="body"><div class="t">MacBook Pro <span class="tag tag-neutral" style="font-size:10px;height:18px">默认</span></div><div class="s">macbook-pro.local · macOS 14.4 · Apple M2 Pro</div></div>
+          <span class="tag st-done"><span class="dot" style="background:currentColor"></span>在线</span>
+          <button class="btn btn-secondary btn-sm">连接测试</button>
+        </div>
+        <div class="row">
+          <div class="ic" style="background:#FFEDD5;color:#C2410C"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+          <div class="body"><div class="t">开发机-Work</div><div class="s">dev-work.local · Windows 11 · i7-12700H</div></div>
+          <span class="tag st-done"><span class="dot" style="background:currentColor"></span>在线</span>
+          <button class="btn btn-secondary btn-sm">连接测试</button>
+        </div>
+        <div class="row">
+          <div class="ic" style="background:#E0E7FF;color:#3B4DE6"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15 11 22 11 16 16 19 22 12 18 5 22 8 16 2 11 9 11 12 2"/></svg></div>
+          <div class="body"><div class="t">ThinkPad X1</div><div class="s">thinkpad-x1.local · Windows 11 · i5-1240P</div></div>
+          <span class="tag st-idle"><span class="dot" style="background:currentColor"></span>离线</span>
+          <button class="btn btn-secondary btn-sm">重连</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="term">
+          <div class="bar"><i></i><i></i><i></i></div>
+          <div class="ln"><span class="nu">1</span><span><span class="k">def</span> hello(name):</span></div>
+          <div class="ln"><span class="nu">2</span><span>&nbsp;&nbsp;&nbsp;message = <span class="k">f</span><span class="s">"Hello, {name}!"</span></span></div>
+          <div class="ln"><span class="nu">3</span><span>&nbsp;&nbsp;&nbsp;<span class="k">return</span> message</span></div>
+          <div class="ln"><span class="nu">4</span><span><span class="c"># entrypoint</span></span></div>
+          <div class="ln"><span class="nu">5</span><span>print(hello(<span class="s">"Talon Pilot"</span>))</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAV / SHELL DEMO -->
+  <section>
+    <div class="sec-head"><div class="sec-num">10</div><div class="sec-title">应用外壳</div><div class="sec-desc">侧栏 · 顶栏 · 工作区</div></div>
+    <div class="nav-demo" style="height:520px">
+      <aside class="sidebar">
+        <div class="nav-brand"><div class="mk"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div><b>Talon Pilot</b></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1z"/></svg>首页</div>
+        <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M8 8h8M8 16h5"/></svg>项目</div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>任务</div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>AI 同事</div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/></svg>执行节点</div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>技能包</div>
+        <div class="nav-section">工作空间</div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg>设置</div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px 8px;border-top:1px solid var(--border-default)">
+          <div class="avatar c-violet">L<span class="pulse"></span></div>
+          <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Leejin8008</div><div style="font-size:11px;color:var(--text-tertiary)">Owner</div></div>
+        </div>
+      </aside>
+      <div class="preview-pane">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">我的项目 / Todo 应用开发</div>
+            <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.01em">任务看板</h2>
+          </div>
+          <div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm">筛选</button><button class="btn btn-primary btn-sm">+ 新建任务</button></div>
+        </div>
+        <div class="grid g-3" style="gap:12px">
+          <div class="kcol" style="padding:10px;min-height:340px">
+            <div class="kcol-h" style="font-size:12px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2E5BFF"></span>进行中<span class="count">2</span></div>
+            <div class="kcard" style="padding:10px;gap:6px"><div class="num" style="font-size:10px">#1842</div><div class="title" style="font-size:12.5px">用户认证系统实现</div><div class="progress"><i style="width:72%"></i></div></div>
+            <div class="kcard" style="padding:10px;gap:6px"><div class="num" style="font-size:10px">#1843</div><div class="title" style="font-size:12.5px">待办 CRUD 接口</div><div class="progress"><i style="width:65%"></i></div></div>
+          </div>
+          <div class="kcol" style="padding:10px;min-height:340px">
+            <div class="kcol-h" style="font-size:12px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B"></span>等待验收<span class="count">1</span></div>
+            <div class="kcard" style="padding:10px;gap:6px"><div class="num" style="font-size:10px">#1839</div><div class="title" style="font-size:12.5px">项目初始化</div><div class="progress green"><i style="width:100%"></i></div></div>
+          </div>
+          <div class="kcol" style="padding:10px;min-height:340px">
+            <div class="kcol-h" style="font-size:12px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>已完成<span class="count">3</span></div>
+            <div class="kcard" style="padding:10px;gap:6px;opacity:.7"><div class="num" style="font-size:10px">#1837</div><div class="title" style="font-size:12.5px">PRD 与技术选型</div></div>
+            <div class="kcard" style="padding:10px;gap:6px;opacity:.7"><div class="num" style="font-size:10px">#1836</div><div class="title" style="font-size:12.5px">数据库设计与建表</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKELETON -->
+  <section>
+    <div class="sec-head"><div class="sec-num">11</div><div class="sec-title">空态 · 加载</div><div class="sec-desc">Empty · Skeleton</div></div>
+    <div class="grid g-2">
+      <div class="panel">
+        <div class="panel-title">Empty</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:32px 0;text-align:center">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--primary-50);display:grid;place-items:center;color:var(--primary-500)">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg>
+          </div>
+          <div><div style="font-weight:600;font-size:15px">还没有任何项目</div><div style="color:var(--text-secondary);font-size:13px;margin-top:4px">创建你的第一个项目，让 AI 同事帮你完成它。</div></div>
+          <button class="btn btn-primary">+ 新建项目</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Skeleton</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;gap:12px;align-items:center"><div class="skel" style="width:36px;height:36px;border-radius:10px"></div><div style="flex:1"><div class="skel" style="height:12px;width:60%;margin-bottom:8px"></div><div class="skel" style="height:10px;width:40%"></div></div></div>
+          <div class="skel" style="height:10px;width:100%"></div>
+          <div class="skel" style="height:10px;width:88%"></div>
+          <div class="skel" style="height:10px;width:72%"></div>
+          <div style="display:flex;gap:10px"><div class="skel" style="height:22px;width:60px;border-radius:6px"></div><div class="skel" style="height:22px;width:80px;border-radius:6px"></div><div class="skel" style="height:22px;width:50px;border-radius:6px"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK DETAIL PATTERNS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">12</div><div class="sec-title">任务详情图谱</div><div class="sec-desc">AI 执行卡 · 聊天气泡 · Diff · 信息表</div></div>
+
+    <div class="grid" style="grid-template-columns:1.6fr 1fr;gap:16px">
+      <!-- Conversation column -->
+      <div class="panel" style="padding:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-default)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn btn-ghost btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <div style="font-weight:600;font-size:15px">任务 #1842 详情</div>
+          </div>
+          <div class="tabs" style="border-bottom:0;gap:18px">
+            <div class="tab">白板</div><div class="tab">终端</div><div class="tab">代码</div><div class="tab">数据库</div><div class="tab">API 调试</div><div class="tab active">聊天</div>
+          </div>
+        </div>
+
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px">
+          <!-- human msg -->
+          <div style="display:flex;gap:12px">
+            <div class="avatar c-orange">B</div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px"><b style="font-weight:600">@backend-dev</b><span style="font-size:12px;color:var(--text-tertiary)">10:16</span></div>
+              <div>开始实现用户模型和数据表迁移，先创建 Prisma schema。</div>
+            </div>
+          </div>
+
+          <!-- AI action card · done -->
+          <div style="display:flex;gap:12px">
+            <div class="avatar" style="background:#E0E7FF;color:#3B4DE6">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+                <div style="display:flex;align-items:baseline;gap:8px"><b style="font-weight:600">@talon</b></div>
+                <span class="tag st-done"><span class="dot" style="background:currentColor"></span>AI 已完成</span>
+              </div>
+              <div class="panel" style="padding:14px 16px;box-shadow:none">
+                <div style="display:flex;align-items:center;gap:8px;font-weight:500;margin-bottom:10px"><span style="width:18px;height:18px;border-radius:50%;background:#DCF5E8;display:grid;place-items:center;color:#0E8A55"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>已创建 Prisma schema</div>
+                <div style="background:var(--bg-subtle);border-radius:var(--r-md);padding:10px 12px;font-size:12.5px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;gap:10px"><span style="color:var(--text-tertiary);min-width:64px">创建文件</span><span style="font-family:var(--font-mono);color:var(--text-primary)">prisma/schema.prisma</span></div>
+                  <div style="display:flex;gap:10px"><span style="color:var(--text-tertiary);min-width:64px">添加</span><span>User、Role、Permission 等模型定义</span></div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-secondary btn-sm">查看变更 →</button></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI action card · running -->
+          <div style="display:flex;gap:12px">
+            <div class="avatar" style="background:#E0E7FF;color:#3B4DE6">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+                <b style="font-weight:600">@talon</b>
+                <span class="tag st-prog"><span class="dot" style="background:currentColor"></span>正在执行</span>
+              </div>
+              <div class="panel" style="padding:14px 16px;box-shadow:none">
+                <div style="font-weight:500;margin-bottom:10px">正在生成并应用迁移脚本…</div>
+                <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text-secondary);margin-bottom:12px">
+                  <div style="display:flex;gap:8px;align-items:center"><span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>生成迁移文件</div>
+                  <div style="display:flex;gap:8px;align-items:center"><span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>应用到数据库 (PostgreSQL)</div>
+                  <div style="display:flex;gap:8px;align-items:center;color:var(--text-tertiary)"><span style="width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border-strong);display:inline-block"></span>验证迁移结果</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px"><div class="progress" style="flex:1"><i style="width:66%"></i></div><div style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary);white-space:nowrap">2/3 步骤完成</div></div>
+                <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-secondary btn-sm">查看详情 →</button></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI · code diff -->
+          <div style="display:flex;gap:12px">
+            <div class="avatar" style="background:#E0E7FF;color:#3B4DE6">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px"><b style="font-weight:600">@talon</b><span style="font-size:12px;color:var(--text-tertiary)">10:22</span></div>
+              <div style="font-size:13px;margin-bottom:8px">关键变更</div>
+              <div style="border:1px solid var(--border-default);border-radius:var(--r-md);overflow:hidden;background:var(--bg-surface)">
+                <div style="padding:8px 12px;background:var(--bg-subtle);font-family:var(--font-mono);font-size:12px;border-bottom:1px solid var(--border-default)">prisma/schema.prisma</div>
+                <pre style="margin:0;font-family:var(--font-mono);font-size:12px;line-height:1.7">
+<span style="display:block;padding:1px 12px"><span style="display:inline-block;width:24px;color:var(--text-tertiary)">45</span>  model User {</span><span style="display:block;padding:1px 12px"><span style="display:inline-block;width:24px;color:var(--text-tertiary)">46</span>    id        String   @id @default(cuid())</span><span style="display:block;padding:1px 12px;background:#E6F8EC"><span style="display:inline-block;width:24px;color:#0E8A55">47</span>  <span style="color:#0E8A55;font-weight:600">+</span> email     String   @unique</span><span style="display:block;padding:1px 12px;background:#E6F8EC"><span style="display:inline-block;width:24px;color:#0E8A55">48</span>  <span style="color:#0E8A55;font-weight:600">+</span> username  String   @unique</span><span style="display:block;padding:1px 12px"><span style="display:inline-block;width:24px;color:var(--text-tertiary)">49</span>    password  String</span></pre>
+                <div style="padding:8px 12px;border-top:1px solid var(--border-default)"><a style="color:var(--primary-600);font-size:12px;font-weight:500">▾ 展开全部 (12 行)</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Composer -->
+        <div style="padding:0 20px 18px">
+          <div style="border:1px solid var(--border-strong);border-radius:var(--r-md);background:var(--bg-surface)">
+            <input class="input" placeholder="给 @talon 发送消息，或输入 / 触发快捷指令" style="border:0;box-shadow:none;height:44px"/>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-top:1px solid var(--border-default)">
+              <div style="display:flex;gap:2px">
+                <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></button>
+                <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8a4 4 0 014 4v4a4 4 0 01-4 4H8a4 4 0 01-4-4V8a4 4 0 014-4h4"/></svg></button>
+                <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
+                <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
+                <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 1 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <button class="btn btn-secondary btn-sm">继续执行<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button class="btn btn-primary btn-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right rail -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:14px">任务信息</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">任务名称</span><span style="font-weight:500">用户认证系统实现</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--text-secondary)">状态</span><span class="tag st-prog"><span class="dot" style="background:currentColor"></span>进行中</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">负责人</span><span style="font-family:var(--font-mono)">@backend-dev</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">开始时间</span><span style="font-family:var(--font-mono)">2024-06-17 10:16</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">预计完成</span><span>预计 3 分钟后完成</span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:14px">AI 执行摘要</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 12px">
+            <div><div style="font-size:11px;color:var(--text-tertiary)">已完成步骤</div><div style="font-family:var(--font-mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px">6/9</div></div>
+            <div><div style="font-size:11px;color:var(--text-tertiary)">自动修复</div><div style="font-family:var(--font-mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px">2 次</div></div>
+            <div><div style="font-size:11px;color:var(--text-tertiary)">耗时</div><div style="font-family:var(--font-mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px">5m 23s</div></div>
+            <div><div style="font-size:11px;color:var(--text-tertiary)">令牌消耗</div><div style="font-family:var(--font-mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px">12,543</div></div>
+          </div>
+          <div style="margin-top:14px;text-align:center"><a style="color:var(--primary-600);font-size:13px;font-weight:500">查看执行详情 →</a></div>
+        </div>
+
+        <div class="panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="panel-title" style="margin:0">相关文件</div>
+            <span class="tag tag-neutral">8</span>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12.5px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-tertiary);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-family:var(--font-mono);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">prisma/schema.prisma</span><span style="color:var(--text-tertiary);font-size:11px">刚刚</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12.5px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-tertiary);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-family:var(--font-mono);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">src/modules/auth/user.service.ts</span><span style="color:var(--text-tertiary);font-size:11px">2 分钟前</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12.5px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-tertiary);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-family:var(--font-mono);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">src/database/migrations/…</span><span style="color:var(--text-tertiary);font-size:11px">3 分钟前</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12.5px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-tertiary);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-family:var(--font-mono);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">…/dto/create-user.dto.ts</span><span style="color:var(--text-tertiary);font-size:11px">5 分钟前</span></div>
+          </div>
+          <div style="margin-top:8px"><a style="color:var(--primary-600);font-size:12.5px;font-weight:500">查看更多文件 →</a></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:12px">快捷操作</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-secondary btn-sm" style="justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>暂停任务</button>
+            <button class="btn btn-secondary btn-sm" style="justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>修改计划</button>
+            <button class="btn btn-secondary btn-sm" style="justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>创建快照</button>
+            <button class="btn btn-secondary btn-sm" style="justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>回滚到快照</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKSPACE SETTINGS PATTERNS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">13</div><div class="sec-title">工作空间设置图谱</div><div class="sec-desc">Hero 统计 · 多条进度 · Persona · Runtime · 健康度</div></div>
+
+    <div class="grid" style="grid-template-columns:1.55fr 1fr;gap:16px">
+      <!-- left content -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-tertiary)"><span>工作空间设置</span><span>/</span><span style="color:var(--text-primary);font-weight:500">基本信息</span></div>
+
+        <!-- hero stat strip -->
+        <div class="panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+            <div>
+              <div style="display:flex;align-items:center;gap:10px"><div style="font-size:22px;font-weight:600;letter-spacing:-.01em">NextCLI 团队空间</div><span class="tag" style="background:var(--primary-50);color:var(--primary-700)">团队空间</span></div>
+              <div style="color:var(--text-secondary);font-size:13px;margin-top:4px">AI 自治软件交付工作空间</div>
+            </div>
+            <div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑信息</button><button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></div>
+          </div>
+          <div style="display:flex;gap:40px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#EEF2FF;color:var(--primary-600);display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg></div><div><div style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">4</div><div style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>执行节点在线</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#EDE9FE;color:#6D28D9;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">12</div><div style="font-size:12px;color:var(--text-tertiary)">AI 同事</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#FFEDD5;color:#C2410C;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/></svg></div><div><div style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">3</div><div style="font-size:12px;color:var(--text-tertiary)">任务运行中</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#DCF5E8;color:#0E8A55;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">98%</div><div style="font-size:12px;color:var(--text-tertiary)">本周自治完成率</div></div></div>
+          </div>
+        </div>
+
+        <!-- 3 info cards -->
+        <div class="grid g-3">
+          <div class="panel">
+            <div style="font-weight:600;font-size:14px;margin-bottom:14px">工作空间信息</div>
+            <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">工作空间 ID</span><span style="font-family:var(--font-mono)">ws_8f3a2c71</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--text-secondary)">Owner</span><span style="display:flex;align-items:center;gap:6px"><div class="avatar sm c-violet" style="border:0">张</div>张伟</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">地区</span><span>中国（华东）</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">配额方案</span><span>专业版（50 成员）</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">创建时间</span><span style="font-family:var(--font-mono)">2024-01-15</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">到期时间</span><span>2025-12-31 (365 天)</span></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-weight:600;font-size:14px">成员与权限</div><a style="color:var(--primary-600);font-size:12.5px;font-weight:500">管理成员</a></div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;align-items:center;gap:10px"><div style="width:24px;height:24px;border-radius:6px;background:#FEF3C7;color:#B45309;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z"/></svg></div><div style="flex:1;font-size:13px;font-weight:500">Owner</div><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)">1 人<div class="avatar sm c-violet" style="border:0">张</div></div></div>
+              <div style="display:flex;align-items:center;gap:10px"><div style="width:24px;height:24px;border-radius:6px;background:#E0E7FF;color:#3B4DE6;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div style="flex:1;font-size:13px;font-weight:500">Admin</div><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)">2 人<div class="avatar-group"><div class="avatar sm c-orange">L</div><div class="avatar sm c-green">W</div></div></div></div>
+              <div style="display:flex;align-items:center;gap:10px"><div style="width:24px;height:24px;border-radius:6px;background:#D1FAE5;color:#047857;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div style="flex:1;font-size:13px;font-weight:500">Builder</div><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)">7 人<div class="avatar-group"><div class="avatar sm c-cyan">M</div><div class="avatar sm c-pink">S</div><div class="avatar sm c-violet">A</div></div><span class="avatar-more" style="height:20px;min-width:20px;font-size:10px">+4</span></div></div>
+              <div style="display:flex;align-items:center;gap:10px"><div style="width:24px;height:24px;border-radius:6px;background:var(--bg-subtle);color:var(--text-secondary);display:grid;place-items:center"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div style="flex:1;font-size:13px;font-weight:500">Viewer</div><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)">18 人<div class="avatar-group"><div class="avatar sm c-orange">B</div><div class="avatar sm c-green">J</div></div><span class="avatar-more" style="height:20px;min-width:20px;font-size:10px">+15</span></div></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-weight:600;font-size:14px">配额使用情况</div><a style="color:var(--primary-600);font-size:12.5px;font-weight:500">查看详情</a></div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>执行节点</span><span style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-secondary)">4 / 10</span></div><div class="progress"><i style="width:40%"></i></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>AI 同事</span><span style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-secondary)">12 / 20</span></div><div class="progress"><i style="width:60%;background:#7C5CFF"></i></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>并发任务</span><span style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-secondary)">3 / 10</span></div><div class="progress amber"><i style="width:30%"></i></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>存储空间</span><span style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-secondary)">238 GB / 1 TB</span></div><div class="progress green"><i style="width:24%"></i></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>每月执行时长</span><span style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-secondary)">1,245 / 5,000 分钟</span></div><div class="progress"><i style="width:25%"></i></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- personas + runtimes -->
+        <div class="grid g-2">
+          <div class="panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-weight:600;font-size:14px">AI 同事班底</div><a style="color:var(--primary-600);font-size:12.5px;font-weight:500">管理班底</a></div>
+            <div style="display:flex;gap:10px;overflow:hidden">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:10px 8px;border:1px solid var(--border-default);border-radius:var(--r-md)">
+                <div style="width:48px;height:56px;border-radius:8px;background:#E0E7FF;display:grid;place-items:center;color:var(--primary-700);font-weight:600">A</div>
+                <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">CEO</div>
+                <div style="font-size:13px;font-weight:600">Alex</div>
+                <div style="font-size:11px;display:flex;align-items:center;gap:4px;color:var(--text-secondary)"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>在线</div>
+                <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">成功率 <b style="color:var(--text-primary);font-weight:600">98%</b></div>
+                <div style="font-size:11px;color:var(--text-tertiary)">活跃任务 <b style="color:var(--text-primary);font-weight:600">2</b></div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:10px 8px;border:1px solid var(--border-default);border-radius:var(--r-md)">
+                <div style="width:48px;height:56px;border-radius:8px;background:#FCE7F3;display:grid;place-items:center;color:#BE185D;font-weight:600">S</div>
+                <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">CTO</div>
+                <div style="font-size:13px;font-weight:600">Sophia</div>
+                <div style="font-size:11px;display:flex;align-items:center;gap:4px;color:var(--text-secondary)"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>在线</div>
+                <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">成功率 <b style="color:var(--text-primary);font-weight:600">97%</b></div>
+                <div style="font-size:11px;color:var(--text-tertiary)">活跃任务 <b style="color:var(--text-primary);font-weight:600">1</b></div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:10px 8px;border:1px solid var(--border-default);border-radius:var(--r-md)">
+                <div style="width:48px;height:56px;border-radius:8px;background:#D1FAE5;display:grid;place-items:center;color:#047857;font-weight:600">E</div>
+                <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">前端工程师</div>
+                <div style="font-size:13px;font-weight:600">Ethan</div>
+                <div style="font-size:11px;display:flex;align-items:center;gap:4px;color:var(--text-secondary)"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>在线</div>
+                <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">成功率 <b style="color:var(--text-primary);font-weight:600">96%</b></div>
+                <div style="font-size:11px;color:var(--text-tertiary)">活跃任务 <b style="color:var(--text-primary);font-weight:600">2</b></div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:10px 8px;border:1px solid var(--border-default);border-radius:var(--r-md)">
+                <div style="width:48px;height:56px;border-radius:8px;background:#FFEDD5;display:grid;place-items:center;color:#C2410C;font-weight:600">J</div>
+                <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">后端工程师</div>
+                <div style="font-size:13px;font-weight:600">Jackson</div>
+                <div style="font-size:11px;display:flex;align-items:center;gap:4px;color:#B26B00"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B"></span>编写中</div>
+                <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">成功率 <b style="color:var(--text-primary);font-weight:600">95%</b></div>
+                <div style="font-size:11px;color:var(--text-tertiary)">活跃任务 <b style="color:var(--text-primary);font-weight:600">1</b></div>
+              </div>
+            </div>
+            <div style="margin-top:12px;text-align:center"><a style="color:var(--primary-600);font-size:13px;font-weight:500">查看全部 AI 同事 (共 12 名) →</a></div>
+          </div>
+
+          <div class="panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-weight:600;font-size:14px">执行节点 (Edge Runtime)</div><a style="color:var(--primary-600);font-size:12.5px;font-weight:500">管理节点</a></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-default)">
+                <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-subtle);display:grid;place-items:center;color:var(--text-secondary)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:500">Mac Studio (本机)</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span><span style="color:#0E8A55">在线</span><span class="tag tag-neutral" style="height:18px;font-size:10px">claude-code</span><span class="tag tag-neutral" style="height:18px;font-size:10px">codex</span></div>
+                </div>
+                <div style="font-size:11px;color:var(--text-tertiary)">Lease: 3</div>
+                <div style="display:flex;flex-direction:column;gap:3px;width:64px">
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary)"><span>CPU</span><span style="font-family:var(--font-mono);color:var(--text-primary)">24%</span></div>
+                  <div class="progress" style="height:3px"><i style="width:24%"></i></div>
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary)"><span>内存</span><span style="font-family:var(--font-mono);color:var(--text-primary)">32%</span></div>
+                  <div class="progress green" style="height:3px"><i style="width:32%"></i></div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-default)">
+                <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-subtle);display:grid;place-items:center;color:var(--text-secondary)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:500">ThinkPad X1</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span><span style="color:#0E8A55">在线</span><span class="tag tag-neutral" style="height:18px;font-size:10px">claude-code</span></div>
+                </div>
+                <div style="font-size:11px;color:var(--text-tertiary)">Lease: 1</div>
+                <div style="display:flex;flex-direction:column;gap:3px;width:64px">
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary)"><span>CPU</span><span style="font-family:var(--font-mono);color:var(--text-primary)">18%</span></div>
+                  <div class="progress" style="height:3px"><i style="width:18%"></i></div>
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary)"><span>内存</span><span style="font-family:var(--font-mono);color:var(--text-primary)">41%</span></div>
+                  <div class="progress green" style="height:3px"><i style="width:41%"></i></div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-default)">
+                <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-subtle);display:grid;place-items:center;color:var(--text-secondary)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="6" rx="1"/><rect x="2" y="14" width="20" height="6" rx="1"/><circle cx="6" cy="7" r="1"/><circle cx="6" cy="17" r="1"/></svg></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:500">Linux Server</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span><span style="color:#0E8A55">在线</span><span class="tag tag-neutral" style="height:18px;font-size:10px">gemini-cli</span></div>
+                </div>
+                <div style="font-size:11px;color:var(--text-tertiary)">Lease: 2</div>
+                <div style="display:flex;flex-direction:column;gap:3px;width:64px">
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary)"><span>CPU</span><span style="font-family:var(--font-mono);color:var(--text-primary)">36%</span></div>
+                  <div class="progress" style="height:3px"><i style="width:36%"></i></div>
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary)"><span>内存</span><span style="font-family:var(--font-mono);color:var(--text-primary)">28%</span></div>
+                  <div class="progress green" style="height:3px"><i style="width:28%"></i></div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;opacity:.65">
+                <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-subtle);display:grid;place-items:center;color:var(--text-secondary)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;font-weight:500">开发机-02</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#94A3B8"></span><span style="color:var(--text-tertiary)">离线</span><span class="tag tag-neutral" style="height:18px;font-size:10px">codex</span></div>
+                </div>
+                <div style="font-size:11px;color:var(--text-tertiary)">离线 2 小时</div>
+                <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary);width:64px;text-align:right">–</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;text-align:center"><a style="color:var(--primary-600);font-size:13px;font-weight:500">查看全部节点 (共 6 台) →</a></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right rail -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="panel" style="display:flex;flex-direction:column;align-items:center">
+          <div style="font-weight:600;font-size:14px;align-self:flex-start;margin-bottom:14px">工作空间健康度</div>
+          <div style="position:relative;width:140px;height:140px;margin:8px 0">
+            <svg viewBox="0 0 120 120" width="140" height="140">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg-subtle)" stroke-width="12"/>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#10B981" stroke-width="12" stroke-linecap="round" stroke-dasharray="289 314" transform="rotate(-90 60 60)"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:11px;color:var(--text-tertiary)">健康评分</div><div style="font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1;margin-top:2px">92</div><div style="font-size:11px;color:#0E8A55;margin-top:4px">优秀</div></div>
+          </div>
+          <div style="width:100%;display:flex;flex-direction:column;gap:10px;margin-top:14px;font-size:12.5px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span><span style="flex:1">执行节点在线率</span><span style="font-family:var(--font-mono);font-weight:600">100%</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span><span style="flex:1">任务自治完成率</span><span style="font-family:var(--font-mono);font-weight:600">98%</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span><span style="flex:1">平均修复次数</span><span style="font-family:var(--font-mono);font-weight:600">1.8 次</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span><span style="flex:1">安全策略合规</span><span style="font-family:var(--font-mono);font-weight:600">100%</span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div style="font-weight:600;font-size:14px;margin-bottom:14px">Runtime 状态</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+            <div style="display:flex;align-items:center;gap:10px"><div style="width:22px;height:22px;border-radius:6px;background:#FEF3C7;display:grid;place-items:center;font-size:11px;color:#B45309;font-weight:700">C</div><span style="flex:1">claude-code</span><span style="display:flex;align-items:center;gap:4px;color:#0E8A55;font-size:12px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>在线</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="width:22px;height:22px;border-radius:6px;background:#E0E7FF;display:grid;place-items:center;font-size:11px;color:#3B4DE6;font-weight:700">X</div><span style="flex:1">codex</span><span style="display:flex;align-items:center;gap:4px;color:#0E8A55;font-size:12px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>在线</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="width:22px;height:22px;border-radius:6px;background:#CFFAFE;display:grid;place-items:center;font-size:11px;color:#0E7490;font-weight:700">G</div><span style="flex:1">gemini-cli</span><span style="display:flex;align-items:center;gap:4px;color:#0E8A55;font-size:12px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>在线</span></div>
+            <div style="display:flex;align-items:center;gap:10px;opacity:.7"><div style="width:22px;height:22px;border-radius:6px;background:var(--bg-subtle);display:grid;place-items:center;font-size:11px;color:var(--text-secondary);font-weight:700">O</div><span style="flex:1">openclaw</span><span style="display:flex;align-items:center;gap:4px;color:var(--text-tertiary);font-size:12px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#94A3B8"></span>离线</span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div style="font-weight:600;font-size:14px;margin-bottom:14px">风险提示</div>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:13px">
+            <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#B26B00;flex-shrink:0;margin-top:2px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span style="flex:1">代码预览沙箱未启用</span><a style="color:var(--primary-600);font-weight:500;font-size:12.5px">去配置 →</a></div>
+            <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#B26B00;flex-shrink:0;margin-top:2px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span style="flex:1">节点「开发机-02」离线</span><a style="color:var(--primary-600);font-weight:500;font-size:12.5px">去查看 →</a></div>
+            <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#B26B00;flex-shrink:0;margin-top:2px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span style="flex:1">某些任务修复上限过高</span><a style="color:var(--primary-600);font-weight:500;font-size:12.5px">去调整 →</a></div>
+          </div>
+          <div style="margin-top:12px;text-align:center"><a style="color:var(--primary-600);font-size:12.5px;font-weight:500">查看全部风险 (3) →</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMON COMPONENTS -->
+  <section>
+    <div class="sec-head"><div class="sec-num">14</div><div class="sec-title">下拉与常用组件</div><div class="sec-desc">Select · Menu · Modal · Drawer · DatePicker · Slider · Pagination · Toast · Tooltip · Upload</div></div>
+
+    <!-- Row 1: Select / multi-select / action menu -->
+    <div class="grid g-3" style="margin-bottom:16px">
+      <!-- Single Select -->
+      <div class="panel">
+        <div class="panel-title">下拉选择 · 单选</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="field">
+            <label>执行节点</label>
+            <div style="position:relative">
+              <button class="input" style="text-align:left;display:flex;align-items:center;justify-content:space-between;background:var(--bg-surface);cursor:pointer;border-color:var(--primary-500);box-shadow:var(--sh-focus)">
+                <span style="display:flex;align-items:center;gap:8px"><span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>Mac Studio (本机)</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-tertiary);transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div style="position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:4px;z-index:5">
+                <div style="position:relative;padding:6px 8px">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text-tertiary)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                  <input class="input" placeholder="搜索节点" style="height:30px;padding-left:32px;font-size:12.5px"/>
+                </div>
+                <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px 4px">在线节点</div>
+                <div style="display:flex;align-items:center;gap:8px;padding:0 10px;height:32px;border-radius:6px;background:var(--primary-50);color:var(--primary-700);font-weight:500;cursor:pointer">
+                  <span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>
+                  <span style="flex:1">Mac Studio (本机)</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:0 10px;height:32px;border-radius:6px;cursor:pointer">
+                  <span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>
+                  <span style="flex:1">ThinkPad X1</span>
+                  <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">Lease 1</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:0 10px;height:32px;border-radius:6px;cursor:pointer">
+                  <span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10B981"></span>
+                  <span style="flex:1">Linux Server</span>
+                  <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">Lease 2</span>
+                </div>
+                <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px 4px">离线</div>
+                <div style="display:flex;align-items:center;gap:8px;padding:0 10px;height:32px;border-radius:6px;color:var(--text-tertiary);cursor:not-allowed">
+                  <span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#94A3B8"></span>
+                  <span style="flex:1">开发机-02</span>
+                </div>
+                <div style="border-top:1px solid var(--border-default);margin-top:4px;padding-top:4px"><div style="display:flex;align-items:center;gap:8px;padding:0 10px;height:32px;border-radius:6px;color:var(--primary-600);font-weight:500;cursor:pointer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>添加新节点</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi Select -->
+      <div class="panel">
+        <div class="panel-title">下拉选择 · 多选</div>
+        <div class="field">
+          <label>分配给 AI 同事</label>
+          <button class="input" style="height:auto;min-height:36px;padding:5px 10px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;cursor:text;text-align:left;background:var(--bg-surface)">
+            <span class="tag" style="background:var(--primary-50);color:var(--primary-700);height:24px;padding:0 6px 0 8px;display:inline-flex;align-items:center;gap:4px">@backend-dev<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+            <span class="tag" style="background:var(--primary-50);color:var(--primary-700);height:24px;padding:0 6px 0 8px;display:inline-flex;align-items:center;gap:4px">@qa-mia<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+            <span style="flex:1;color:var(--text-tertiary);font-size:13px">继续添加…</span>
+          </button>
+        </div>
+        <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:4px;margin-top:10px">
+          <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer"><span class="check on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><div class="avatar sm c-orange" style="border:0">B</div><span>@backend-dev</span><span style="margin-left:auto;font-size:11px;color:var(--text-tertiary)">后端</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer"><span class="check on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><div class="avatar sm c-pink" style="border:0">M</div><span>@qa-mia</span><span style="margin-left:auto;font-size:11px;color:var(--text-tertiary)">QA</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer"><span class="check"></span><div class="avatar sm c-green" style="border:0">E</div><span>@frontend-ethan</span><span style="margin-left:auto;font-size:11px;color:var(--text-tertiary)">前端</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer"><span class="check"></span><div class="avatar sm c-violet" style="border:0">A</div><span>@ceo-alex</span><span style="margin-left:auto;font-size:11px;color:var(--text-tertiary)">协调</span></label>
+        </div>
+      </div>
+
+      <!-- Action Menu -->
+      <div class="panel">
+        <div class="panel-title">下拉菜单 · 操作</div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-secondary btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div>
+        <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:4px;width:220px;margin-left:auto">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary)"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5z"/><polyline points="14 3 14 8 19 8"/></svg><span style="flex:1">复制为模板</span><span style="font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)">⌘D</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary)"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.36.16.68.4.94.71"/></svg><span style="flex:1">设置</span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-tertiary)"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary)"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><span style="flex:1">导出</span></div>
+          <div style="border-top:1px solid var(--border-default);margin:4px 0"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:#C8322B"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span style="flex:1">删除项目</span><span style="font-family:var(--font-mono);font-size:11px;opacity:.6">⌫</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Modal & Drawer -->
+    <div class="grid g-2" style="margin-bottom:16px">
+      <div class="panel" style="background:var(--bg-subtle);position:relative;padding:0;overflow:hidden;height:380px">
+        <div style="position:absolute;inset:0;display:grid;place-items:center">
+          <div style="background:var(--bg-surface);border-radius:var(--r-lg);width:90%;max-width:440px;box-shadow:var(--sh-pop)">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border-default)">
+              <div style="font-size:16px;font-weight:600">删除节点 ThinkPad X1?</div>
+              <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div style="padding:18px 20px;font-size:13px;color:var(--text-secondary)">该节点上有 <b style="color:var(--text-primary)">1 个正在执行</b> 的任务。删除后该任务将被分配到其他节点。<div style="margin-top:12px;padding:10px 12px;border-radius:var(--r-sm);background:var(--st-block-bg);color:var(--st-block-fg);display:flex;gap:8px;align-items:flex-start"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>此操作不可撤销。</span></div></div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border-default)"><button class="btn btn-secondary">取消</button><button class="btn btn-danger">确认删除</button></div>
+          </div>
+        </div>
+        <div style="position:absolute;left:14px;top:14px;font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em">Modal · 确认对话框</div>
+      </div>
+
+      <div class="panel" style="background:var(--bg-subtle);position:relative;padding:0;overflow:hidden;height:380px">
+        <div style="position:absolute;top:0;right:0;bottom:0;width:78%;background:var(--bg-surface);display:flex;flex-direction:column;box-shadow:var(--sh-pop)">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border-default)">
+            <div><div style="font-size:11px;color:var(--text-tertiary)">任务 #1842</div><div style="font-size:15px;font-weight:600;margin-top:2px">用户认证系统实现</div></div>
+            <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>
+          <div style="padding:16px 20px;flex:1;font-size:13px;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">状态</span><span class="tag st-prog"><span class="dot" style="background:currentColor"></span>进行中</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">负责人</span><span style="font-family:var(--font-mono)">@backend-dev</span></div>
+            <div><div style="color:var(--text-secondary);margin-bottom:6px">进度</div><div class="progress"><i style="width:72%"></i></div></div>
+            <div><div style="color:var(--text-secondary);margin-bottom:6px">最近活动</div><div style="background:var(--bg-subtle);border-radius:var(--r-md);padding:10px;font-size:12px">@talon 已完成 Prisma schema · 2 分钟前</div></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border-default)"><button class="btn btn-secondary">关闭</button><button class="btn btn-primary">查看详情</button></div>
+        </div>
+        <div style="position:absolute;left:14px;top:14px;font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em">Drawer · 右侧抽屉</div>
+      </div>
+    </div>
+
+    <!-- Row 3: Date picker, Time, Slider, Stepper number -->
+    <div class="grid g-2" style="margin-bottom:16px">
+      <div class="panel">
+        <div class="panel-title">日期选择</div>
+        <div style="display:flex;gap:18px">
+          <div style="flex:1">
+            <input class="input" value="2026-05-10" readonly />
+          </div>
+          <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:14px;width:280px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <div style="font-weight:600;font-size:13px">2026 年 5 月</div>
+              <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:4px">
+              <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:12px;text-align:center">
+              <div style="height:30px;line-height:30px;color:var(--text-tertiary)">26</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">27</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">28</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">29</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">30</div><div style="height:30px;line-height:30px">1</div><div style="height:30px;line-height:30px">2</div>
+              <div style="height:30px;line-height:30px">3</div><div style="height:30px;line-height:30px">4</div><div style="height:30px;line-height:30px">5</div><div style="height:30px;line-height:30px">6</div><div style="height:30px;line-height:30px">7</div><div style="height:30px;line-height:30px">8</div><div style="height:30px;line-height:30px">9</div>
+              <div style="height:30px;line-height:30px;border-radius:6px;background:var(--primary-500);color:#fff;font-weight:600">10</div><div style="height:30px;line-height:30px;border:1px solid var(--primary-200);border-radius:6px">11</div><div style="height:30px;line-height:30px">12</div><div style="height:30px;line-height:30px">13</div><div style="height:30px;line-height:30px">14</div><div style="height:30px;line-height:30px">15</div><div style="height:30px;line-height:30px">16</div>
+              <div style="height:30px;line-height:30px">17</div><div style="height:30px;line-height:30px">18</div><div style="height:30px;line-height:30px">19</div><div style="height:30px;line-height:30px">20</div><div style="height:30px;line-height:30px">21</div><div style="height:30px;line-height:30px">22</div><div style="height:30px;line-height:30px">23</div>
+              <div style="height:30px;line-height:30px">24</div><div style="height:30px;line-height:30px">25</div><div style="height:30px;line-height:30px">26</div><div style="height:30px;line-height:30px">27</div><div style="height:30px;line-height:30px">28</div><div style="height:30px;line-height:30px">29</div><div style="height:30px;line-height:30px">30</div>
+              <div style="height:30px;line-height:30px">31</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">1</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">2</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">3</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">4</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">5</div><div style="height:30px;line-height:30px;color:var(--text-tertiary)">6</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border-default);margin-top:10px;padding-top:10px"><button class="btn btn-ghost btn-sm">今天</button><button class="btn btn-primary btn-sm">确定</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">滑块 · 数字步进</div>
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>并发任务上限</span><span style="font-family:var(--font-mono);color:var(--primary-600);font-weight:600">6</span></div>
+            <div style="position:relative;height:16px;display:flex;align-items:center"><div style="height:4px;width:100%;background:var(--bg-subtle);border-radius:999px"></div><div style="position:absolute;top:6px;left:0;height:4px;width:60%;background:var(--primary-500);border-radius:999px"></div><div style="position:absolute;left:calc(60% - 8px);top:0;width:16px;height:16px;border-radius:50%;background:var(--bg-surface);border:1.5px solid var(--primary-500);box-shadow:var(--sh-card)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary);margin-top:4px;font-family:var(--font-mono)"><span>0</span><span>5</span><span>10</span></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>区间 · 优先级范围</span><span style="font-family:var(--font-mono);color:var(--primary-600);font-weight:600">2 – 7</span></div>
+            <div style="position:relative;height:16px;display:flex;align-items:center"><div style="height:4px;width:100%;background:var(--bg-subtle);border-radius:999px"></div><div style="position:absolute;top:6px;left:20%;height:4px;width:50%;background:var(--primary-500);border-radius:999px"></div><div style="position:absolute;left:calc(20% - 8px);top:0;width:16px;height:16px;border-radius:50%;background:var(--bg-surface);border:1.5px solid var(--primary-500);box-shadow:var(--sh-card)"></div><div style="position:absolute;left:calc(70% - 8px);top:0;width:16px;height:16px;border-radius:50%;background:var(--bg-surface);border:1.5px solid var(--primary-500);box-shadow:var(--sh-card)"></div></div>
+          </div>
+          <div class="field">
+            <label>失败重试次数</label>
+            <div style="display:flex;align-items:stretch;border:1px solid var(--border-strong);border-radius:var(--r-md);overflow:hidden;width:160px;background:var(--bg-surface)">
+              <button class="btn btn-ghost" style="border-radius:0;width:34px;padding:0;border-right:1px solid var(--border-default)">−</button>
+              <input class="input" value="3" style="border:0;text-align:center;font-family:var(--font-mono);box-shadow:none"/>
+              <button class="btn btn-ghost" style="border-radius:0;width:34px;padding:0;border-left:1px solid var(--border-default)">+</button>
+            </div>
+            <div class="hint">范围 1-10，建议 3 次。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 4: pagination, breadcrumb, tooltip, toast -->
+    <div class="grid g-2" style="margin-bottom:16px">
+      <div class="panel">
+        <div class="panel-title">分页 · 面包屑</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-tertiary);margin-bottom:18px">
+          <span>工作空间</span><span>/</span><span>NextCLI</span><span>/</span><span>项目</span><span>/</span><span style="color:var(--text-primary);font-weight:500">Todo 应用开发</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div style="font-size:12px;color:var(--text-tertiary)">共 <b style="color:var(--text-primary);font-family:var(--font-mono)">128</b> 条 · 第 <span style="font-family:var(--font-mono);color:var(--text-primary)">3</span> / 13 页</div>
+          <nav class="pagination" aria-label="分页">
+            <button class="pg-item" aria-label="上一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <button class="pg-item">1</button>
+            <button class="pg-item">2</button>
+            <button class="pg-item is-active" aria-current="page">3</button>
+            <button class="pg-item">4</button>
+            <button class="pg-item">5</button>
+            <span class="pg-ellipsis" aria-hidden="true">…</span>
+            <button class="pg-item">13</button>
+            <button class="pg-item" aria-label="下一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <button class="pg-size">20 / 页 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+          </nav>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Tooltip · Popover</div>
+        <div style="display:flex;gap:32px;align-items:flex-start;justify-content:center;padding:20px 0;flex-wrap:wrap">
+          <div style="position:relative">
+            <button class="btn btn-secondary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>什么是 Lease?</button>
+            <div style="position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;font-size:12px;padding:6px 10px;border-radius:6px;white-space:nowrap">单节点同时承担的任务数<div style="position:absolute;top:100%;left:50%;transform:translateX(-50%);width:0;height:0;border:5px solid transparent;border-top-color:#0F172A"></div></div>
+          </div>
+          <div style="position:relative">
+            <button class="btn btn-secondary">查看节点资料</button>
+            <div style="position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:14px;width:240px;font-size:12.5px">
+              <div style="font-weight:600;margin-bottom:8px">Mac Studio (本机)</div>
+              <div style="display:flex;justify-content:space-between;color:var(--text-secondary)"><span>OS</span><span style="font-family:var(--font-mono)">macOS 14.4</span></div>
+              <div style="display:flex;justify-content:space-between;color:var(--text-secondary)"><span>CPU</span><span style="font-family:var(--font-mono)">Apple M2 Pro</span></div>
+              <div style="display:flex;justify-content:space-between;color:var(--text-secondary)"><span>状态</span><span style="color:#0E8A55">● 在线</span></div>
+              <div style="margin-top:10px;text-align:right"><a style="color:var(--primary-600);font-weight:500">详情 →</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 5: Toast & Upload -->
+    <div class="grid g-2">
+      <div class="panel">
+        <div class="panel-title">Toast 通知</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:10px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:12px 14px">
+            <span style="color:#0E8A55;flex-shrink:0;margin-top:1px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+            <div style="flex:1"><div style="font-weight:600;font-size:13.5px">迁移已应用</div><div style="font-size:12.5px;color:var(--text-secondary);margin-top:2px">3 张表已创建，影响 12 行。</div></div>
+            <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>
+          <div style="display:flex;gap:10px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:12px 14px">
+            <span style="color:#B26B00;flex-shrink:0;margin-top:1px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+            <div style="flex:1"><div style="font-weight:600;font-size:13.5px">节点连接不稳定</div><div style="font-size:12.5px;color:var(--text-secondary);margin-top:2px">ThinkPad X1 网络延迟较高，已自动切换到 Mac Studio。</div></div>
+          </div>
+          <div style="display:flex;gap:10px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:12px 14px">
+            <span style="color:#C8322B;flex-shrink:0;margin-top:1px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>
+            <div style="flex:1"><div style="font-weight:600;font-size:13.5px">迁移失败</div><div style="font-size:12.5px;color:var(--text-secondary);margin-top:2px">数据库连接超时（5s）。<a style="color:var(--primary-600);font-weight:500">重试</a></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">文件上传</div>
+        <div style="border:1.5px dashed var(--border-strong);border-radius:var(--r-md);padding:24px;text-align:center;background:var(--bg-subtle);margin-bottom:14px">
+          <div style="width:40px;height:40px;border-radius:10px;background:var(--bg-surface);display:inline-grid;place-items:center;color:var(--primary-600);margin-bottom:10px"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+          <div style="font-weight:500;font-size:13.5px">点击或拖入文件到此区域</div>
+          <div style="font-size:12px;color:var(--text-tertiary);margin-top:4px">支持 .json / .yaml / .md，单文件 ≤ 10MB</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border-default);border-radius:var(--r-md);margin-bottom:8px">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--primary-50);color:var(--primary-600);display:grid;place-items:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">acceptance-criteria.md</div><div style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">14 KB · 已完成</div></div>
+          <span style="color:#0E8A55"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+          <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border-default);border-radius:var(--r-md)">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--primary-50);color:var(--primary-600);display:grid;place-items:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;display:flex;justify-content:space-between"><span>workspace-export.json</span><span style="font-family:var(--font-mono);font-size:11px;color:var(--primary-600)">68%</span></div><div class="progress" style="margin-top:6px;height:4px"><i style="width:68%"></i></div></div>
+          <button class="btn btn-ghost btn-icon btn-sm"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 6: Combobox, Accordion, Rating, Badge, UserMenu -->
+    <div class="grid g-3" style="margin-top:16px">
+      <div class="panel">
+        <div class="panel-title">搜索 Combobox</div>
+        <div class="input-wrap" style="margin-bottom:10px">
+          <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input class="input" value="auth" />
+        </div>
+        <div style="border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:4px;background:var(--bg-surface)">
+          <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px 4px">最近</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:var(--bg-subtle);font-size:13px">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-tertiary);flex-shrink:0"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg>
+            用户<b style="color:var(--primary-600)">auth</b>系统实现
+            <span class="tag tag-neutral" style="margin-left:auto;height:18px;font-size:10px">#1842</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px 4px">匹配项</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;font-size:13px">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-tertiary);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span style="font-family:var(--font-mono);font-size:12px">src/modules/<b style="color:var(--primary-600)">auth</b>/user.service.ts</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;font-size:13px">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-tertiary);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span style="font-family:var(--font-mono);font-size:12px">…/<b style="color:var(--primary-600)">auth</b>.dto.ts</span>
+          </div>
+          <div style="border-top:1px solid var(--border-default);margin-top:4px"><div style="display:flex;align-items:center;gap:8px;padding:6px 10px;color:var(--primary-600);font-size:13px;font-weight:500"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新建任务"auth"</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">折叠面板 Accordion</div>
+        <div style="border:1px solid var(--border-default);border-radius:var(--r-md);overflow:hidden;background:var(--bg-surface)">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border-default);display:flex;align-items:center;gap:10px;cursor:pointer">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate(90deg);color:var(--text-secondary)"><polyline points="9 18 15 12 9 6"/></svg>
+            <span style="font-weight:500;font-size:13.5px;flex:1">基本信息</span>
+            <span style="font-size:11px;color:var(--text-tertiary)">5 项</span>
+          </div>
+          <div style="padding:14px;font-size:13px;color:var(--text-secondary);background:var(--bg-app);border-bottom:1px solid var(--border-default)">配置工作空间名称、描述、地区、配额方案等基础属性。</div>
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border-default);display:flex;align-items:center;gap:10px;cursor:pointer">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-secondary)"><polyline points="9 18 15 12 9 6"/></svg>
+            <span style="font-weight:500;font-size:13.5px;flex:1">成员与权限</span>
+            <span style="font-size:11px;color:var(--text-tertiary)">28 人</span>
+          </div>
+          <div style="padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-secondary)"><polyline points="9 18 15 12 9 6"/></svg>
+            <span style="font-weight:500;font-size:13.5px;flex:1">安全与验收</span>
+            <span class="tag st-wait" style="height:18px;font-size:10px">待配置</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">评分 · 徽标 · 用户菜单</div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div>
+            <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:6px">本次执行评分</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="#F59E0B" stroke="#F59E0B"><polygon points="12 2 15 9 22 9.3 17 14 18 21 12 17.8 6 21 7 14 2 9.3 9 9 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="#F59E0B" stroke="#F59E0B"><polygon points="12 2 15 9 22 9.3 17 14 18 21 12 17.8 6 21 7 14 2 9.3 9 9 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="#F59E0B" stroke="#F59E0B"><polygon points="12 2 15 9 22 9.3 17 14 18 21 12 17.8 6 21 7 14 2 9.3 9 9 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="#F59E0B" stroke="#F59E0B"><polygon points="12 2 15 9 22 9.3 17 14 18 21 12 17.8 6 21 7 14 2 9.3 9 9 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#D5D9E0" stroke-width="1.5"><polygon points="12 2 15 9 22 9.3 17 14 18 21 12 17.8 6 21 7 14 2 9.3 9 9 12 2"/></svg>
+              <span style="margin-left:8px;font-size:13px;color:var(--text-secondary)">4.0</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">徽标</div>
+            <div style="display:flex;gap:18px;align-items:center">
+              <div style="position:relative;display:inline-flex"><button class="btn btn-secondary btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button><span style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:#DC2626;color:#fff;border-radius:999px;font-size:10px;font-weight:600;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg-surface)">3</span></div>
+              <div style="position:relative;display:inline-flex"><button class="btn btn-secondary btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button><span style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:#DC2626;color:#fff;border-radius:999px;font-size:10px;font-weight:600;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg-surface)">99+</span></div>
+              <div style="position:relative;display:inline-flex"><button class="btn btn-secondary">收件箱</button><span style="position:absolute;top:-4px;right:-4px;width:8px;height:8px;background:#DC2626;border-radius:999px;border:2px solid var(--bg-surface)"></span></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">用户菜单</div>
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--r-md);box-shadow:var(--sh-pop);padding:4px;width:240px">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border-default)">
+                <div class="avatar c-violet">张<span class="pulse"></span></div>
+                <div style="min-width:0"><div style="font-weight:600;font-size:13px">张伟</div><div style="font-size:11px;color:var(--text-tertiary)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="52283a333c357c25373b123c372a26313e3b7c3b3d">[email&#160;protected]</a></div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-secondary)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span style="flex:1">个人资料</span></div>
+              <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-secondary)"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9 1.65 1.65 0 0 0 4.27 7.18l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 0 1 4 0v.09c0 .67.39 1.27 1 1.51"/></svg><span style="flex:1">设置</span></div>
+              <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-secondary)"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span style="flex:1">帮助中心</span></div>
+              <div style="border-top:1px solid var(--border-default);margin-top:4px;padding-top:4px"><div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;color:#C8322B"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="flex:1">退出登录</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>Talon Pilot · UI Kit · v1.0</div>
+    <div>构建于 design.md · 2026.05</div>
+  </footer>
+
+</div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+(function(){
+  var KEY='tp-theme';
+  var root=document.documentElement;
+  var btns={
+    light:  document.getElementById('theme-light'),
+    system: document.getElementById('theme-system'),
+    dark:   document.getElementById('theme-dark')
+  };
+  function apply(mode){
+    if(mode==='system'){ root.removeAttribute('data-theme'); }
+    else { root.setAttribute('data-theme', mode); }
+    Object.keys(btns).forEach(function(k){
+      btns[k].setAttribute('aria-pressed', String(k===mode));
+    });
+    try{ localStorage.setItem(KEY, mode); }catch(e){}
+  }
+  var saved='system';
+  try{ saved=localStorage.getItem(KEY)||'system'; }catch(e){}
+  apply(saved);
+  Object.keys(btns).forEach(function(k){
+    btns[k].addEventListener('click', function(){ apply(k); });
+  });
+})();
+</script>
+
+<script>
+(function(){
+  function syncSwatchLabels(){
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.querySelectorAll('.swatch .hex[data-light]').forEach(function(el){
+      el.textContent = dark ? el.dataset.dark : el.dataset.light;
+    });
+  }
+  // Run after page is ready, and observe theme attribute changes
+  if (document.readyState !== 'loading') syncSwatchLabels();
+  else document.addEventListener('DOMContentLoaded', syncSwatchLabels);
+  new MutationObserver(syncSwatchLabels).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+})();
+</script>
+</body>
+</html>
