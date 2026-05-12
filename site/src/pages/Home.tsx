@@ -9,7 +9,7 @@ const features = [
   },
   {
     title: 'Density-aware',
-    body: '[data-size="compact" | "normal" | "comfortable"] rescales spacing, type, and control sizes across all 37 components.',
+    body: '[data-size="compact" | "normal" | "comfortable"] rescales spacing, type, and control sizes across every component.',
   },
   {
     title: 'Dark by design',
@@ -43,7 +43,7 @@ export function Home() {
           >
             <Pill tone="info">{LIB_VERSION_TAG} · on npm</Pill>
           </a>
-          <Pill tone="neutral">37 components</Pill>
+          <Pill tone="neutral">70+ components</Pill>
           <Pill tone="ok">MIT</Pill>
         </div>
 
@@ -67,7 +67,7 @@ export function Home() {
             lineHeight: 1.55,
           }}
         >
-          37 components. Three density modes. Light and dark themes. Locale-aware. Shipped with a
+          70+ components. Three density modes. Light and dark themes. Locale-aware. Shipped with a
           single CSS file and zero styling config.
         </p>
 

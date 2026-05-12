@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { RadioGroup, Radio, Pill, Table, Banner } from '@stcn52/cloud-ui'
+import { RadioGroup, Radio, RadioRow, Pill, Table, Banner } from '@stcn52/cloud-ui'
 import { Demo } from '../../components/Demo'
 
 const REGIONS = [
@@ -58,9 +58,9 @@ function DeclarativeDemo() {
   const [value, setValue] = useState('email')
   return (
     <RadioGroup name="notify" value={value} onChange={setValue}>
-      <Radio value="email" label="Email digest" />
-      <Radio value="push" label="Push notifications" />
-      <Radio value="none" label="Don't notify me" />
+      <RadioRow label="Email digest"><Radio value="email" /></RadioRow>
+      <RadioRow label="Push notifications"><Radio value="push" /></RadioRow>
+      <RadioRow label="Don't notify me"><Radio value="none" /></RadioRow>
     </RadioGroup>
   )
 }
@@ -163,16 +163,16 @@ export default function RadioGroupPage() {
 
       <h2>Declarative children</h2>
       <p>
-        Skip the options array and render <code>&lt;Radio&gt;</code>s directly. RadioGroup clones
-        each child, wires the shared <code>name</code>, forwards <code>checked</code>/
-        <code>onChange</code>, and wraps it in a <code>RadioRow</code> when you pass
-        <code> label</code>.
+        Skip the options array and render the radios directly. RadioGroup clones each child,
+        wires the shared <code>name</code>, and forwards <code>checked</code>/<code>onChange</code>.
+        Wrap each <code>&lt;Radio&gt;</code> in a <code>&lt;RadioRow label="…"&gt;</code> for the
+        labelled-row layout (the array form does this for you).
       </p>
       <Demo
         code={`<RadioGroup name="notify" value={value} onChange={setValue}>
-  <Radio value="email" label="Email digest" />
-  <Radio value="push"  label="Push notifications" />
-  <Radio value="none"  label="Don't notify me" />
+  <RadioRow label="Email digest"><Radio value="email" /></RadioRow>
+  <RadioRow label="Push notifications"><Radio value="push" /></RadioRow>
+  <RadioRow label="Don't notify me"><Radio value="none" /></RadioRow>
 </RadioGroup>`}
       >
         <DeclarativeDemo />

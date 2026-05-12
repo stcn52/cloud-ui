@@ -36,7 +36,7 @@ const TIERS = [
 ]
 
 function BasicSelectDemo() {
-  const [value, setValue] = useState('us-east-1')
+  const [value, setValue] = useState<string | undefined>('us-east-1')
   return (
     <div style={{ width: 220 }}>
       <Select
@@ -66,7 +66,7 @@ function SearchableSelectDemo() {
 }
 
 function DisabledOptionDemo() {
-  const [value, setValue] = useState('free')
+  const [value, setValue] = useState<string | undefined>('free')
   return (
     <div style={{ width: 260 }}>
       <Select

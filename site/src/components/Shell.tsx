@@ -254,7 +254,7 @@ function DocSidebar() {
       }
     }
     if (ungrouped.length) groups.push({ label: null, items: ungrouped })
-    const categoryOrder = ['Foundations', 'Primitives', 'Data display', 'Navigation', 'Overlays', 'Advanced']
+    const categoryOrder = ['Foundations', 'Primitives', 'Data display', 'Navigation', 'Overlays', 'Advanced', 'More']
     for (const cat of categoryOrder) {
       const list = byCat.get(cat)
       if (list?.length) groups.push({ label: cat, items: list })
