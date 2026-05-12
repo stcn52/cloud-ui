@@ -6,6 +6,83 @@ All notable changes will be documented here. Format loosely follows
 Story links below point at the live Storybook:
 <https://stcn52.github.io/cloud-ui/storybook/>.
 
+## [1.7.0] — 2026-05-12
+
+Density propagation: every component that has a `size` prop now also follows the
+global `ConfigProvider` density when you don't pass `size` explicitly. No visual
+regression — `md` is the current look, and an explicit `size` prop still always
+wins.
+
+### Added
+
+- **`useResolvedSize(explicitProp, byGlobalMap)`** — the hook behind it. An
+  explicit `size` prop always wins; otherwise the control reads the active
+  `ConfigProvider` density and maps `compact → sm`, `normal → md`,
+  `comfortable → lg` (clamped to `md` for controls that have no `lg`). This
+  release also lands the previously-uncommitted `useResolvedSize` hook itself
+  plus its `index` export — it shipped in the published `dist` but had never been
+  committed to git.
+- **Per-component `<Name>Size` types are now exported** (`CheckboxSize`,
+  `RadioSize`, `SwitchSize`, `TextareaSize`, `SliderSize`, `FileInputSize`,
+  `TagInputSize`, `OtpInputSize`, `BadgeSize`, …).
+
+### Changed
+
+- **Now density-aware:**
+  - Already wired before this release: `Button`, `Input`, `NxTable`.
+  - Had a `size` prop, now also follow `ConfigProvider`: `Spinner`, `Badge`,
+    `Avatar`, `ColorPicker`, `DateChip`, `NumberStepper`, `Pill`, `Rating`,
+    `Segmented`, `ToggleGroup`.
+  - Gained a `size` variant (`sm`/`md`/`lg`, `md` = current look) **and** follow
+    `ConfigProvider`: `Checkbox`, `Radio`, `Switch`, `Textarea`, `Slider`,
+    `FileInput`, `TagInput`, `OtpInput`. `Select` gained an `lg` size.
+- **Unchanged** — content-driven or not density-relevant: `Card`, `Dialog`,
+  `Drawer`, `Popover`, `Tabs`, `Pagination`, the charts (`Donut`, `Gauge`,
+  `Sparkline`, `Progress`), `Divider`, `Kbd`, `Link`.
+
+## [1.6.0] — 2026-05-12
+
+`NxTable` row drag-reorder, `Input` `clearable`, and a batch of `NxTable`
+layout / z-index fixes. No breaking changes.
+
+### Added
+
+- **`NxTable` row drag-reorder** — pass `onRowReorder` and a drag-handle column
+  (`⠿`) is prepended. Works with pointer, keyboard (focus the handle, Space to
+  pick up, arrows to move, Space to drop) and touch; rows animate as you drag and
+  a floating `DragOverlay` clone follows the cursor. Powered by `@dnd-kit`
+  (`@dnd-kit/core` + `sortable` + `modifiers` + `utilities` are now dependencies).
+  The callback receives an **`NxRowReorderEvent`** —
+  `{ orderedIds, movedId, fromIndex, toIndex, beforeId, afterId, movedRow }` — so
+  a backend can persist the move with a single fractional-rank update ("moved
+  between X and Y"); `NxTable` does **not** reorder `data` itself. The handle is
+  disabled while a sort is active or when pagination splits the rows across
+  pages, and `isRowDraggable` can lock individual rows.
+  Stories: [Row reorder](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11-·-tables-nxtable--row-reorder) ·
+  [Row reorder with rank key](https://stcn52.github.io/cloud-ui/storybook/?path=/story/11-·-tables-nxtable--row-reorder-with-rank-key)
+- **`Input` `clearable` prop** — shows a small `×` on the right whenever the
+  field has a value; clicking it empties the input (controlled **and**
+  uncontrolled) and refocuses. `onClear` fires alongside.
+  Story: [Clearable](https://stcn52.github.io/cloud-ui/storybook/?path=/story/02-·-primitives-input--clearable)
+- **More `NxTable` type exports** — `NxSortState`, `NxSortDir`,
+  `NxRowReorderEvent`, `NxCellEditorArgs`, `NxEditable`.
+
+### Fixed
+
+- **`NxTable` header selection checkbox is now left-aligned** (was centered by
+  the default `th` text-align); the select / expander cells use a clean class so
+  there's no text-ellipsis `…` artifact, and the selection column widened
+  36 → 44px so the 14px checkbox fits.
+- **`NxTable` leading sticky columns** (drag / select / expander) bumped to
+  `z-20` so they layer above pinned data columns (`z-10`); the body expander
+  `td` is now genuinely `position: sticky` to match the header (the prior `left`
+  style was a no-op without it).
+- **`NxTable` `columnManager="dialog"`** — the `Transfer` dialog was 420px wide
+  and its panes overflowed; it's now wide enough to fit them, and the
+  "Available · N" count excludes already-shown columns.
+- **`extras.css`** — `::-webkit-scrollbar-corner` is now transparent (was an
+  opaque square where the two scrollbars meet).
+
 ## [1.5.0] — 2026-05-12
 
 New `Transfer` component and a `Transfer`-powered column manager for `NxTable`.
