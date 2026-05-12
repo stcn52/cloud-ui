@@ -6,40 +6,56 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
-import { tv } from 'tailwind-variants'
-import { useLocale } from '../../context/ConfigProvider'
+import { tv, type VariantProps } from 'tailwind-variants'
+import { useLocale, useResolvedSize } from '../../context/ConfigProvider'
 
 const tagInputStyles = tv({
   slots: {
     base: [
       'flex flex-wrap gap-1 items-center',
-      'min-h-[32px] p-1 border border-line rounded-sm bg-bg-elev',
+      'p-1 border border-line rounded-sm bg-bg-elev',
       'focus-within:border-accent focus-within:shadow-[var(--shadow-focus)]',
     ],
     input: [
       'border-0 outline-0 bg-transparent',
-      'flex-1 min-w-[80px] text-sm text-text',
-      'px-1.5 py-0.5 font-[inherit]',
+      'flex-1 min-w-[80px] text-text',
+      'py-0.5 font-[inherit]',
     ],
   },
+  variants: {
+    size: {
+      sm: { base: 'min-h-[28px]', input: 'text-xs px-1' },
+      md: { base: 'min-h-[32px]', input: 'text-sm px-1.5' },
+      lg: { base: 'min-h-[38px]', input: 'text-base px-2' },
+    },
+  },
+  defaultVariants: { size: 'md' },
 })
+
+type TagInputVariants = VariantProps<typeof tagInputStyles>
+export type TagInputSize = NonNullable<TagInputVariants['size']>
 
 const tagStyles = tv({
   base: [
-    'inline-flex items-center gap-1 px-2 py-0.5 pl-2 pr-1',
-    'rounded-xs text-xs font-mono',
+    'inline-flex items-center gap-1 pl-2 pr-1',
+    'rounded-xs font-mono',
     'bg-accent-weak text-accent-ink',
     '[&>button]:border-0 [&>button]:bg-transparent [&>button]:text-inherit',
     '[&>button]:cursor-pointer [&>button]:opacity-60 [&>button]:px-0.5',
     '[&>button:hover]:opacity-100',
   ],
   variants: {
+    size: {
+      sm: 'text-[10px] py-px',
+      md: 'text-xs py-0.5',
+      lg: 'text-sm py-0.5',
+    },
     invalid: {
       true:  'bg-[color-mix(in_oklch,var(--color-err)_18%,transparent)] text-err',
       false: '',
     },
   },
-  defaultVariants: { invalid: false },
+  defaultVariants: { size: 'md', invalid: false },
 })
 
 export interface TagInputProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -50,6 +66,8 @@ export interface TagInputProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onC
   commitKeys?: string[]
   validate?: (tag: string) => string | null
   renderTag?: (tag: string, error: string | null) => ReactNode
+  /** Control size. No explicit value ⇒ follows the global `ConfigProvider` density. */
+  size?: TagInputSize
 }
 
 export function TagInput({
@@ -60,9 +78,11 @@ export function TagInput({
   commitKeys = ['Enter', ','],
   validate,
   renderTag,
+  size: sizeProp,
   className,
   ...rest
 }: TagInputProps) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const locale = useLocale()
   const [uncontrolled, setUncontrolled] = useState<string[]>(defaultValue)
   const [draft, setDraft] = useState('')
@@ -102,7 +122,7 @@ export function TagInput({
     }
   }
 
-  const { base, input: inputCls } = tagInputStyles()
+  const { base, input: inputCls } = tagInputStyles({ size })
 
   return (
     <div
@@ -120,7 +140,7 @@ export function TagInput({
           )
         }
         return (
-          <span key={`${t}-${i}`} className={tagStyles({ invalid: !!err })}>
+          <span key={`${t}-${i}`} className={tagStyles({ size, invalid: !!err })}>
             {t}
             <button
               type="button"

@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 const badgeStyles = tv({
   base: [
@@ -34,6 +35,7 @@ const badgeStyles = tv({
 
 type BadgeVariants = VariantProps<typeof badgeStyles>
 export type BadgeTone = NonNullable<BadgeVariants['tone']>
+export type BadgeSize = NonNullable<BadgeVariants['size']>
 
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
   /** Number to display. Values above `max` render as `max+`. Ignored when `dot` is set. */
@@ -45,7 +47,8 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'child
   /** When true and `count` is 0 (and not `dot`), the badge still renders. Default hides it. */
   showZero?: boolean
   tone?: BadgeTone
-  size?: BadgeVariants['size']
+  /** Badge size. No explicit value ⇒ follows the global `ConfigProvider` density. */
+  size?: BadgeSize
   /**
    * When provided, the badge is positioned at the top-right of `children`
    * (which must be a single positioned-able element — we wrap it in an
@@ -60,11 +63,12 @@ export function Badge({
   dot = false,
   showZero = false,
   tone = 'err',
-  size = 'md',
+  size: sizeProp,
   className,
   children,
   ...rest
 }: BadgeProps) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'md' })
   const hidden = !dot && (count === undefined || (count <= 0 && !showZero))
   const text = dot ? null : count! > max ? `${max}+` : String(count)
 

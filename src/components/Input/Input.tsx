@@ -7,6 +7,7 @@ import {
   type InputHTMLAttributes,
 } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 export const inputStyles = tv({
   base: [
@@ -57,9 +58,11 @@ const clearSize: Record<InputSize, { pad: string; icon: number; right: number }>
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { size = 'md', invalid, mono, num, className, clearable, onClear, value, defaultValue, onChange, disabled, ...rest },
+  { size: sizeProp, invalid, mono, num, className, clearable, onClear, value, defaultValue, onChange, disabled, ...rest },
   ref,
 ) {
+  // No explicit `size` ⇒ follow the global ConfigProvider density (compact→sm, normal→md, comfortable→lg).
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const innerRef = useRef<HTMLInputElement>(null)
   useImperativeHandle(ref, () => innerRef.current as HTMLInputElement, [])
 

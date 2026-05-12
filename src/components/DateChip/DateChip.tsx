@@ -1,5 +1,6 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 /**
  * DateChip — a button-style date trigger. Used in filter bars where we
@@ -62,9 +63,10 @@ const caretIcon = (
 )
 
 export const DateChip = forwardRef<HTMLButtonElement, DateChipProps>(function DateChip(
-  { selected, size, noIcon, noCaret, className, children, ...rest },
+  { selected, size: sizeProp, noIcon, noCaret, className, children, ...rest },
   ref,
 ) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'md' })
   const { base, icon, caret } = dateChipStyles({ selected, size })
   return (
     <button ref={ref} type="button" className={base({ class: className })} {...rest}>

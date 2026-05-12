@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 export const avatarStyles = tv({
   slots: {
@@ -58,7 +59,7 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function Avatar({
-  size = 'md',
+  size: sizeProp,
   shape = 'circle',
   tone = 'azure',
   presence,
@@ -66,6 +67,7 @@ export function Avatar({
   children,
   ...rest
 }: AvatarProps) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const variantTone = tone === 'none' ? undefined : tone
   const { base, presence: presenceCls } = avatarStyles({ size, shape, tone: variantTone })
   return (

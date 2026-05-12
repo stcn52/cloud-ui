@@ -1,5 +1,6 @@
 import type { HTMLAttributes } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 const spinnerStyles = tv({
   base: [
@@ -30,7 +31,8 @@ export interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
   muted?: boolean
 }
 
-export function Spinner({ size, muted, className, ...rest }: SpinnerProps) {
+export function Spinner({ size: sizeProp, muted, className, ...rest }: SpinnerProps) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   return (
     <span
       role="status"

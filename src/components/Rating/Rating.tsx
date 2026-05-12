@@ -1,5 +1,6 @@
 import { type HTMLAttributes } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 const ratingStyles = tv({
   slots: {
@@ -39,12 +40,13 @@ const star = (
 export function Rating({
   value,
   max = 5,
-  size = 'md',
+  size: sizeProp,
   onChange,
   readOnly,
   className,
   ...rest
 }: RatingProps) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const interactive = !!onChange && !readOnly
   const { base, star: starCls, interactive: interactiveCls } = ratingStyles({ size })
   return (

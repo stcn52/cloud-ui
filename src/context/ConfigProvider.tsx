@@ -94,3 +94,24 @@ export function useTheme(): Theme {
 export function useSize(): Size {
   return useContext(ConfigContext).size
 }
+
+/**
+ * Resolve a control's size: an explicit `size` prop always wins; otherwise the
+ * control follows the global `ConfigProvider` density via the supplied mapping.
+ *
+ * This is how `Button` / `Input` / `Select` (and friends) decide their default
+ * size — same idea as `NxTable`'s `density` following `ConfigProvider.size`. A
+ * `compact` provider gives `sm` controls, `comfortable` gives `lg` (clamped to
+ * `md` for controls that don't have an `lg`), `normal` gives `md`.
+ *
+ * @example
+ *   // inside Button:
+ *   const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
+ */
+export function useResolvedSize<S extends string>(
+  explicit: S | undefined,
+  byGlobal: Record<Size, S>,
+): S {
+  const global = useSize()
+  return explicit ?? byGlobal[global]
+}

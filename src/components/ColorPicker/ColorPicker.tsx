@@ -5,6 +5,7 @@ import {
   type ReactNode,
 } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* ColorSwatch — a single color tile                                          */
@@ -143,13 +144,14 @@ export function ColorPicker({
   onChange,
   colors = DEFAULT_PALETTE,
   round,
-  swatchSize = 'md',
+  swatchSize: swatchSizeProp,
   hex,
   check,
   trailing,
   className,
   ...rest
 }: ColorPickerProps) {
+  const swatchSize = useResolvedSize(swatchSizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const { base, list, hexBox, hexSwatch, hexHash, hexInput } = pickerStyles()
   return (
     <div className={base({ class: className })} {...rest}>

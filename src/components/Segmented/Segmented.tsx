@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { tv } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 const segmentedStyles = tv({
   slots: {
@@ -44,10 +45,11 @@ export function Segmented<V extends string = string>({
   options,
   value,
   onChange,
-  size = 'md',
+  size: sizeProp,
   className,
   ...rest
 }: SegmentedProps<V>) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'md' })
   const { base, item, itemOn } = segmentedStyles({ size })
   return (
     <div className={base({ class: className })} role="tablist" {...rest}>

@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 const stepperStyles = tv({
   slots: {
@@ -45,9 +46,10 @@ export interface NumberStepperProps extends Omit<HTMLAttributes<HTMLDivElement>,
 }
 
 export const NumberStepper = forwardRef<HTMLDivElement, NumberStepperProps>(function NumberStepper(
-  { value, onChange, min = 0, max = Infinity, step = 1, size = 'md', disabled, className, ...rest },
+  { value, onChange, min = 0, max = Infinity, step = 1, size: sizeProp, disabled, className, ...rest },
   ref,
 ) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const { base, btn, input } = stepperStyles({ size })
   const dec = () => onChange?.(Math.max(min, value - step))
   const inc = () => onChange?.(Math.min(max, value + step))

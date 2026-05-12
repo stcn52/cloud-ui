@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 /**
  * ToggleGroup — a denser, more chromaless single-select than `Segmented`.
@@ -57,10 +58,11 @@ export function ToggleGroup<V extends string = string>({
   value,
   onChange,
   intent = 'default',
-  size = 'md',
+  size: sizeProp,
   className,
   ...rest
 }: ToggleGroupProps<V>) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'md' })
   const { base, item, itemOn } = toggleGroupStyles({ intent, size })
   return (
     <div className={base({ class: className })} role="tablist" {...rest}>

@@ -9,31 +9,40 @@ import {
   type PointerEvent,
   type ReactNode,
 } from 'react'
-import { tv } from 'tailwind-variants'
+import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 const sliderStyles = tv({
   slots: {
     base: 'relative w-full select-none',
-    track: 'relative h-1 rounded-full bg-bg-sunk',
+    track: 'relative rounded-full bg-bg-sunk',
     fill:  'absolute inset-y-0 left-0 rounded-full bg-accent',
     ticksWrap: 'absolute inset-0 pointer-events-none',
-    tick:  'absolute top-1/2 -translate-y-1/2 w-px h-2 bg-line-strong',
+    tick:  'absolute top-1/2 -translate-y-1/2 w-px bg-line-strong',
     thumb: [
       'absolute top-1/2 -translate-x-1/2 -translate-y-1/2',
-      'w-3.5 h-3.5 rounded-full bg-bg-elev border-2 border-accent',
+      'rounded-full bg-bg-elev border-2 border-accent',
       'shadow-sm cursor-grab active:cursor-grabbing',
       'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
     ],
     marks: 'flex justify-between mt-2 font-mono text-[10.5px] text-text-dim [font-variant-numeric:tabular-nums]',
   },
   variants: {
+    size: {
+      sm: { track: 'h-0.5', tick: 'h-1.5', thumb: 'w-3 h-3' },
+      md: { track: 'h-1', tick: 'h-2', thumb: 'w-3.5 h-3.5' },
+      lg: { track: 'h-1.5', tick: 'h-2.5', thumb: 'w-4 h-4' },
+    },
     disabled: {
       true: { base: 'opacity-50 pointer-events-none' },
       false: {},
     },
   },
-  defaultVariants: { disabled: false },
+  defaultVariants: { size: 'md', disabled: false },
 })
+
+type SliderVariants = VariantProps<typeof sliderStyles>
+export type SliderSize = NonNullable<SliderVariants['size']>
 
 export interface SliderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   /** Current value. number = single thumb, [lo, hi] = range. */
@@ -51,6 +60,8 @@ export interface SliderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onCha
   /** Labels rendered below the track. */
   marks?: ReactNode[]
   disabled?: boolean
+  /** Track / thumb scale. No explicit value ⇒ follows the global `ConfigProvider` density. */
+  size?: SliderSize
   ariaLabel?: string
 }
 
@@ -71,17 +82,19 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
     ticks,
     marks,
     disabled,
+    size: sizeProp,
     ariaLabel,
     className,
     ...rest
   },
   ref,
 ) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const trackRef = useRef<HTMLDivElement>(null)
   const isRange = Array.isArray(value)
   const [lo, hi] = isRange ? (value as [number, number]) : [min, value as number]
   const [dragging, setDragging] = useState<'lo' | 'hi' | 'single' | null>(null)
-  const { base, track, fill, ticksWrap, tick, thumb, marks: marksCls } = sliderStyles({ disabled })
+  const { base, track, fill, ticksWrap, tick, thumb, marks: marksCls } = sliderStyles({ size, disabled })
 
   const pct = (n: number) => ((n - min) / (max - min)) * 100
 

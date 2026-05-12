@@ -9,6 +9,7 @@ import {
   type Ref,
 } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 export const buttonStyles = tv({
   slots: {
@@ -112,7 +113,7 @@ function ButtonInner<C extends ElementType = 'button'>(
   {
     as,
     intent = 'default',
-    size = 'md',
+    size: sizeProp,
     loading = false,
     iconOnly = false,
     fullWidth = false,
@@ -123,6 +124,8 @@ function ButtonInner<C extends ElementType = 'button'>(
   }: ButtonProps<C>,
   ref: ForwardedRef<Element>,
 ) {
+  // No explicit `size` ⇒ follow the global ConfigProvider density (compact→sm, normal→md, comfortable→lg).
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const Component = (as ?? 'button') as ElementType
   const { base, loadingSpinner } = buttonStyles({ intent, size, iconOnly, fullWidth, loading })
 

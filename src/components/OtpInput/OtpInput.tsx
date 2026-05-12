@@ -6,13 +6,14 @@ import {
   type HTMLAttributes,
   type KeyboardEvent,
 } from 'react'
-import { tv } from 'tailwind-variants'
+import { tv, type VariantProps } from 'tailwind-variants'
+import { useResolvedSize } from '../../context/ConfigProvider'
 
 const otpStyles = tv({
   slots: {
     base: 'inline-flex items-center gap-1.5',
     cell: [
-      'w-8 h-9 text-center font-mono text-md',
+      'text-center font-mono',
       'border border-line rounded-sm bg-bg-elev',
       '[font-variant-numeric:tabular-nums]',
       'focus:outline-none focus:border-accent focus:shadow-[var(--shadow-focus)]',
@@ -22,7 +23,18 @@ const otpStyles = tv({
     cellInvalid: 'border-err text-err',
     sep: 'text-text-dim mx-0.5',
   },
+  variants: {
+    size: {
+      sm: { cell: 'w-7 h-8 text-sm' },
+      md: { cell: 'w-8 h-9 text-md' },
+      lg: { cell: 'w-9 h-11 text-lg' },
+    },
+  },
+  defaultVariants: { size: 'md' },
 })
+
+type OtpInputVariants = VariantProps<typeof otpStyles>
+export type OtpInputSize = NonNullable<OtpInputVariants['size']>
 
 export interface OtpInputProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   /** Current value as a string. Length should equal `length`. Pad shorter values with empty positions. */
@@ -38,6 +50,8 @@ export interface OtpInputProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onC
   disabled?: boolean
   autoFocus?: boolean
   inputMode?: 'numeric' | 'text'
+  /** Cell size. No explicit value ⇒ follows the global `ConfigProvider` density. */
+  size?: OtpInputSize
 }
 
 export function OtpInput({
@@ -49,11 +63,13 @@ export function OtpInput({
   disabled,
   autoFocus,
   inputMode = 'numeric',
+  size: sizeProp,
   className,
   ...rest
 }: OtpInputProps) {
+  const size = useResolvedSize(sizeProp, { compact: 'sm', normal: 'md', comfortable: 'lg' })
   const refs = useRef<(HTMLInputElement | null)[]>([])
-  const { base, cell, cellFilled, cellInvalid, sep } = otpStyles()
+  const { base, cell, cellFilled, cellInvalid, sep } = otpStyles({ size })
   const sepChar = typeof separator === 'string' ? separator : '—'
   const showSep = separator !== false && (separator === true || (separator === undefined && length % 2 === 0))
   const splitAt = showSep ? Math.floor(length / 2) : -1

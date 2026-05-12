@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
-import { useLocale } from '../../context/ConfigProvider'
+import { useLocale, useResolvedSize } from '../../context/ConfigProvider'
 
 export const pillStyles = tv({
   slots: {
@@ -54,7 +54,7 @@ export interface PillProps extends HTMLAttributes<HTMLSpanElement> {
 
 export function Pill({
   tone = 'neutral',
-  size = 'md',
+  size: sizeProp,
   mono,
   dot,
   dotColor,
@@ -64,6 +64,7 @@ export function Pill({
   ...rest
 }: PillProps) {
   const locale = useLocale()
+  const size = useResolvedSize(sizeProp, { compact: 'xs', normal: 'md', comfortable: 'lg' })
   const { base, dotc, removeBtn } = pillStyles({ tone, size, mono })
   return (
     <span className={base({ class: className })} {...rest}>

@@ -7,6 +7,7 @@ export {
   useLocale,
   useTheme,
   useSize,
+  useResolvedSize,
   type ConfigProviderProps,
   type ConfigValue,
   type Theme,
